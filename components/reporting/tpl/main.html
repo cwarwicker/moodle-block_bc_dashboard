@@ -1,0 +1,46 @@
+<?php if(!defined('BCDB')) exit; ?>
+
+<?php if (\has_capability('block/bc_dashboard:crud_built_report', $this->context)): ?>
+    <div class="col-lg-6 text-center">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title"><i class="fa fa-bar-chart"></i> <?= $string['buildreport'] ?></h3>
+            </div>
+            <div class="panel-body">
+                <?= $string['buildreport:desc'] ?><br><br>
+                <a href="<?= $CFG->wwwroot ?>/blocks/bc_dashboard/reporting/builder/new" class="btn btn-primary"><?= $string['create'] ?></a>
+            </div>
+        </div>
+    </div>
+<?php endif; ?>
+
+<?php if (\has_capability('block/bc_dashboard:crud_sql_report', $this->context)): ?>
+    <div class="col-lg-6 text-center">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title"><i class="fa fa-database"></i> <?= $string['writesqlreport'] ?></h3>
+            </div>
+            <div class="panel-body">
+                <?= $string['writesqlreport:desc'] ?><br><br>
+                <a href="<?= $CFG->wwwroot ?>/blocks/bc_dashboard/reporting/sql/new" class="btn btn-primary"><?= $string['create'] ?></a>
+                <?php if (has_capability('block/bc_dashboard:import_reports', $this->context)): ?>
+                    <a href="#" class="btn btn-warning" onclick="$('#import_sql').toggle();return false;"><?= $string['import'] ?></a>
+                    <br><br>
+                    <form id='import_sql' style='display:none;' action='<?= $CFG->wwwroot ?>/blocks/bc_dashboard/reporting/sql/new' method='post' enctype="multipart/form-data">
+                        <div class="form-group">
+                            <input type='file' name='file' style='display:inline-block;' />
+                            <input type='submit' class='btn btn-success' value='<?= $string['submit'] ?>' />
+                        </div>
+                    </form>
+                <?php endif; ?>
+            </div>
+        </div>
+    </div>
+<?php endif; ?>
+
+<?php if (!\has_capability('block/bc_dashboard:crud_built_report', $this->context) && !\has_capability('block/bc_dashboard:crud_sql_report', $this->context)): ?>
+    <p><?= $string['nopermissionscrudreports'] ?></p>
+<?php endif; ?>
+
+<br class="clear-both"><br>
+

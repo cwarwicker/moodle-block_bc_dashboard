@@ -1,0 +1,238 @@
+<?php if(!defined('BCDB')) exit; ?>
+
+<?= \bcdb_errors( isset($messages['errors']) ? $messages['errors'] : false ) ?>
+<?= \bcdb_success( isset($messages['success']) ? $messages['success'] : false ) ?>
+
+<form id='report_form' action='' method='post'>
+        
+    <div class="col-lg-12">
+        
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title"><?= $string['details'] ?></h3>
+            </div>
+            <div class="panel-body">
+    
+                <div class="col-lg-6">
+
+                    <div class="form-group">
+                        <label><?= $string['name'] ?></label>
+                        <input class="form-control" name='report_name' value='<?= (isset($report)) ? \bcdb_html($report->getName()) : "" ?>' />
+                    </div>
+
+                    <div class="form-group">
+                        <label><?= $string['description'] ?></label>
+                        <textarea class="form-control" name='report_desc' style='height:120px;'><?= (isset($report)) ? \bcdb_html($report->getDescription()) : "" ?></textarea>
+                    </div>
+
+                </div>
+
+                <div class="col-lg-6">
+
+                    <div class="form-group">
+                        <label><?= $string['coursetype'] ?></label>
+                        <select class="form-control" name="report_options[course_type]">
+                            <option value="parent" <?= (isset($report) && $report->getOption('course_type') == 'parent') ? 'selected' : '' ?> ><?= $string['parentstandard'] ?></option>
+                            <option value="child" <?= (isset($report) && $report->getOption('course_type') == 'child') ? 'selected' : '' ?> ><?= $string['child'] ?></option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label><?= $string['startingpoint'] ?></label>
+                        <select class="form-control" name="report_options[startingpoint]">
+                            <option value=""></option>
+                            <?php if ($courseCats): ?>
+                                <?php foreach($courseCats as $cat): ?>
+                                    <option value="<?= $cat->id ?>" <?= (isset($report) && $report->getStartingPoint() == $cat->id) ? 'selected' : '' ?>  ><?= $cat->displayname ?></option>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label><?= $string['visibility'] ?></label>
+                        <select class="form-control" name='report_options[cat]'>
+                            <optgroup label="<?= $string['private'] ?>">
+                                <option value='private' <?= (isset($report) && is_null($report->getCategory())) ? 'selected' : '' ?> ><?= $string['private'] ?></option>
+                            </optgroup>
+                            <?php if (has_capability('block/bc_dashboard:assign_report_categories', $this->context)): ?>
+                                <optgroup label="<?= $string['public'] ?>">
+                                    <?php if ($reportCats): ?>
+                                        <?php foreach($reportCats as $id => $name): ?>
+                                            <option value='<?= $id ?>' <?= (isset($report) && !is_null($report->getCategory()) && $report->getCategory() == $id) ? 'selected' : '' ?> ><?= \bcdb_html($name) ?></option>
+                                        <?php endforeach; ?>
+                                    <?php endif; ?>
+                                </optgroup>
+                            <?php endif; ?>
+                        </select>
+                    </div>
+
+                </div>
+                
+            </div>
+            
+        </div>
+        
+    </div>
+    
+    <br>
+    
+    <div class="col-lg-12">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title"><?= $string['filters'] ?></h3>
+            </div>
+            <div class="panel-body">
+                
+                <div>
+                    <select id='choose_user_filters' class='selectpicker'>
+                        <option value=''><?= $string['choosefilter'] ?></option>
+                        <optgroup label="<?= get_string('user') ?>">
+                            <?php if ($userFields): ?>
+                                <?php foreach($userFields as $field): ?>
+                                    <option value='<?= $field ?>'><?= $field ?></option>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+                        </optgroup>
+                    </select>
+                    &nbsp;&nbsp;
+                    <button onclick="addFilter( 'user', $('#choose_user_filters').val() );return false;"><?= $string['add'] ?></button>
+                </div>
+                
+                <br>
+                
+                <div>
+                    <h4><?= $string['selectedfilters'] ?></h4>
+                    <table id='selected_filters' class='table table-bordered'>
+                        <thead class='thead-inverse'>
+                            <tr>
+                                <th></th>
+                                <th><?= $string['type'] ?></th>
+                                <th><?= $string['field'] ?></th>
+                                <th><?= $string['comparison'] ?></th>
+                                <th><?= $string['value'] ?></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php if (isset($report) && $report->getFilters()): ?>
+                                <?php foreach($report->getFilters() as $type => $typeFilters): ?>
+                                    <?php foreach($typeFilters as $num => $filter): ?>
+                                        <?php $filter = (array)$filter; ?>
+                                        <tr id='f_row_<?= $num ?>'>
+                                            <td><a href='' onclick='$(this).parent().parent().remove();return false;'><img src='<?= $CFG->wwwroot ?>/blocks/bc_dashboard/pix/remove.png' alt='delete' /></a></td>
+                                            <td><?= $type ?></td>
+                                            <td><?= $filter['field'] ?> <input type='hidden' name='filters[<?= $type ?>][<?= $num ?>][field]' value='<?= $filter['field'] ?>' /></td>
+                                            <td>
+                                                <select name='filters[<?= $type ?>][<?= $num ?>][cmp]' class='form-control'>";
+                                                    <option value='equals' <?= ($filter['cmp'] == 'equals') ? 'selected' : '' ?> >equals ==</option>
+                                                    <option value='notequals'  <?= ($filter['cmp'] == 'notequals') ? 'selected' : '' ?> >not equals !==</option>
+                                                </select>
+                                            </td>
+                                            <td><input type='text' name='filters[<?= $type ?>][<?= $num ?>][val]' value='<?= $filter['val'] ?>' class='form-control' /></td>
+                                        </tr>
+                                        <script>numFilt++;</script>
+                                    <?php endforeach; ?>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+                        </tbody>
+                    </table>
+                </div>
+                
+            </div>
+        </div>        
+    </div>
+    
+        
+    <br>
+    
+    <div class="col-lg-12">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title"><?= $string['elements'] ?></h3>
+            </div>
+            <div class="panel-body">
+                
+                <div>
+                    <?php if ($elements): ?>
+                    <select id='choose_elements' class='selectpicker'>
+                        <option value=''><?= $string['chooseelement'] ?></option>
+                        <?php foreach($elements as $plugin => $els): ?>
+                            <optgroup label="<?= get_string('pluginname', $plugin) ?>">
+                                <?php foreach($els as $key => $el): ?>
+                                    <?php if (is_numeric($key)): ?>
+                                        <option value='<?= $el->getID() ?>'><?= $el->getStringName() ?></option>
+                                    <?php else: ?>
+                                        <?php foreach($el as $subEl): ?>
+                                            <option value='<?= $subEl->getID() ?>'><?= $key ?> // <?= $subEl->getStringName() ?></option>
+                                        <?php endforeach; ?>
+                                    <?php endif; ?>
+                                <?php endforeach; ?>
+                            </optgroup>
+                            <?php endforeach; ?>
+                    </select> 
+                    &nbsp;&nbsp;
+                    <button onclick="addElement( $('#choose_elements').val() );return false;"><?= $string['add'] ?></button>
+                <?php else: ?>
+                    <?= $string['noelements'] ?> 
+                    <?php if (has_capability('block/bc_dashboard:config', $this->context)): ?>
+                        <a href="<?= $CFG->wwwroot ?>/blocks/bc_dashboard/config"><?= $string['scanforelements'] ?></a>
+                    <?php endif; ?>
+                <?php endif; ?>
+                </div>
+                
+                <br>
+                
+                <div>
+                    <h4><?= $string['selectedelements'] ?></h4>
+                    <table id='builder_report_preview' class='table table-bordered'>
+                        <thead class='thead-inverse'>
+                            <tr>
+                                <th></th>
+                                <th><?= $string['name'] ?></th>
+                                <th><?= $string['displayname'] ?></th>
+                                <th><?= $string['options'] ?></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php if (isset($report) && $report->getElements()): ?>
+                                <?php foreach($report->getElements() as $num => $element): ?>
+                                    <tr id='row_<?= $num ?>'>
+                                        <td><a href='' onclick='$(this).parent().parent().remove();return false;'><img src='<?= $CFG->wwwroot ?>/blocks/bc_dashboard/pix/remove.png' alt='delete' /></a></td>
+                                        <td><?= $element->getStringName() ?></td>
+                                        <td><input type='hidden' name='elements[<?= $num ?>][id]' id='element_id_<?= $num ?>' value='<?= $element->getID() ?>' /><input type='text' name='elements[<?= $num ?>][displayname]' value='<?= $element->getDisplayName() ?>' class='form-control form-control-sm' /></td>
+                                        <td class='element_options'>
+                                            <?php if ($element->getOptions()): ?>
+                                                <?php foreach($element->getOptions() as $optNum => $option): ?>
+                                                   <div class='form-group element_option_<?= $num ?>_<?= $optNum ?>'>
+                                                       <label><?= $option[1] ?></label>
+                                                       <?php if ($option[0] == 'select' || $option[0] == 'multiselect'): ?>
+                                                            <select name="<?= ($option[0] == 'multiselect') ? 'elements['.$num.'][options]['.$optNum.'][]' : 'elements['.$num.'][options]['.$optNum.']' ?>" class='selectpicker form-control' rownum='<?= $num ?>' param='<?= $optNum ?>' <?= ($option[0] == 'multiselect') ? 'multiple' : '' ?> onchange='updateElementOptions(this);return false;' >
+                                                                 <?php if ($option[0] == 'select'): ?>
+                                                                     <option value=""></option>
+                                                                 <?php endif; ?>
+                                                                 <?php foreach($option[2] as $val => $disp): ?>
+                                                                    <option value="<?= $val ?>" <?= ( ($option[0] == 'select' && $element->getParam($optNum) == $val) || ($option[0] == 'multiselect' && in_array($val, (array)$element->getParam($optNum))) ) ? 'selected' : '' ?> ><?= $disp ?></option>
+                                                                 <?php endforeach; ?>
+                                                            </select>
+                                                        <?php elseif ($option[0] == 'text'): ?>
+                                                            <input type='text' name='elements[<?= $num ?>][options][<?= $optNum ?>]' class='form-control' rownum='<?= $num ?>' param='<?= $optNum ?>' onblur='updateElementOptions(this);return false;' value="<?= \bcdb_html($element->getParam($optNum)) ?>" />
+                                                        <?php endif; ?>
+                                                   </div>
+                                                <?php endforeach; ?>
+                                            <?php endif; ?>
+                                        </td>
+                                    </tr>
+                                    <script>numEl++;</script>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+                        </tbody>
+                    </table>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+    
+    <input type="hidden" name="report_id" value="<?= (isset($report)) ? $report->getID() : '' ?>" />
+    
+</form>

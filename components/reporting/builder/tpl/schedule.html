@@ -1,0 +1,193 @@
+<?php if(!defined('BCDB')) exit; ?>
+
+<?= \bcdb_errors( isset($messages['errors']) ? $messages['errors'] : false ) ?>
+<?= \bcdb_success( isset($messages['success']) ? $messages['success'] : false ) ?>
+<br style='clear:both;'>
+
+<div class="panel panel-yellow">
+    <div class="panel-heading">
+        <h3 class="panel-title"><?= $string['schedule'] ?></h3>
+    </div>
+    <div class="panel-body">
+        
+        <form action="" method="post" id="schedule_form">
+            
+            <table id="scheduling_table" class='table table-bordered table-hover'>
+
+                <thead>
+                    <tr>
+                        <th><?= get_string('time') ?></th>
+                        <th><?= $string['repetition'] ?></th>
+                        <th><?= $string['sendto'] ?></th>
+                        <th class="bcdb_center"><a href="#" onclick="addNewScheduling();return false;"><img src="<?= $CFG->wwwroot ?>/blocks/bc_dashboard/pix/add.png" alt="add" /></a></th>
+                    </tr>
+                </thead>
+
+                <tbody></tbody>
+
+            </table>
+
+            <input type='hidden' name='submitted' value='1' />
+            
+        </form>
+        
+        
+    </div>
+</div>
+
+
+<script>
+    var num = 0;
+    
+    function addNewScheduling(json){
+                                
+        var output = "";
+                
+        output += "<tr id='schedule_row_"+num+"'>";
+        
+            // Time
+            output += "<td>";
+            
+                output += "<input type='hidden' name='sid["+num+"]' value='"+( (typeof json !== 'undefined' && typeof json.id !== 'undefined') ? json.id : '' )+"' />";
+            
+                output += "<div class='form-group row'>";
+            
+                    // Hours
+                    output += "<div class='col-md-6'>";
+                        output += "<select name='time["+num+"][h]' class='form-control'>";
+                            for (var h = 0; h <= 23; h++)
+                            {
+                                if (h < 10) h = '0' + h;
+                                var sel = (typeof json !== 'undefined' && typeof json.scheduledtime !== 'undefined' && json.scheduledtime.split(":")[0] == h) ? 'selected' : '';
+                                output += "<option value='"+h+"' "+sel+">"+h+"</option>";
+                            }
+                        output += "</select>";
+                    output += "</div>";
+
+                    // Minutes
+                    output += "<div class='col-md-6'>";
+                        output += "<select name='time["+num+"][m]'  class='form-control'>";
+                            for (var m = 0; m <= 59; m++)
+                            {
+                                if (m < 10) m = '0' + m;
+                                var sel = (typeof json !== 'undefined' && typeof json.scheduledtime !== 'undefined' && json.scheduledtime.split(":")[1] == m) ? 'selected' : '';
+                                output += "<option value='"+m+"' "+sel+">"+m+"</option>";
+                            }
+                        output += "</select>";
+                    output += "</div>";
+
+                output += "</div>";
+                
+            output += "</td>";
+            
+            // Repetition
+            output += "<td>";
+            
+                output += "<select name='rep_type["+num+"]' class='form-control' onchange='setRepetitionType("+num+", this.value);return false;'>";
+                    output += "<option value=''></option>";
+                    output += "<option value='day' "+( (typeof json !== 'undefined' && typeof json.repetitiontype !== 'undefined' && json.repetitiontype == 'day') ? 'selected' : '' )+" ><?= $string['daily'] ?></option>";
+                    output += "<option value='week' "+( (typeof json !== 'undefined' && typeof json.repetitiontype !== 'undefined' && json.repetitiontype == 'week') ? 'selected' : '' )+"><?= $string['weekly'] ?></option>";
+                    output += "<option value='month' "+( (typeof json !== 'undefined' && typeof json.repetitiontype !== 'undefined' && json.repetitiontype == 'month') ? 'selected' : '' )+"><?= $string['monthly'] ?></option>";
+                    output += "<option value='date' "+( (typeof json !== 'undefined' && typeof json.repetitiontype !== 'undefined' && json.repetitiontype == 'date') ? 'selected' : '' )+"><?= $string['specificdate'] ?></option>";
+                output += "</select>";
+                
+                output += "<div id='rep_type_"+num+"'></div>";
+                
+            output += "</td>";
+            
+            // Emails
+            output += "<td>";
+                output += "<textarea name='emails["+num+"]' class='form-control' placeholder='<?= $string['separateemailscomma'] ?>'>";      
+                    output += (typeof json !== 'undefined' && typeof json.emailto !== 'undefined') ? json.emailto : '';
+                output += "</textarea>";
+            output += "</td>";
+                        
+            // Delete
+            output += "<td class='bcdb_center'>";
+                output += "<a href='#' onclick='$(\"#schedule_row_"+num+"\").remove();return false;'><img src='<?= $CFG->wwwroot ?>/blocks/bc_dashboard/pix/remove.png' /></a>";
+            output += "</td>";
+        
+        output += "</tr>";
+        
+        $('#scheduling_table').append(output);
+        
+        // If we provided values of an existing task, load the repetition type as well
+        if (typeof json !== 'undefined' && typeof json.repetitiontype !== 'undefined'){
+            setRepetitionType(num, json.repetitiontype, json.repetitionvalues);
+        }
+        
+        num++;
+        
+    }
+    
+    
+    function setRepetitionType(n, type, val){
+        
+        var output = "";
+        
+        if (type == 'week'){
+            
+            var valueArray = (typeof val !== 'undefined' && val !== null) ? val.split(',') : [];
+                        
+            output += "<br>";
+            
+            output += "<table class='table table-bordered bcdb_center'>";
+                output += "<tr>";
+                    output += "<th class='bcdb_center'><?= get_string('mon', 'calendar') ?></th>";
+                    output += "<th class='bcdb_center'><?= get_string('tue', 'calendar') ?></th>";
+                    output += "<th class='bcdb_center'><?= get_string('wed', 'calendar') ?></th>";
+                    output += "<th class='bcdb_center'><?= get_string('thu', 'calendar') ?></th>";
+                    output += "<th class='bcdb_center'><?= get_string('fri', 'calendar') ?></th>";
+                    output += "<th class='bcdb_center'><?= get_string('sat', 'calendar') ?></th>";
+                    output += "<th class='bcdb_center'><?= get_string('sun', 'calendar') ?></th>";
+                output += "</tr>";
+                
+                // Uses the "N" numeric date representation
+                output += "<tr>";
+                    output += "<td><input type='checkbox' name='rep["+n+"][]' value='1' "+( (valueArray.indexOf('1') >= 0) ? 'checked' : '' )+" /></td>";
+                    output += "<td><input type='checkbox' name='rep["+n+"][]' value='2' "+( (valueArray.indexOf('2') >= 0) ? 'checked' : '' )+" /></td>";
+                    output += "<td><input type='checkbox' name='rep["+n+"][]' value='3' "+( (valueArray.indexOf('3') >= 0) ? 'checked' : '' )+" /></td>";
+                    output += "<td><input type='checkbox' name='rep["+n+"][]' value='4' "+( (valueArray.indexOf('4') >= 0) ? 'checked' : '' )+" /></td>";
+                    output += "<td><input type='checkbox' name='rep["+n+"][]' value='5' "+( (valueArray.indexOf('5') >= 0) ? 'checked' : '' )+" /></td>";
+                    output += "<td><input type='checkbox' name='rep["+n+"][]' value='6' "+( (valueArray.indexOf('6') >= 0) ? 'checked' : '' )+" /></td>";
+                    output += "<td><input type='checkbox' name='rep["+n+"][]' value='7' "+( (valueArray.indexOf('7') >= 0) ? 'checked' : '' )+" /></td>";
+                output += "</tr>";
+            output += "</table>";
+            
+        } else if (type == 'month'){
+            
+            var valueArray = (typeof val !== 'undefined' && val !== null) ? val.split(',') : [];
+
+            output += "<br>";
+            output += "<select name='rep["+n+"][]' class='form-control' multiple>";
+                <?php for ($i = 1; $i <= 31; $i++): ?>
+                    output += "<option value='<?= $i ?>' "+( (valueArray.indexOf('<?= $i ?>') >= 0) ? 'selected' : '' )+" ><?= \bcdb_ordinal($i) ?></option>";
+                <?php endfor; ?>
+            output += "</select>";
+            
+        } else if (type == 'date'){
+            
+            output += "<br>";
+            output += "<input type='text' name='rep["+n+"]' class='datepicker form-control' value='"+( (typeof val !== 'undefined' && val !== null) ? val : '' )+"' />";
+            
+        }
+        
+        $('#rep_type_'+n).html(output);
+        
+        // Datepickers
+        $('.datepicker').datepicker({
+            dateFormat: "dd-mm-yy",
+            changeMonth: true,
+            changeYear: true
+        });
+        
+    }
+
+
+    <?php if ($tasks): ?>
+        <?php foreach($tasks as $task): ?>
+            addNewScheduling(<?= $task->toJson() ?>);
+        <?php endforeach; ?>
+    <?php endif; ?>
+    
+</script>

@@ -1,0 +1,171 @@
+<?php if(!defined('BCDB')) exit; ?>
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title><?= $string['dashboard'] ?></title>
+    
+    <script src="<?= $CFG->wwwroot ?>/blocks/bc_dashboard/resources/js/jquery.js"></script>
+    <script src="<?= $CFG->wwwroot ?>/blocks/bc_dashboard/resources/js/jqueryui.js"></script>
+    
+    <script src="<?= $CFG->wwwroot ?>/blocks/bc_dashboard/resources/js/plugins/jquery-ui-datetime/jquery-ui-timepicker-addon.js"></script>
+    <script src="<?= $CFG->wwwroot ?>/blocks/bc_dashboard/resources/js/plugins/jstree/jstree.min.js"></script>
+    <script src="<?= $CFG->wwwroot ?>/blocks/bc_dashboard/resources/js/plugins/codemirror/lib/codemirror.js"></script>
+    <script src="<?= $CFG->wwwroot ?>/blocks/bc_dashboard/resources/js/plugins/codemirror/mode/sql/sql.js"></script>
+    <script src="<?= $CFG->wwwroot ?>/blocks/bc_dashboard/resources/js/plugins/codemirror/addon/edit/matchbrackets.js"></script>
+    <script src="<?= $CFG->wwwroot ?>/blocks/bc_dashboard/resources/js/plugins/codemirror/addon/search/searchcursor.js"></script>
+    <script src="<?= $CFG->wwwroot ?>/blocks/bc_dashboard/resources/js/plugins/codemirror/addon/selection/mark-selection.js"></script>
+    <script src="<?= $CFG->wwwroot ?>/blocks/bc_dashboard/resources/js/plugins/stupidtable/stupidtable.min.js"></script>
+    <script src="<?= $CFG->wwwroot ?>/blocks/bc_dashboard/resources/js/plugins/bootstrap-select/bootstrap-select.min.js"></script>
+    <script src="<?= $CFG->wwwroot ?>/blocks/bc_dashboard/resources/js/plugins/morris/raphael.min.js"></script>
+    <script src="<?= $CFG->wwwroot ?>/blocks/bc_dashboard/resources/js/plugins/morris/morris.min.js"></script>
+    <script src="<?= $CFG->wwwroot ?>/blocks/bc_dashboard/resources/js/plugins/morris/xep.js"></script>
+    <script src="<?= $CFG->wwwroot ?>/blocks/bc_dashboard/resources/js/plugins/datatables/jquery.dataTables.min.js"></script>
+    <script src="<?= $CFG->wwwroot ?>/blocks/bc_dashboard/resources/js/plugins/datatables/dataTables.bootstrap.min.js"></script>
+    
+    <?php if ($bcdb['elbp']): ?>
+        <script src="<?= $CFG->wwwroot ?>/blocks/elbp/js/scripts.php" type="text/javascript"></script>
+    <?php endif; ?>
+
+    <style>
+        @base-url: "<?= $CFG->wwwroot ?>/blocks/bc_dashboard";
+    </style>
+
+    <!-- Bootstrap Core CSS -->
+    <link href="<?= $CFG->wwwroot ?>/blocks/bc_dashboard/resources/css/bootstrap.css" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <link href="<?= $CFG->wwwroot ?>/blocks/bc_dashboard/resources/css/sb-admin.css" rel="stylesheet">
+
+    <!-- Custom Fonts -->
+    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+    
+    <link rel="stylesheet" href="<?= $CFG->wwwroot ?>/blocks/bc_dashboard/resources/css/jqueryui.css" />
+    
+    <link rel="stylesheet" href="<?= $CFG->wwwroot ?>/blocks/bc_dashboard/resources/js/plugins/jstree/themes/default/style.min.css" />
+    <link rel="stylesheet" href="<?= $CFG->wwwroot ?>/blocks/bc_dashboard/resources/js/plugins/jquery-ui-datetime/jquery-ui-timepicker-addon.css" />
+    <link rel="stylesheet" href="<?= $CFG->wwwroot ?>/blocks/bc_dashboard/resources/js/plugins/bootstrap-select/bootstrap-select.min.css" />
+    <link rel="stylesheet" href="<?= $CFG->wwwroot ?>/blocks/bc_dashboard/resources/js/plugins/morris/morris.css" />
+    <link rel="stylesheet" href="<?= $CFG->wwwroot ?>/blocks/bc_dashboard/resources/js/plugins/datatables/dataTables.bootstrap.min.css" />
+    <link rel=stylesheet href="<?= $CFG->wwwroot ?>/blocks/bc_dashboard/resources/js/plugins/codemirror/lib/codemirror.css">
+    <link rel=stylesheet href="<?= $CFG->wwwroot ?>/blocks/bc_dashboard/resources/js/plugins/codemirror/theme/neat.css">
+    
+
+    <script>
+        var www = '<?= $CFG->wwwroot ?>';
+        var str = <?= json_encode($string) ?>;
+        var elbp = <?= (block_instance('elbp')) ? true : false; ?>;
+    </script>
+    <script src="<?= $CFG->wwwroot ?>/blocks/bc_dashboard/scripts.js"></script>
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+</head>
+
+<body>
+        
+    <div id="wrapper">
+
+        <!-- Navigation -->
+        <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+            <!-- Brand and toggle get grouped for better mobile display -->
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                    <span class="sr-only"><?= $string['togglenav'] ?></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand navbar-sitename" href="<?= $CFG->wwwroot ?>"><?= $siteName ?></a>
+                <?php if (has_capability('block/bc_dashboard:view_bc_dashboard', $this->context)): ?>
+                    <a class="navbar-brand <?= ($this->getController()->getComponent() == 'index') ? 'active' : '' ?>" href="<?= $CFG->wwwroot ?>/blocks/bc_dashboard/"><?= $string['dashboard'] ?></a>
+                <?php endif; ?>
+                <?php if (has_capability('block/bc_dashboard:view_reports', $this->context)): ?>
+                    <a class="navbar-brand <?= ($this->getController()->getComponent() == 'reporting') ? 'active' : '' ?>" href="<?= $CFG->wwwroot ?>/blocks/bc_dashboard/reporting"><?= $string['reporting'] ?></a>
+                <?php endif; ?>
+                <?php if ( has_capability('block/bc_dashboard:config', $this->context) ): ?>
+                    <a class="navbar-brand <?= ($this->getController()->getComponent() == 'config') ? 'active' : '' ?>" href="<?= $CFG->wwwroot ?>/blocks/bc_dashboard/config"><?= $string['configuration'] ?></a>
+                <?php endif; ?>
+            </div>
+            <!-- Top Menu Items -->
+            <ul class="nav navbar-right top-nav">
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown"><?= $OUTPUT->user_picture($USER, array("courseid"=>SITEID, "size"=>20, "class" => "avatar", "link" => false)); ?> &nbsp;<?= fullname($USER) ?> <b class="caret"></b></a>
+                    <ul class="dropdown-menu">
+                        <li>
+                            <a href="<?= $CFG->wwwroot ?>/user/profile.php?id=<?= $USER->id ?>"><i class="fa fa-fw fa-user"></i> <?= $string['profile'] ?></a>
+                        </li>
+                        <li class="divider"></li>
+                        <li>
+                            <a href="<?= $CFG->wwwroot ?>/login/logout.php?sesskey=<?= $USER->sesskey ?>"><i class="fa fa-fw fa-power-off"></i> <?= $string['logout'] ?></a>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+            
+            
+            <div class="clear navbar-sub">
+                &nbsp;
+                
+                <?php if ( isset($subNavigation)  ): ?>
+                    <?php foreach($subNavigation as $subNav): ?>
+                        <a href="<?= $subNav['url'] ?>" <?php if (isset($subNav['form'])): ?> onclick="$('#<?= $subNav['form'] ?>').submit();return false;" <?php elseif( isset($subNav['js']) ): ?> onclick="<?= $subNav['js'] ?>" <?php endif; ?> class="test"><i class='fa fa-<?= $subNav['icon'] ?>'></i><br><small><?= $subNav['title'] ?></small></a>
+                    <?php endforeach; ?>
+                <?php endif; ?>
+                
+            </div>
+
+			
+            <!-- Sidebar Menu Items - These collapse to the responsive navigation menu on small screens -->
+            <div class="collapse navbar-collapse navbar-ex1-collapse">
+                <?php if (isset($sideNavigation)): ?>
+                    <?= \bcdb_create_side_nav($sideNavigation) ?>
+                <?php endif; ?>
+            </div>
+            <!-- /.navbar-collapse -->
+        </nav>
+		
+
+        <div id="page-wrapper">
+
+            <div class="container-fluid">
+
+                <!-- Page Heading -->
+                <?php if ($this->Controller->getAction() != '404'): ?>
+                <div class="row">
+                    <div class="col-lg-12">
+                        <h1 class="page-header"><?= $pageTitle ?></h1>
+                        <ol class="breadcrumb">
+                            <li>
+                                <a href="<?= $CFG->wwwroot ?>/blocks/bc_dashboard"><?= $string['pluginname'] ?></a>
+                            </li>
+                            <?php if ($this->getBreadcrumbs()): ?>
+                                <?php foreach($this->getBreadcrumbs() as $crumb): ?>
+                                    <li class="active">
+                                        <?php if (isset($crumb['url'])): ?>
+                                            <a href='<?= $crumb['url'] ?>'><?= $crumb['title'] ?></a>
+                                        <?php else: ?>
+                                            <?= $crumb['title'] ?>
+                                        <?php endif; ?>
+                                    </li>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+                        </ol>                        
+                    </div>
+                </div>
+                <!-- Page Heading -->
+                <?php endif; ?>
+                
+                <!-- Page Content -->                             

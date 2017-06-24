@@ -1,0 +1,6 @@
+<?php if(!defined('BCDB')) exit; ?>
+
+<?= \bcdb_errors( isset($messages['errors']) ? $messages['errors'] : false ) ?>
+<?= \bcdb_success( isset($messages['success']) ? $messages['success'] : false ) ?>
+
+<p><a href="<?= $CFG->wwwroot ?>/blocks/bc_dashboard/reporting"><?= $string['returndashboard'] ?></a></p>

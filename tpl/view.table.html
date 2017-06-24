@@ -1,0 +1,87 @@
+<?php if(!defined('BCDB')) exit; ?>
+
+<form id='mass_action_form' action='' method='post'>
+
+    <table id='student_list' class='table table-bordered table-hover table-striped'>
+
+        <thead>
+            <tr>
+                <th data-orderable="false"><input type='checkbox' id='chkall'  /></th>
+                <th data-orderable="false"></th>
+                <th><?= $string['name'] ?></th>
+
+                <?php if ($bcdb['elbp']): ?>
+                    <?= $this->getStudentHeaders_Attendance() ?>
+                    <?= $this->getStudentHeaders_Tutorials() ?>
+                    <?= $this->getStudentHeaders_Comments() ?>
+                <?php endif; ?>
+
+                <?php if ($bcdb['gradetracker']): ?>
+                    <?= $this->getStudentHeaders_TargetGrade() ?>
+                    <?= $this->getStudentHeaders_AspirationalGrade() ?>
+                <?php endif; ?>
+
+            </tr>
+        </thead>
+
+        <tbody>
+            <?php if ($students): ?>
+                <?php foreach($students as $student): ?>
+                    <tr>
+                        <td>
+                            <input type='checkbox' class='stud_checkbox' value='<?= $student->id ?>' />
+                        </td>
+                        <td>
+                            <?= $OUTPUT->user_picture($student, array("size"=>30)); ?>
+                        </td>
+                        <td>
+                            <?php if ($bcdb['elbp']): ?>
+                                <a href="<?= $CFG->wwwroot ?>/blocks/elbp/view.php?id=<?= $student->id ?>" target="_blank"><?= \fullname($student) ?></a>
+                            <?php else: ?>
+                                <?= \fullname($student) ?>
+                            <?php endif; ?>
+                        </td>
+
+                        <?php if ($bcdb['elbp']): ?>
+                            <?= $this->getStudentCells_Attendance($student->id) ?>
+                            <?= $this->getStudentCells_Tutorials($student->id) ?>
+                            <?= $this->getStudentCells_Comments($student->id) ?>
+                        <?php endif; ?>
+
+                        <?php if ($bcdb['gradetracker']): ?>
+                            <?= $this->getStudentCells_TargetGrade($student->id) ?>
+                            <?= $this->getStudentCells_AspirationalGrade($student->id) ?>
+                        <?php endif; ?>
+
+                        
+                    </tr>
+                <?php endforeach; ?>
+            <?php endif; ?>
+        </tbody>
+
+    </table>
+
+    <div id='mass_action'>
+        <div class='col-lg-3'>
+            <select id='student_action' name='mass_action' class='form-control'>
+
+                <option value=''><?= $string['selectaction'] ?></option>
+
+                <?php if ($bcdb['elbp'] && ( $type == 'mentees' || $type == 'additionalsupport') ): ?>
+                    <option value='remove'><?= $string['removestudents'] ?></option>
+                <?php endif; ?>
+
+                <option value='message'><?= $string['sendmessage'] ?></option>
+
+                <?php if ($massActions): ?>
+                    <?php foreach($massActions as $val => $text): ?>
+                        <option value='<?= $val ?>'><?= $text ?></option>
+                    <?php endforeach; ?>
+                <?php endif; ?>
+
+            </select>
+        </div>
+
+    </div>
+
+</form>

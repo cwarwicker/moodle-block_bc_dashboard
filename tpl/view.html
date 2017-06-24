@@ -1,0 +1,38 @@
+<?php if(!defined('BCDB')) exit; ?>
+
+<?= \bcdb_errors( isset($messages['errors']) ? $messages['errors'] : false ) ?>
+<?= \bcdb_success( isset($messages['success']) ? $messages['success'] : false ) ?>
+<?php if (isset($messages['general']) && !empty($messages['general'])) echo '<div>'.$messages['general'].'</div>'; ?>
+
+
+<div>
+    <h4><i class="fa fa-users"></i> <?= $string['mystudents'] ?> (<?= ucfirst($type) ?>)</h4>
+    <?php include $CFG->dirroot . '/blocks/bc_dashboard/tpl/view.table.html'; ?>
+</div>
+    
+
+<!-- Add Mentees / AddSupp -->
+<?php if ($bcdb['elbp'] && ( $type == 'mentees' || $type == 'additionalsupport') ): ?>
+
+<br><br>
+<hr>
+
+<div>
+    
+    <form action='' method='post'>
+        <h4><i class="fa fa-user-plus"></i> <?= $string['addstudents'] ?> (<?= ucfirst($type) ?>)</h4>
+        <p><?= sprintf($string['addstudents:desc'], $type) ?></p>
+        <?php $EL = new \ELBP\ELBPFormElement(); ?>
+        <?php $EL->setType("User Picker")->setName("findstudent"); ?>
+        <?= $EL->convertToFormElement() ?>
+        <div>
+            <br>
+            <input class='btn btn-primary btn-lg' type="submit" name="submit_assign" value="<?= $string['assign'] ?>" />    
+        </div>
+    </form>
+    
+</div>
+
+<?php endif; ?>
+
+

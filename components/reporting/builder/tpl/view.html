@@ -1,0 +1,104 @@
+<?php if(!defined('BCDB')) exit; ?>
+
+<div class="panel panel-primary">
+    <div class="panel-heading">
+        <h3 class="panel-title"><?= $report->getCategoryName() ?> / <?= strtoupper($report->getName()) ?></h3>
+    </div>
+    <div class="panel-body">
+        
+        <div class='col-lg-6'>
+            <strong><?= $string['description'] ?></strong><br>
+            <div><?= \bcdb_html($report->getDescription()) ?></div>
+            <br>
+            <strong><?= $string['elements'] ?></strong><br>
+            <div><?= implode(", ", $report->getElementNames()) ?></div>
+        </div>
+        
+        <div class='col-lg-6'>
+            
+            <strong><?= $string['options'] ?></strong><br>
+            <div><?= $string['startingpoint'] ?>: <em><?= $report->getStartingPointName() ?></em></div>
+            <br>
+            
+            <table class='report-details'>
+                
+                <tr>
+                    <td><?= $string['created'] ?></td>
+                    <td><?= \fullname($report->getCreatedBy()) ?>, <?= $report->getCreatedDate('D jS M Y, H:i') ?></td>
+                </tr>
+                
+                <tr>
+                    <td><?= $string['lastrun'] ?></td>
+                    <td><?= ($lastRun = $report->getLastRun()) ? \fullname($lastRun['by']) . ', ' . \date('D jS M Y, H:i', $lastRun['time']) : '-' ?></td>
+                </tr>
+                
+            </table>
+            
+        </div>
+        
+    </div>
+</div>
+
+
+<div class='col-lg-12'>
+    <div class="panel panel-yellow">
+        <div class="panel-heading">
+            <h3 class="panel-title"><?= $string['schedule'] ?></h3>
+        </div>
+        <div class="panel-body">
+            <table class='table'>
+                <tr>
+                    <th></th>
+                    <th colspan='2'><?= $string['task'] ?></th>
+                    <th><?= $string['lastruntime'] ?></th>
+                    <th><?= $string['nextruntime'] ?></th>
+                    <th><?= $string['sendto'] ?></th>
+                    <th><?= $string['scheduledby'] ?></th>
+                </tr>
+                <?php if ($tasks): ?>
+                    <?php foreach($tasks as $task): ?>
+                        <tr>
+                            <td>#<?= $task->getID() ?></td>
+                            <td><?= \bcdb_html($task->getScheduledTime()) ?></td>
+                            <td><?= $task->repetitionToString() ?></td>
+                            <td>
+                                <?php if ($task->getLastRunUnix() && file_exists($CFG->dataroot . '/BCDB/scheduled_tasks/'.$task->getID().'.xlsx')): ?>
+                                    <a href="<?= $CFG->wwwroot ?>/blocks/bc_dashboard/download.php?code=<?= \bcdb_create_download_code('scheduled_tasks/'.$task->getID().'.xlsx') ?>"><?= $task->getLastRun('D d M Y, H:i') ?></a>
+                                <?php else: ?>
+                                    <?= $task->getLastRun('D d M Y, H:i') ?>
+                                <?php endif; ?>
+                            </td>
+                            <td><?= $task->getNextRun('D d M Y, H:i') ?></td>
+                            <td><?= \bcdb_html($task->getEmailTo()) ?></td>
+                            <td><?= $task->getCreatedByName() ?></td>
+                        </tr>
+                    <?php endforeach; ?>
+                <?php endif; ?>
+            </table>
+        </div>
+    </div>
+</div>
+
+
+<div class='col-lg-12'>
+    <div class="panel panel-green">
+        <div class="panel-heading">
+            <h3 class="panel-title"><?= $string['logs'] ?></h3>
+        </div>
+        <div class="panel-body">
+            <?php if ($logs): ?>
+                <table class='report_logs'>
+                    <?php foreach($logs as $log): ?>
+                        <tr>
+                            <td><?= date('d-m-Y, H:i:s', $log->timestamp) ?></td>
+                            <td><?= (is_object($log->user)) ? fullname($log->user) : $log->user ?></td>
+                            <td><?= $log->action ?> <?= (strlen($log->log)) ? " ({$log->log})" : ""; ?></td>
+                        </tr>
+                    <?php endforeach; ?>
+                </table>
+            <?php endif; ?>
+        </div>
+    </div>
+</div>
+
+<br class='clear-both' />

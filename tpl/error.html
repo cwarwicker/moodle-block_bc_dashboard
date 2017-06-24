@@ -1,0 +1,44 @@
+<?php if(!defined('BCDB')) exit; ?>
+
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="">
+        <meta name="author" content="">
+
+        <!-- Bootstrap Core CSS -->
+        <link href="<?= $CFG->wwwroot ?>/blocks/bc_dashboard/resources/css/bootstrap.css" rel="stylesheet">
+
+        <!-- Custom CSS -->
+        <link href="<?= $CFG->wwwroot ?>/blocks/bc_dashboard/resources/css/sb-admin.css" rel="stylesheet">
+
+        <title><?= $string['dashboard'] ?></title>
+
+    </head>
+
+    <body>
+        
+        <div id="page-wrapper">
+
+            <div id="fof" class="clear">
+
+                <div class="hgroup clear">
+                    <h1><?= get_string('error') ?></h1>
+                    <h2><span><?= $msg ?></span></h2>
+                    <p><small><?= $trace ?></small></p>
+                </div>
+                <br class='clear-both'>
+                <p><a href="<?= $CFG->wwwroot ?>/blocks/bc_dashboard"><?= $string['returndashboard'] ?></a></p>
+
+            </div>
+
+        </div>
+
+    </body>
+
+</html>

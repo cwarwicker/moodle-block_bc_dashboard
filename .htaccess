@@ -1,0 +1,11 @@
+Options +FollowSymLinks
+Options -Indexes
+
+RewriteEngine On
+
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+
+RewriteRule ^(.*)$ index.php?Qs=$1 [PT,L]
+
+AddType application/x-httpd-php .php .html .htm

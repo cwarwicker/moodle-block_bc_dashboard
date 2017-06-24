@@ -1,0 +1,256 @@
+<?php if(!defined('BCDB')) exit; ?>
+
+<?= \bcdb_errors( isset($messages['errors']) ? $messages['errors'] : false ) ?>
+<?= \bcdb_success( isset($messages['success']) ? $messages['success'] : false ) ?>
+
+<form id='config_form' action='' method='post'>
+    
+    
+    <div class="col-lg-12">
+        
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title"><i class="fa fa-puzzle-piece"></i> <?= $string['reportelements'] ?></h3>
+            </div>
+            <div class="panel-body">
+                <button class='btn btn-primary' onclick='scanForElements();return false;'><i class='fa fa-refresh'></i> <?= $string['scan'] ?></button>
+                <img id="scan_loading" style='display:none;' src="<?= $CFG->wwwroot ?>/blocks/bc_dashboard/pix/loader.gif" />
+                <br><br>
+                <table id='table_of_elements' class='table table-bordered'>
+                    <thead>
+                    <tr>
+                        <th><?= $string['element'] ?></th>
+                        <th><?= $string['plugin'] ?></th>
+                        <th><?= $string['enabledisable'] ?></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                        <?php if ($allElements): ?>
+                            <?php foreach($allElements as $plugin => $elements): ?>
+                                <?php foreach($elements as $key => $element): ?>
+                                    <?php if (is_numeric($key)): ?>
+                                        <tr>
+                                            <td><?= $element->getStringName() ?></td>
+                                            <td><?= $element->getPlugin() ?></td>
+                                            <td><input type='checkbox' name='elements_enabled[<?= $element->getID() ?>]' <?= ($element->isEnabled()) ? 'checked' : ''; ?> /></td>
+                                        </tr>
+                                    <?php else: ?>
+                                        <?php foreach($element as $subKey => $sub): ?>
+                                            <tr>
+                                                <td><?= $sub->getStringName() ?></td>
+                                                <td><?= $sub->getPlugin() ?> // <?= $key ?></td>
+                                                <td><input type='checkbox' name='elements_enabled[<?= $sub->getID() ?>]' <?= ($sub->isEnabled()) ? 'checked' : ''; ?> /></td>
+                                            </tr>
+                                        <?php endforeach; ?>
+                                    <?php endif; ?>
+                                <?php endforeach; ?>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+    </div>
+    
+    <div class="col-lg-12">
+
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title"><i class="fa fa-tasks"></i> <?= $string['reportcats'] ?></h3>
+            </div>
+            <div class="panel-body">
+                
+                <div class='col-lg-12'>
+                    <button class='btn btn-success' onclick='jstreeBtn.create();return false;'><i class='fa fa-plus'></i> <?= $string['create'] ?></button>
+                    <button class='btn btn-warning' onclick='jstreeBtn.rename();return false;'><i class='fa fa-pencil'></i> <?= $string['rename'] ?></button>
+                    <button class='btn btn-danger' onclick='jstreeBtn.delete();return false;'><i class='fa fa-remove'></i> <?= $string['delete'] ?></button>
+                </div>
+                
+                <br><br>
+                
+                <div id="report-cats" class="demo">
+                    <?= $reportCats['items'] ?>
+                </div>
+                
+            </div>
+        </div>    
+    </div>
+
+    <?= $reportCats['inputs'] ?>
+    <input type='hidden' name='submit_config' value='1' />
+    
+    <br><br>
+    
+    <div class="col-lg-12">
+        
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title"><i class="fa fa-university"></i> <?= $string['reportcoursecats'] ?></h3>
+            </div>
+            <div class="panel-body">
+                <select id="course_cats" name="course_cats[]" class="form-control" multiple>
+                    <?php foreach($allCourseCats as $id => $name): ?>
+                        <option value="<?= $id ?>" <?= (in_array($id, $courseCats)) ? 'selected' : '' ?> ><?= $name ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+        </div>
+        
+    </div>
+    
+</form>
+
+<script>
+var o1, o2;
+$('#report-cats').jstree({
+    core: {
+        "animation": 200,
+        "themes": {"stripes":true},
+        "check_callback" : true
+    },
+    "types" : {
+        "default" : {
+            "icon" : "fa fa-folder-open"
+        },
+        "new": {
+            "icon": "fa fa-asterisk"
+        },
+        "report" : {
+            "icon" : "fa fa-bar-chart"
+        }
+      },
+    "plugins": ["contextmenu", "dnd", "search", "state", "types", "wholerow"],
+    "contextmenu": {
+        "items": function($node){
+            var tree = $('#report-cats').jstree(true);
+            return {
+                "Create": {
+                    "label": str['create'],
+                    "action": function(obj){
+                        var newNode = tree.create_node(tree.get_node(obj.reference), {"type": "new"});
+                        jstreeBtn._createBindings(tree, newNode);
+                    }
+                },
+                "Rename": {
+                    "label": str['rename'],
+                    "action": function(obj){
+                        tree.edit($node);
+                    }
+                },
+                "Delete": {
+                    "label": str['delete'],
+                    "action": function(obj){
+                        tree.delete_node($node);
+                    }
+                }
+            };
+        }
+    }
+}).on('rename_node.jstree', function(node, ref){
+
+    // Find hidden input for the name and change the value
+    var rID = $('#'+ref.node.id).attr('reportid');
+    if (rID === undefined){
+        rID = ref.node.id;
+    }
+
+    $('#rnm_'+rID).val(ref.text);
+
+}).on('delete_node.jstree', function(node, ref){
+
+    var li = $('#'+ref.node.id);
+    var rID = $(li).attr('reportid');
+    if (rID === undefined){
+        rID = ref.node.id;
+    }
+
+    // Delete inputs
+    $('#rid_'+rID).remove();
+    $('#rnm_'+rID).remove();
+    $('#rpar_'+rID).remove();
+    
+    // Delete all children as well
+    $('.'+rID).remove();
+
+});
+
+
+var jstreeBtn = {};
+
+jstreeBtn._createBindings = function(tree, newNode){
+    
+    tree.edit(newNode, null, function(node, status){
+
+        o1 = node;
+
+        var pID = '';
+        var pClass = '';
+            
+        // Get the reportid of the parent node
+        if (node.parent !== undefined && node.parent !== false && node.parent !== '#'){
+            var pID = $('#'+node.parent).attr('reportid');
+            if ( $('#rid_'+node.parent).length > 0 ){
+                pClass = $('#rid_'+node.parent).attr('class');
+            }
+        } 
+
+        // Set id of li
+        node.li_attr.reportid = node.id;
+        
+        // And class of link to be blue
+        node.a_attr.class = 'jstree-new';
+        $('#'+node.id+' a').addClass('jstree-new');
+
+        // Create hidden inputs
+        $('#config_form').append("<input type='hidden' id='rid_"+node.id+"' class='"+pID+" "+pClass+"' name='report_cat["+node.id+"][id]' value='' />");
+        $('#config_form').append("<input type='hidden' id='rnm_"+node.id+"' class='"+pID+" "+pClass+"' name='report_cat["+node.id+"][name]' value='"+node.text+"' />");
+        $('#config_form').append("<input type='hidden' id='rpar_"+node.id+"' class='"+pID+" "+pClass+"' name='report_cat["+node.id+"][parent]' value='"+pID+"' />");
+
+
+    });
+    
+};
+
+jstreeBtn.create = function(){
+
+    var ref = $('#report-cats').jstree(true), sel = ref.get_selected();
+
+    if (sel.length){
+        sel = sel[0];
+    } else {
+        sel = null;
+    }
+
+    sel = ref.create_node(sel, {"type": "new"});
+    if(sel) {
+        jstreeBtn._createBindings(ref, sel);
+    }
+
+};
+
+
+jstreeBtn.rename = function(){
+    
+    var ref = $('#report-cats').jstree(true), sel = ref.get_selected();
+    
+    if(!sel.length) { return false; }
+    
+    sel = sel[0];
+        
+    ref.edit(sel);
+    
+};
+
+
+jstreeBtn.delete = function(){
+    
+    var ref = $('#report-cats').jstree(true), sel = ref.get_selected();
+    
+    if(!sel.length) { return false; }
+    
+    ref.delete_node(sel);
+    
+};
+
+</script>
