@@ -12,6 +12,7 @@ Features
 
 Requirements
 ------------
+- PHP 5.6 or higher
 - Moodle 3.1 or higher
 
 Installation
