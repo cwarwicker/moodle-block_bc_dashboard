@@ -17,7 +17,10 @@ Requirements
 
 Installation
 ------------
-Just install the plugin in the /blocks directory and run through the normal plugin installation procedure, then you can add the block to a course page.
+- Download the zip file, using the green "Clone or download" button
+- Extract the files 
+- Rename the folder inside "moodle-block_bc_dashboard-master" to "block_bc_dashboard" to remove the github branch name
+- Place the "block_bc_dashboard" folder inside the /blocks directory of your Moodle site and run through the normal plugin installation procedure, then you can add the block to a course page.
 
 Licence
 ------------
