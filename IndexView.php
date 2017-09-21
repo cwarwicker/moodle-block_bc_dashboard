@@ -262,26 +262,36 @@ class IndexView extends \BCDB\View {
      */
     public function getStudentCells_Comments($studentID){
         
+        $return = '';
         $plugin = $this->vars['ELBP']->getPlugin("Comments");
-        $plugin->loadStudent($studentID);
         
-        $userComments = $plugin->getUserComments();
-        
-        $total = count($userComments);
-        $unresolved = 0;
-
-        if ($userComments)
+        if ($plugin)
         {
-            foreach($userComments as $cmt)
+            
+            $plugin->loadStudent($studentID);
+
+            $userComments = $plugin->getUserComments();
+
+            $total = count($userComments);
+            $unresolved = 0;
+
+            if ($userComments)
             {
-                if (!$cmt->isResolved())
+                foreach($userComments as $cmt)
                 {
-                    $unresolved++;
+                    if (!$cmt->isResolved())
+                    {
+                        $unresolved++;
+                    }
                 }
             }
+
+            $return = "<td>{$unresolved} / {$total}</td>";
+        
         }
-                    
-        return "<td>{$unresolved} / {$total}</td>";
+        
+        
+        return $return;
                 
     }
     
@@ -292,11 +302,15 @@ class IndexView extends \BCDB\View {
      */
     public function getStudentCells_Tutorials($studentID){
         
-        $plugin = $this->vars['ELBP']->getPlugin("Tutorials");
-        $plugin->loadStudent($studentID);
+        $total = '';
         
-        $tutorials = $plugin->getUserTutorials();
-        $total = count($tutorials);
+        $plugin = $this->vars['ELBP']->getPlugin("Tutorials");
+        if ($plugin)
+        {
+            $plugin->loadStudent($studentID);
+            $tutorials = $plugin->getUserTutorials();
+            $total = count($tutorials);
+        }
                     
         return "<td>{$total}</td>";
                 
@@ -310,10 +324,10 @@ class IndexView extends \BCDB\View {
                     
         $cells = "";
         $att = $this->vars['ELBP']->getPlugin("Attendance");
-        $att->loadStudent($studentID);
 
         if ($att)
         {
+            $att->loadStudent($studentID);
             $types = $att->getTypes();
             if ($types)
             {
