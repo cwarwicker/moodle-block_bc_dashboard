@@ -540,6 +540,21 @@ function xmldb_block_bc_dashboard_upgrade($oldversion = 0)
         // Bc_dashboard savepoint reached.
         upgrade_block_savepoint(true, 2017060700, 'bc_dashboard');
     }
+    
+    
+    if ($oldversion < 2017101201){
+        
+        // Changing nullability of field params on table block_bcdb_reports to null.
+        $table = new xmldb_table('block_bcdb_reports');
+        $field = new xmldb_field('params', XMLDB_TYPE_TEXT, null, null, null, null, null, 'query');
+
+        // Launch change of nullability for field params.
+        $dbman->change_field_notnull($table, $field);
+
+        // Bc_dashboard savepoint reached.
+        upgrade_block_savepoint(true, 2017101201, 'bc_dashboard');
+        
+    }
 
     
     

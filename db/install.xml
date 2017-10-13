@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<XMLDB PATH="blocks/bc_dashboard/db" VERSION="20170607" COMMENT="XMLDB file for Moodle blocks/bc_dashboard"
+<XMLDB PATH="blocks/bc_dashboard/db" VERSION="20171012" COMMENT="XMLDB file for Moodle blocks/bc_dashboard"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
 >
@@ -30,7 +30,7 @@
         <FIELD NAME="name" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="description" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="query" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
-        <FIELD NAME="params" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="params" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
         <FIELD NAME="options" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="filters" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
         <FIELD NAME="createddate" TYPE="int" LENGTH="20" NOTNULL="true" SEQUENCE="false"/>
