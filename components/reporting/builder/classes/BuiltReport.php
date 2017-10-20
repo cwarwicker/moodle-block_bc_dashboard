@@ -375,12 +375,12 @@ class BuiltReport extends \BCDB\Report {
         $return = array('sql' => '', 'params' => array());
         
         $sqlArray = array(
-            'select' => array('distinct user.id', 'user.firstname', 'user.lastname', 'user.username'),
-            'from' => '{user} user',
-            'join' => array('inner join {role_assignments} ra ON ra.userid = user.id', 'inner join {context} ctxt ON ctxt.id = ra.contextid'),
-            'where' => array('user.deleted = 0', 'ra.roleid = 5', 'ctxt.instanceid = ?'),
-            'group' => 'user.id',
-            'order' => 'user.lastname, user.firstname, user.username'
+            'select' => array('distinct u.id', 'u.firstname', 'u.lastname', 'u.username'),
+            'from' => '{user} u',
+            'join' => array('inner join {role_assignments} ra ON ra.userid = u.id', 'inner join {context} ctxt ON ctxt.id = ra.contextid'),
+            'where' => array('u.deleted = 0', 'ra.roleid = 5', 'ctxt.instanceid = ?'),
+            'group' => 'u.id',
+            'order' => 'u.lastname, u.firstname, u.username'
         );
         
         $paramsArray = array();
@@ -430,7 +430,7 @@ class BuiltReport extends \BCDB\Report {
                         
                         // Build the where clause
                         
-                        $clause = "user.".clean_param($filter->field, PARAM_ALPHANUMEXT)." ";
+                        $clause = "u.".clean_param($filter->field, PARAM_ALPHANUMEXT)." ";
                         
                         if ($filter->cmp == 'equals') $clause .= '= ';
                         elseif ($filter->cmp == 'notequals') $clause .= '!= ';
