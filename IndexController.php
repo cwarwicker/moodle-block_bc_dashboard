@@ -34,7 +34,7 @@ class IndexController extends \BCDB\Controller {
     public function main(){
         
         // Check permissions to view reporting
-        if (!has_capability('block/bc_dashboard:view_bc_dashboard', $this->context)){
+        if (!$this->hasCapability('block/bc_dashboard:view_bc_dashboard')){
             \bcdb_fatalError( get_string('invalidaccess', 'block_bc_dashboard') );
         }
         
@@ -43,14 +43,32 @@ class IndexController extends \BCDB\Controller {
     public function action_view($args = false){
         
         global $CFG, $USER, $bcdb;
+
+        $type = (isset($args[0])) ? $args[0] : 'all';
+        $id = (isset($args[1])) ? $args[1] : false;
+                        
         
-        // Check permissions to view reporting
-        if (!has_capability('block/bc_dashboard:view_bc_dashboard', $this->context)){
-            \bcdb_fatalError( get_string('invalidaccess', 'block_bc_dashboard') );
+        // If we're trying to look at the list of students on a specific course, they either need:
+        // Capability on that course
+        // Capability on frontpage and assigned to that course as a teacher
+        if ($type == 'course' && $id){
+            
+            if (!$this->hasCapability('block/bc_dashboard:view_bc_dashboard', $id)){
+                \bcdb_fatalError( get_string('invalidaccess', 'block_bc_dashboard') );
+            }
+            
+        } else {
+            
+            // Otherwise, we just want to see if they have this permission on any of their contexts
+            if (!$this->hasCapability('block/bc_dashboard:view_bc_dashboard')){
+                \bcdb_fatalError( get_string('invalidaccess', 'block_bc_dashboard') );
+            }
+                        
         }
         
-        $type = (isset($args[0])) ? $args[0] : 'all';
-                
+        
+            
+                            
         // Mass Actions
         if (isset($_POST['mass_action']) && isset($_POST['students']))
         {

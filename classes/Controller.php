@@ -119,6 +119,12 @@ abstract class Controller {
         return $this;
     }
     
+    protected function hasCapability($capability, $courseID = false){
+        
+        return \bcdb_has_capability($capability, $courseID);
+        
+    }
+    
     /**
      * Destroy the object
      */

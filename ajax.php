@@ -11,7 +11,7 @@ if (!isset($_REQUEST['action'])){
 $PAGE->set_context( $bcdb['context'] );
 
 // Permissions to access any of it
-if (!has_capability('block/bc_dashboard:view_bc_dashboard', $bcdb['context'])){
+if (!bcdb_has_capability('block/bc_dashboard:view_bc_dashboard')){
     exit;
 }
 

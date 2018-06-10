@@ -130,7 +130,7 @@ class SqlController extends \BCDB\Controller {
                     );
 
                     \BCDB\Log::add(\BCDB\Log::LOG_RUN_REPORT, $report->getID());
-                    
+                                                            
                     echo json_encode($result);
                     exit;
 

@@ -446,7 +446,6 @@ function submitReport(reportType, type){
                         });
                     output += "</tr></thead>";
 
-
                         $.each(data['data'], function(k, row){
                             output += "<tr>";
                             $.each(data['headers'], function(hk, hv){

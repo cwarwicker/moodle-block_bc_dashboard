@@ -320,6 +320,59 @@ function bcdb_success($successes){
     
 }
 
+function bcdb_has_capability($capability, $courseID = false){
+    
+    global $bcdb;
+        
+    if (!$bcdb['elbp']){
+        exit;
+    }
+
+    $ELBP = new \ELBP\ELBP();
+
+    // If we're passed a course through, we want to check if they have the capability on that course OR that they have it frontpage and are enrolled on that course
+    if ($courseID){
+
+        $context = \context_course::instance($courseID);
+
+        // First check context
+        if (\has_capability($capability, $context)){
+            return true;
+        }
+
+        $access = $ELBP->getCoursePermissions($courseID);
+
+        // Now check if they have the permission on the frontpage and are enrolled on this course
+        if (\has_capability($capability, $bcdb['context']) && $access['teacher']){
+            return true;
+        }
+
+    } else {
+
+        // First check front page
+        if (\has_capability($capability, $bcdb['context'])){
+            return true;
+        }
+
+        // Then try looping through their courses and see if they have the capability on any of them
+        $courses = \bcdb_get_user_courses();
+        if ($courses)
+        {
+            foreach($courses as $course)
+            {
+                if (\has_capability($capability, \context_course::instance($course->id)))
+                {
+                    return true;
+                }
+            }
+        }
+
+    }
+
+    return false;
+    
+}
+
 
 function bcdb_html($txt){
     return htmlentities($txt, ENT_QUOTES);

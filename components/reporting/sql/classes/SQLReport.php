@@ -289,7 +289,7 @@ class SQLReport extends \BCDB\Report {
             default:
                 
                 global $DB;
-                
+                                
                 $this->data = $DB->get_records_sql($this->query, $sqlParams, 0, (int)$this->getOption('limit'));
                 return $this->data;
                 
