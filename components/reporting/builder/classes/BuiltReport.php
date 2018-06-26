@@ -320,7 +320,7 @@ class BuiltReport extends \BCDB\Report {
         
         global $DB;
         
-        $course = \gt_get_course($courseID);
+        $course = \bcdb_get_course($courseID);
         if (!$course){
             return false;
         }

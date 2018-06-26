@@ -644,6 +644,12 @@ function bcdb_val($val){
     
 }
 
+function bcdb_get_course($courseID){
+    
+    global $DB;
+    return $DB->get_record("course", array("id" => $courseID));
+    
+}
 
 function bcdb_to_array($arrayOfObjects){
     
