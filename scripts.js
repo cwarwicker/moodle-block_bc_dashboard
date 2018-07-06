@@ -1127,31 +1127,33 @@ function bindings(){
     
     
     // Gradetracker qual picker auto complete   
-    $('.block_gradetracker_qual_picker').autocomplete({
-        source: block_gradetracker['quals'],
-        minLength: 2,
-        create: function(){
-            var w = $(this).width() + 24; // padding on input
-            $('.ui-autocomplete').css('max-width', w+'px');
-        },
-        search: function(){
+    if (typeof block_gradetracker !== 'undefined'){
+        $('.block_gradetracker_qual_picker').autocomplete({
+            source: block_gradetracker['quals'],
+            minLength: 2,
+            create: function(){
+                var w = $(this).width() + 24; // padding on input
+                $('.ui-autocomplete').css('max-width', w+'px');
+            },
+            search: function(){
+                var id = $(this).attr('useID');
+                $('#'+id).val('');
+            },
+            select: function( event, ui ) {
+                var id = $(this).attr('useID');
+                $('#'+id).val(ui.item.id);
+                $('#'+id).attr('qual', ui.item.value);
+            }
+        }).on('blur', function(){
             var id = $(this).attr('useID');
-            $('#'+id).val('');
-        },
-        select: function( event, ui ) {
-            var id = $(this).attr('useID');
-            $('#'+id).val(ui.item.id);
-            $('#'+id).attr('qual', ui.item.value);
-        }
-    }).on('blur', function(){
-        var id = $(this).attr('useID');
-        if ( $('#'+id).val() == ''){
-            $(this).val('');
-        } else if ( $(this).val() != $('#'+id).attr('qual') ){
-            $(this).val('');
-            $('#'+id).val('');
-        }
-    });
+            if ( $('#'+id).val() == ''){
+                $(this).val('');
+            } else if ( $(this).val() != $('#'+id).attr('qual') ){
+                $(this).val('');
+                $('#'+id).val('');
+            }
+        });
+    }
     
     // Do bindings for student list tables
     bindDataTables();  
