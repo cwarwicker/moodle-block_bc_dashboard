@@ -1,5 +1,34 @@
 <?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+/**
+ * Dashboard Reporting
+ *
+ * The Reporting Dashboard plugin is a block which runs alongside the ELBP and Grade Tracker blocks, to provide a better experience and extra features, 
+ * such as combined reporting across both plugins. It also allows you to create your own custom SQL reports which can be run on any aspect of Moodle.
+ * 
+ * @package     block_bc_dashboard
+ * @copyright   2017-onwards Conn Warwicker
+ * @author      Conn Warwicker <conn@cmrwarwicker.com>
+ * @link        https://github.com/cwarwicker/moodle-block_elbp
+ * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ *
+ * Originally developed at Bedford College, now maintained by Conn Warwicker
+ * 
+ */
 namespace BCDB\Report;
 
 /**
@@ -243,16 +272,12 @@ class BuiltReport extends \BCDB\Report {
         {
             foreach($this->elements as $element)
             {
-//                // Continue only if it's an aggregate element
-//                if ($element->getLevel() == 'aggregate')
-//                {
-                    $aggregate = $element->aggregate($users);
-                    if ($aggregate)
-                    {
-                        $key = key($aggregate);
-                        $return[$key] = $aggregate[$key];                                
-                    }
-//                }
+                $aggregate = $element->aggregate($users);
+                if ($aggregate)
+                {
+                    $key = key($aggregate);
+                    $return[$key] = $aggregate[$key];                                
+                }
             }
         }
         
@@ -334,7 +359,7 @@ class BuiltReport extends \BCDB\Report {
         $query = $this->buildSQL($courseID);
         $sql = $query['sql'];
         $sqlParams = $query['params'];
-        
+                
         // Run the SQL        
         $return['users'] = $DB->get_records_sql($sql, $sqlParams);
         if ($return['users']){
