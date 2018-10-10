@@ -45,24 +45,24 @@ class BuilderView extends \BCDB\View {
         $subnav[] = array( 'title' => get_string('save', 'block_bc_dashboard'), 'icon' => 'save', 'url' => '#', 'form' => 'report_form' );    
         
         // Breadcrumb
-        $this->addBreadcrumb( array('title' => get_string('reporting', 'block_bc_dashboard'), 'url' => $CFG->wwwroot . '/blocks/bc_dashboard/reporting') );
+        $this->addBreadcrumb( array('title' => get_string('reporting', 'block_bc_dashboard'), 'url' => $CFG->wwwroot . '/blocks/bc_dashboard/index.php?Qs=reporting') );
         
         if ($this->get('report') && $this->get('report')->isValid()){
             
             if ($this->get('report')->canDelete()){
-                $subnav[] = array( 'title' => get_string('delete', 'block_bc_dashboard'), 'icon' => 'trash', 'url' => $CFG->wwwroot . '/blocks/bc_dashboard/reporting/builder/delete/' . $this->get('report')->getID() );
+                $subnav[] = array( 'title' => get_string('delete', 'block_bc_dashboard'), 'icon' => 'trash', 'url' => $CFG->wwwroot . '/blocks/bc_dashboard/index.php?Qs=reporting/builder/delete/' . $this->get('report')->getID() );
             }
             
             if ($this->get('report')->canSchedule()){
-                $subnav[] = array( 'title' => get_string('schedule', 'block_bc_dashboard'), 'icon' => 'calendar', 'url' => $CFG->wwwroot . '/blocks/bc_dashboard/reporting/builder/schedule/' . $this->get('report')->getID() );
+                $subnav[] = array( 'title' => get_string('schedule', 'block_bc_dashboard'), 'icon' => 'calendar', 'url' => $CFG->wwwroot . '/blocks/bc_dashboard/index.php?Qs=reporting/builder/schedule/' . $this->get('report')->getID() );
             }
             
             if ($this->get('report')->canRun()){
-                $subnav[] = array( 'title' => get_string('run', 'block_bc_dashboard'), 'icon' => 'play-circle-o', 'url' => $CFG->wwwroot . '/blocks/bc_dashboard/reporting/builder/run/' . $this->get('report')->getID(), 'js' => 'return runFromEdit($(this));' );
+                $subnav[] = array( 'title' => get_string('run', 'block_bc_dashboard'), 'icon' => 'play-circle-o', 'url' => $CFG->wwwroot . '/blocks/bc_dashboard/index.php?Qs=reporting/builder/run/' . $this->get('report')->getID(), 'js' => 'return runFromEdit($(this));' );
             }
             
             if ($this->get('report')->canView()){
-                $subnav[] = array( 'title' => get_string('view', 'block_bc_dashboard'), 'icon' => 'eye', 'url' => $CFG->wwwroot . '/blocks/bc_dashboard/reporting/builder/view/' . $this->get('report')->getID() );
+                $subnav[] = array( 'title' => get_string('view', 'block_bc_dashboard'), 'icon' => 'eye', 'url' => $CFG->wwwroot . '/blocks/bc_dashboard/index.php?Qs=reporting/builder/view/' . $this->get('report')->getID() );
             }
             
             $this->addBreadcrumb( array('title' => $this->get('report')->getName()) );
@@ -94,7 +94,7 @@ class BuilderView extends \BCDB\View {
         global $CFG;
         
         // Breadcrumbs
-        $this->addBreadcrumb( array('title' => get_string('reporting', 'block_bc_dashboard'), 'url' => $CFG->wwwroot . '/blocks/bc_dashboard/reporting') );
+        $this->addBreadcrumb( array('title' => get_string('reporting', 'block_bc_dashboard'), 'url' => $CFG->wwwroot . '/blocks/bc_dashboard/index.php?Qs=reporting') );
         
         
         // If we have an integer passed through, then it is a report ID we are editing             
@@ -113,27 +113,20 @@ class BuilderView extends \BCDB\View {
             $subnav = array();
             
             if ($report->canRun()){
-                $subnav[] = array( 'title' => get_string('run', 'block_bc_dashboard'), 'icon' => 'play-circle-o', 'url' => $CFG->wwwroot . '/blocks/bc_dashboard/reporting/builder/run/' . $this->get('report')->getID() );
+                $subnav[] = array( 'title' => get_string('run', 'block_bc_dashboard'), 'icon' => 'play-circle-o', 'url' => $CFG->wwwroot . '/blocks/bc_dashboard/index.php?Qs=reporting/builder/run/' . $this->get('report')->getID() );
             }
             
             if ($report->canSchedule()){
-                $subnav[] = array( 'title' => get_string('schedule', 'block_bc_dashboard'), 'icon' => 'calendar', 'url' => $CFG->wwwroot . '/blocks/bc_dashboard/reporting/builder/schedule/' . $this->get('report')->getID() );
+                $subnav[] = array( 'title' => get_string('schedule', 'block_bc_dashboard'), 'icon' => 'calendar', 'url' => $CFG->wwwroot . '/blocks/bc_dashboard/index.php?Qs=reporting/builder/schedule/' . $this->get('report')->getID() );
             }
             
             if ($report->canEdit()){
-                $subnav[] = array( 'title' => get_string('edit', 'block_bc_dashboard'), 'icon' => 'pencil', 'url' => $CFG->wwwroot . '/blocks/bc_dashboard/reporting/builder/edit/' . $this->get('report')->getID() );
+                $subnav[] = array( 'title' => get_string('edit', 'block_bc_dashboard'), 'icon' => 'pencil', 'url' => $CFG->wwwroot . '/blocks/bc_dashboard/index.php?Qs=reporting/builder/edit/' . $this->get('report')->getID() );
             }
                         
             if ($report->canDelete()){
-                $subnav[] = array( 'title' => get_string('delete', 'block_bc_dashboard'), 'icon' => 'trash', 'url' => $CFG->wwwroot . '/blocks/bc_dashboard/reporting/builder/delete/' . $report->getID() );
+                $subnav[] = array( 'title' => get_string('delete', 'block_bc_dashboard'), 'icon' => 'trash', 'url' => $CFG->wwwroot . '/blocks/bc_dashboard/index.php?Qs=reporting/builder/delete/' . $report->getID() );
             }
-            
-            
-            
-            // Export as XML - DOn't think this would work for Built, as references things by ID
-//            if (has_capability('block/bc_dashboard:export_reports', $this->context)){
-//                $subnav[] = array( 'title' => get_string('export', 'block_bc_dashboard'), 'icon' => 'download', 'url' => $CFG->wwwroot . '/blocks/bc_dashboard/reporting/exportxml/' . $this->get('report')->getID() );
-//            }
             
             $this->set("subNavigation", $subnav);
             
@@ -151,7 +144,7 @@ class BuilderView extends \BCDB\View {
         
         global $CFG;
         
-        $this->addBreadcrumb( array('title' => get_string('reporting', 'block_bc_dashboard'), 'url' => $CFG->wwwroot . '/blocks/bc_dashboard/reporting') );
+        $this->addBreadcrumb( array('title' => get_string('reporting', 'block_bc_dashboard'), 'url' => $CFG->wwwroot . '/blocks/bc_dashboard/index.php?Qs=reporting') );
 
         $report = $this->Controller->getReportFromArgs($args);
         if ($report && $report->canRun()){
@@ -166,15 +159,15 @@ class BuilderView extends \BCDB\View {
             $subnav = array();
             
             if ($report->canEdit()){
-                $subnav[] = array( 'title' => get_string('edit', 'block_bc_dashboard'), 'icon' => 'pencil', 'url' => $CFG->wwwroot . '/blocks/bc_dashboard/reporting/builder/edit/' . $report->getID() );
+                $subnav[] = array( 'title' => get_string('edit', 'block_bc_dashboard'), 'icon' => 'pencil', 'url' => $CFG->wwwroot . '/blocks/bc_dashboard/index.php?Qs=reporting/builder/edit/' . $report->getID() );
             }
             
             if ($report->canSchedule()){
-                $subnav[] = array( 'title' => get_string('schedule', 'block_bc_dashboard'), 'icon' => 'calendar', 'url' => $CFG->wwwroot . '/blocks/bc_dashboard/reporting/builder/schedule/' . $report->getID() );
+                $subnav[] = array( 'title' => get_string('schedule', 'block_bc_dashboard'), 'icon' => 'calendar', 'url' => $CFG->wwwroot . '/blocks/bc_dashboard/index.php?Qs=reporting/builder/schedule/' . $report->getID() );
             }
             
             if ($report->canView()){
-                $subnav[] = array( 'title' => get_string('view', 'block_bc_dashboard'), 'icon' => 'eye', 'url' => $CFG->wwwroot . '/blocks/bc_dashboard/reporting/builder/view/' . $report->getID() );
+                $subnav[] = array( 'title' => get_string('view', 'block_bc_dashboard'), 'icon' => 'eye', 'url' => $CFG->wwwroot . '/blocks/bc_dashboard/index.php?Qs=reporting/builder/view/' . $report->getID() );
             }
             
             $this->set("subNavigation", $subnav);
@@ -217,7 +210,7 @@ class BuilderView extends \BCDB\View {
         global $CFG;
         
         // Breadcrumbs
-        $this->addBreadcrumb( array('title' => get_string('reporting', 'block_bc_dashboard'), 'url' => $CFG->wwwroot . '/blocks/bc_dashboard/reporting') );
+        $this->addBreadcrumb( array('title' => get_string('reporting', 'block_bc_dashboard'), 'url' => $CFG->wwwroot . '/blocks/bc_dashboard/index.php?Qs=reporting') );
         
         
         // If we have an integer passed through, then it is a report ID we are editing             
@@ -228,7 +221,7 @@ class BuilderView extends \BCDB\View {
             $this->set("report", $report);
 
             // Breadcrumbs
-            $this->addBreadcrumb( array('title' => $report->getName(), 'url' => $CFG->wwwroot . '/blocks/bc_dashboard/reporting/builder/view/' . $report->getID()) );
+            $this->addBreadcrumb( array('title' => $report->getName(), 'url' => $CFG->wwwroot . '/blocks/bc_dashboard/index.php?Qs=reporting/builder/view/' . $report->getID()) );
             $this->addBreadcrumb( array('title' => get_string('schedule', 'block_bc_dashboard')) );
             
             // Sub Navigation links
@@ -238,19 +231,19 @@ class BuilderView extends \BCDB\View {
             $subnav[] = array( 'title' => get_string('save', 'block_bc_dashboard'), 'icon' => 'save', 'url' => '#', 'form' => 'schedule_form' );    
             
             if ($report->canEdit()){
-                $subnav[] = array( 'title' => get_string('edit', 'block_bc_dashboard'), 'icon' => 'pencil', 'url' => $CFG->wwwroot . '/blocks/bc_dashboard/reporting/builder/edit/' . $report->getID() );
+                $subnav[] = array( 'title' => get_string('edit', 'block_bc_dashboard'), 'icon' => 'pencil', 'url' => $CFG->wwwroot . '/blocks/bc_dashboard/index.php?Qs=reporting/builder/edit/' . $report->getID() );
             }
                         
             if ($report->canDelete()){
-                $subnav[] = array( 'title' => get_string('delete', 'block_bc_dashboard'), 'icon' => 'trash', 'url' => $CFG->wwwroot . '/blocks/bc_dashboard/reporting/builder/delete/' . $report->getID() );
+                $subnav[] = array( 'title' => get_string('delete', 'block_bc_dashboard'), 'icon' => 'trash', 'url' => $CFG->wwwroot . '/blocks/bc_dashboard/index.php?Qs=reporting/builder/delete/' . $report->getID() );
             }
             
             if ($report->canRun()){
-                $subnav[] = array( 'title' => get_string('run', 'block_bc_dashboard'), 'icon' => 'play-circle-o', 'url' => $CFG->wwwroot . '/blocks/bc_dashboard/reporting/builder/run/' . $report->getID() );
+                $subnav[] = array( 'title' => get_string('run', 'block_bc_dashboard'), 'icon' => 'play-circle-o', 'url' => $CFG->wwwroot . '/blocks/bc_dashboard/index.php?Qs=reporting/builder/run/' . $report->getID() );
             }
             
             if ($report->canView()){
-                $subnav[] = array( 'title' => get_string('view', 'block_bc_dashboard'), 'icon' => 'eye', 'url' => $CFG->wwwroot . '/blocks/bc_dashboard/reporting/builder/view/' . $report->getID() );
+                $subnav[] = array( 'title' => get_string('view', 'block_bc_dashboard'), 'icon' => 'eye', 'url' => $CFG->wwwroot . '/blocks/bc_dashboard/index.php?Qs=reporting/builder/view/' . $report->getID() );
             }
         
             $this->set("subNavigation", $subnav);

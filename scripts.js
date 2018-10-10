@@ -9,7 +9,7 @@ function updateChartAxies(){
     }
     
     var sql = editor.getValue();
-    $.post(www + '/blocks/bc_dashboard/reporting/sql/ajax', {action: 'parse_sql', sql: sql, ajax: 1}, function(data){
+    $.post(www + '/blocks/bc_dashboard/index.php?Qs=reporting/sql/ajax', {action: 'parse_sql', sql: sql, ajax: 1}, function(data){
         
         var data = $.parseJSON(data);
         
@@ -64,7 +64,7 @@ function updateSQLParams(paramValues){
     $('#sql_params_loader').show();
     
     var sql = editor.getValue();
-    $.post(www + '/blocks/bc_dashboard/reporting/sql/ajax', {action: 'count_sql_params', sql: sql, ajax: 1}, function(data){
+    $.post(www + '/blocks/bc_dashboard/index.php?Qs=reporting/sql/ajax', {action: 'count_sql_params', sql: sql, ajax: 1}, function(data){
         
         var data = $.parseJSON(data);
         highlightArray = data;
@@ -332,11 +332,11 @@ function submitReport(reportType, type){
     
     // Loading gif
     $('#errors').html('');
-    $('#report_results').html('<img src="'+www+'/blocks/bc_dashboard/resources/pix/loading.gif" alt="loading..." style="width:24px;" />');
+    $('#report_results').html('<img src="'+www+'/blocks/bc_dashboard/index.php?Qs=resources/pix/loading.gif" alt="loading..." style="width:24px;" />');
     
     var params = $('form#report').serialize();
     
-    $.post(www+'/blocks/bc_dashboard/reporting/'+reportType+'/ajax', {action: type, params: params}, function(data){
+    $.post(www+'/blocks/bc_dashboard/index.php?Qs=reporting/'+reportType+'/ajax', {action: type, params: params}, function(data){
         
         data = $.parseJSON(data);
                 

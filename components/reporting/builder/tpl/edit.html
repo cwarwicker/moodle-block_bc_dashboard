@@ -175,7 +175,7 @@
                 <?php else: ?>
                     <?= $string['noelements'] ?> 
                     <?php if (has_capability('block/bc_dashboard:config', $this->context)): ?>
-                        <a href="<?= $CFG->wwwroot ?>/blocks/bc_dashboard/config"><?= $string['scanforelements'] ?></a>
+                        <a href="<?= $CFG->wwwroot ?>/blocks/bc_dashboard/index.php?Qs=config"><?= $string['scanforelements'] ?></a>
                     <?php endif; ?>
                 <?php endif; ?>
                 </div>

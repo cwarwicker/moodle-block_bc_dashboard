@@ -45,11 +45,11 @@ class ReportingView extends \BCDB\View {
         $nav = array();
         
         if (has_capability('block/bc_dashboard:crud_sql_report', $this->context)){
-            $nav[] = array( 'title' => get_string('writesqlreport', 'block_bc_dashboard'), 'icon' => 'database', 'url' => $CFG->wwwroot . '/blocks/bc_dashboard/reporting/sql' );
+            $nav[] = array( 'title' => get_string('writesqlreport', 'block_bc_dashboard'), 'icon' => 'database', 'url' => $CFG->wwwroot . '/blocks/bc_dashboard/index.php?Qs=reporting/sql' );
         }
         
         if (has_capability('block/bc_dashboard:crud_built_report', $this->context)){
-            $nav[] = array( 'title' => get_string('buildreport', 'block_bc_dashboard'), 'icon' => 'bar-chart', 'url' => $CFG->wwwroot . '/blocks/bc_dashboard/reporting/builder' );
+            $nav[] = array( 'title' => get_string('buildreport', 'block_bc_dashboard'), 'icon' => 'bar-chart', 'url' => $CFG->wwwroot . '/blocks/bc_dashboard/index.php?Qs=reporting/builder' );
         }
                
         $this->set("subNavigation", $nav);
@@ -86,7 +86,7 @@ class ReportingView extends \BCDB\View {
         {
             foreach($privReports as $report)
             {
-                $children[] = array('title' => $report->getName(), 'icon' => 'fa-bar-chart', 'url' => $CFG->wwwroot . '/blocks/bc_dashboard/reporting/'.$report->getType().'/view/' . $report->getID(), 'class' => 'report');
+                $children[] = array('title' => $report->getName(), 'icon' => 'fa-bar-chart', 'url' => $CFG->wwwroot . '/blocks/bc_dashboard/index.php?Qs=reporting/'.$report->getType().'/view/' . $report->getID(), 'class' => 'report');
             }
         
         }
@@ -102,7 +102,7 @@ class ReportingView extends \BCDB\View {
         {
             foreach($myReports as $report)
             {
-                $children[] = array('title' => $report->getName(), 'icon' => 'fa-bar-chart', 'url' => $CFG->wwwroot . '/blocks/bc_dashboard/reporting/'.$report->getType().'/view/' . $report->getID(), 'class' => 'report');
+                $children[] = array('title' => $report->getName(), 'icon' => 'fa-bar-chart', 'url' => $CFG->wwwroot . '/blocks/bc_dashboard/index.php?Qs=reporting/'.$report->getType().'/view/' . $report->getID(), 'class' => 'report');
             }
         }
             
@@ -145,7 +145,7 @@ class ReportingView extends \BCDB\View {
                     
                     foreach($cat->reports as $report)
                     {
-                        $arr['children'][] = array('title' => $report->getName(), 'icon' => 'fa-bar-chart', 'class' => 'report', 'url' => $CFG->wwwroot . '/blocks/bc_dashboard/reporting/' . $report->getType() . '/view/' . $report->getID());
+                        $arr['children'][] = array('title' => $report->getName(), 'icon' => 'fa-bar-chart', 'class' => 'report', 'url' => $CFG->wwwroot . '/blocks/bc_dashboard/index.php?Qs=reporting/' . $report->getType() . '/view/' . $report->getID());
                     }
                                         
                 } 

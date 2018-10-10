@@ -621,17 +621,17 @@ class IndexView extends \BCDB\View {
         {
             foreach($courses as $course)
             {
-                $courseArray[] = array('title' => $course->fullname. ' ('.self::countCourseStudents($course->id).')', 'url' => $CFG->wwwroot . '/blocks/bc_dashboard/view/course/' . $course->id, 'class' => 'report');
+                $courseArray[] = array('title' => $course->fullname. ' ('.self::countCourseStudents($course->id).')', 'url' => $CFG->wwwroot . '/blocks/bc_dashboard/index.php?Qs=view/course/' . $course->id, 'class' => 'report');
             }
         }
                 
-        $sideNav[] = array( 'title' => get_string('allstudents', 'block_bc_dashboard') . ' ('.self::countAllStudents().')', 'icon' => 'fa-users', 'url' => $CFG->wwwroot . '/blocks/bc_dashboard/view/all' );
+        $sideNav[] = array( 'title' => get_string('allstudents', 'block_bc_dashboard') . ' ('.self::countAllStudents().')', 'icon' => 'fa-users', 'url' => $CFG->wwwroot . '/blocks/bc_dashboard/index.php?Qs=view/all' );
         
         // If the PLP is installed
         if ($bcdb['elbp'] == true)
         {
-            $sideNav[] = array( 'title' => get_string('mentees', 'block_bc_dashboard'). ' ('.self::countAllMentees().')', 'icon' => 'fa-user-circle-o',  'url' => $CFG->wwwroot . '/blocks/bc_dashboard/view/mentees' );
-            $sideNav[] = array( 'title' => get_string('additionalsupport', 'block_bc_dashboard'). ' ('.self::countAllAdditionalSupport().')', 'icon' => 'fa-user-circle', 'url' => $CFG->wwwroot . '/blocks/bc_dashboard/view/additionalsupport' );
+            $sideNav[] = array( 'title' => get_string('mentees', 'block_bc_dashboard'). ' ('.self::countAllMentees().')', 'icon' => 'fa-user-circle-o',  'url' => $CFG->wwwroot . '/blocks/bc_dashboard/index.php?Qs=view/mentees' );
+            $sideNav[] = array( 'title' => get_string('additionalsupport', 'block_bc_dashboard'). ' ('.self::countAllAdditionalSupport().')', 'icon' => 'fa-user-circle', 'url' => $CFG->wwwroot . '/blocks/bc_dashboard/index.php?Qs=view/additionalsupport' );
         }
         
         $sideNav[] = array( 'title' => get_string('courses', 'block_bc_dashboard'), 'icon' => 'fa-book', 'children' => $courseArray );
