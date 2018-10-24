@@ -56,7 +56,7 @@ class ConfigView extends \BCDB\View {
         $flatArray = $config->getFlatReportCategories();
         $this->set("reportCats", $this->buildCategoryTreeHTML($config->getReportCategories(false, false), $flatArray));
         $this->set("courseCats", explode(",", \BCDB\Setting::getSetting("course_cats")));
-        $this->set("allCourseCats", \coursecat::make_categories_list());
+        $this->set("allCourseCats", \core_course_category::make_categories_list());
         $this->set("allElements", \BCDB\Report\Element::retrieve(false));
             
     }

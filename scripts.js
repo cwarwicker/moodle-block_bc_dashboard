@@ -332,7 +332,7 @@ function submitReport(reportType, type){
     
     // Loading gif
     $('#errors').html('');
-    $('#report_results').html('<img src="'+www+'/blocks/bc_dashboard/index.php?Qs=resources/pix/loading.gif" alt="loading..." style="width:24px;" />');
+    $('#report_results').html('<img src="'+www+'/blocks/bc_dashboard/resources/pix/loading.gif" alt="loading..." style="width:24px;" />');
     
     var params = $('form#report').serialize();
     

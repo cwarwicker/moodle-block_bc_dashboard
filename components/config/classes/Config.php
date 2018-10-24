@@ -287,7 +287,7 @@ class Config {
                 if (is_object($catID)){
                     $obj = $catID;
                 } else {
-                    $obj = \coursecat::get($catID)->get_db_record();
+                    $obj = \core_course_category::get($catID)->get_db_record();
                 }
                 
                 if (!array_key_exists($obj->id, $return)){
@@ -322,7 +322,7 @@ class Config {
                 if (is_object($catID)){
                     $obj = $catID;
                 } else {
-                    $obj = \coursecat::get($catID)->get_db_record();
+                    $obj = \core_course_category::get($catID)->get_db_record();
                 }
                 
                 if (!array_key_exists($obj->id, $return)){

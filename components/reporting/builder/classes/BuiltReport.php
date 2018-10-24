@@ -94,7 +94,7 @@ class BuiltReport extends \BCDB\Report {
     
     public function getStartingPointName(){
         
-        $cat = \coursecat::get($this->startingPoint);
+        $cat = \core_course_category::get($this->startingPoint);
         return ($cat) ? $cat->get_formatted_name() : '';
         
     }
@@ -175,7 +175,7 @@ class BuiltReport extends \BCDB\Report {
         else
         {
                     
-            $cat = \coursecat::get($catID);
+            $cat = \core_course_category::get($catID);
             $results['name'] = $cat->name;
             $results['type'] = 'cat';
             
@@ -681,7 +681,7 @@ class BuiltReport extends \BCDB\Report {
      */
     private function runRecursiveExcelCategory($catID, $data, &$objPHPExcel, &$rowNum, $parentName = ''){
         
-        $category = \coursecat::get($catID);
+        $category = \core_course_category::get($catID);
         
         $catName = $parentName . $category->name;
         
@@ -842,7 +842,7 @@ class BuiltReport extends \BCDB\Report {
             {
                 
                 // New worksheet for each top level category
-                $category = \coursecat::get($catID);
+                $category = \core_course_category::get($catID);
                 $catName = preg_replace("/[^a-z0-9 _]/i", "", $category->name);
                 $catName = substr($catName, 0, 31);
                 $objPHPExcel->getActiveSheet()->setTitle($catName);
@@ -909,7 +909,7 @@ class BuiltReport extends \BCDB\Report {
         if ($data)
         {
             
-            $cat = \coursecat::get($startingCatID);
+            $cat = \core_course_category::get($startingCatID);
             if ($cat)
             {
                 

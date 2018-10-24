@@ -299,8 +299,19 @@ class SQLReport extends \BCDB\Report {
             default:
                 
                 global $DB;
-                                
-                $this->data = $DB->get_records_sql($this->query, $sqlParams, 0, (int)$this->getOption('limit'));
+
+                $this->data = array();
+                $rowNum = 1;
+
+                $result = $DB->get_records_sql($this->query, $sqlParams, 0, (int)$this->getOption('limit'));
+                if ($result)
+                {
+                    foreach($result as $row) {
+                        $this->data[$rowNum] = $row;
+                        $rowNum++;
+                    }
+                }
+
                 return $this->data;
                 
             break;

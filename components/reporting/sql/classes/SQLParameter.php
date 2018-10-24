@@ -32,8 +32,6 @@
 
 namespace BCDB;
 
-require_once $CFG->dirroot . '/lib/coursecatlib.php';
-
 class SQLParameter {
     
     const DATE_FORMAT = 'd-m-Y';
@@ -141,7 +139,7 @@ class SQLParameter {
             case 'category_picker':
                 $output .= "<select id='{$id}' name='{$name}' class='{$class} form-control' param='{$this->name}'>";
                     $output .= "<option value=''>".get_string('choosecoursecat', 'block_bc_dashboard')."</option>";
-                    $cats = \coursecat::make_categories_list();
+                    $cats = \core_course_category::make_categories_list();
                     foreach($cats as $catID => $catName)
                     {
                         $output .= "<option value='{$catID}'>{$catName}</option>";
