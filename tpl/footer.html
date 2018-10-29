@@ -23,50 +23,6 @@
         <?php endif; ?>
     </script>
 
-    <!-- Require JS -->
-    <script type="text/javascript">
-
-        var M = {};
-        M.cfg = {};
-        M.cfg.wwwroot = '<?= $CFG->wwwroot ?>';
-
-        var require = {
-            baseUrl : '<?= $CFG->wwwroot ?>/lib/requirejs.php/-1/',
-            // We only support AMD modules with an explicit define() statement.
-            enforceDefine: true,
-            skipDataMain: true,
-            waitSeconds : 0,
-
-            paths: {
-                jquery: '<?= $CFG->wwwroot ?>/lib/javascript.php/-1/lib/jquery/jquery-3.2.1.min',
-                jqueryui: '<?= $CFG->wwwroot ?>/lib/javascript.php/-1/lib/jquery/ui-1.12.1/jquery-ui.min',
-                jqueryprivate: '<?= $CFG->wwwroot ?>/lib/javascript.php/-1/lib/requirejs/jquery-private',
-                block_elbp : '<?= $CFG->wwwroot ?>/blocks/elbp/amd/src'
-            },
-
-            // Custom jquery config map.
-            map: {
-                // '*' means all modules will get 'jqueryprivate'
-                // for their 'jquery' dependency.
-                '*': { jquery: 'jqueryprivate' },
-                // Stub module for 'process'. This is a workaround for a bug in MathJax (see MDL-60458).
-                '*': { process: 'core/first' },
-
-                // 'jquery-private' wants the real jQuery module
-                // though. If this line was not here, there would
-                // be an unresolvable cyclic dependency.
-                jqueryprivate: { jquery: 'jquery' }
-            }
-        };
-
-    </script>
-    <script type="text/javascript" src="<?= $CFG->wwwroot ?>/lib/javascript.php/-1/lib/requirejs/require.js"></script>
-    <script type="text/javascript">
-        require(["block_elbp/scripts"], function (amd) {
-            amd.init();
-        });
-    </script>
-    
 </body>
 
 </html>

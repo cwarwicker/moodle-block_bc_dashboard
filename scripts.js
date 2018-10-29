@@ -995,6 +995,98 @@ function loadCourseLinks(){
 }
 
 
+// User Picker functions - Can't work out how to get the ELBP scripts module into dashboard, since we're not using moodle require code
+//                       - So duplicating it here
+var ELBP = {};
+ELBP.user_picker = {};
+
+    // Search users
+    ELBP.user_picker.search_user = function(search, el){
+
+        let params = { action: "search_users", search: search };
+
+        $.post(www + '/blocks/elbp/js/ajaxHandler.php', {plugin: 0, action: 'user_picker', params: params}, function(data){
+            $($(el).siblings('select')[0]).html(data);
+        });
+
+    };
+
+    ELBP.user_picker.add = function(el){
+
+        let parents = $(el).parents()[0];
+        let searchdiv = $(parents).siblings('.elbp_user_picker_search_div')[0];
+        let select = $(searchdiv).children('.user_list')[0];
+        let users = $(select).val();
+
+        if (users != null){
+
+            let options = $(select).children('option');
+            let usernames = new Array();
+
+            $.each(options, function(k,v){
+                usernames[v.value] = v.innerHTML;
+            });
+
+            let chosendiv = $(parents).siblings('.elbp_user_picker_chosen_div')[0];
+            let addselect = $(chosendiv).children('.userholder')[0];
+            let hiddeninputs = $(addselect).siblings('.userpickerhiddeninputs')[0];
+            let fieldname = $(hiddeninputs).attr('fieldname');
+
+            let addedoptions = $(addselect).children('option');
+            let addedoptionvalues = new Array();
+            $.each(addedoptions, function(k,v){
+                addedoptionvalues.push(v.value);
+            });
+
+
+            $.each(users, function(k, v){
+
+                // Check not already in chosen select list
+                if ( $.inArray(v, addedoptionvalues) === -1 ){
+
+                    // Append to it
+                    $(addselect).append('<option value="'+v+'">'+usernames[v]+'</option>');
+
+                    // Also add in a hidden input with the value, because
+                    $(hiddeninputs).append('<input type="hidden" name="'+fieldname+'[]" value="'+v+'" />');
+
+                }
+
+            });
+
+        }
+
+    };
+
+    ELBP.user_picker.remove = function(el){
+
+        let parents = $(el).parents()[0];
+        let chosendiv = $(parents).siblings('.elbp_user_picker_chosen_div')[0];
+        let addselect = $(chosendiv).children('.userholder')[0];
+        let hiddeninputs = $(addselect).siblings('.userpickerhiddeninputs')[0];
+
+        let users = $(addselect).val();
+
+        if (users != null){
+
+            $.each(users, function(k,v){
+
+                // Remove any option in the select with that value
+                $(addselect).children('option[value="'+v+'"]').remove();
+
+                // Remove hidden input
+                $(hiddeninputs).children('input[value="'+v+'"]').remove();
+
+            });
+
+        }
+
+    };
+
+
+
+
+
 function bindDataTables(){
     
     // Student list tables
@@ -1026,6 +1118,10 @@ function bindDataTables(){
     });
     
 }
+
+
+
+
 
 
 function bindings(){
