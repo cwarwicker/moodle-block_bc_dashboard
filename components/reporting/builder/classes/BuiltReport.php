@@ -844,6 +844,7 @@ class BuiltReport extends \BCDB\Report {
                 $category = \core_course_category::get($catID);
                 $catName = preg_replace("/[^a-z0-9 _]/i", "", $category->name);
                 $catName = substr($catName, 0, 31);
+                $catName = (strlen($catName)) ? $catName : '-';
                 $objPHPExcel->getActiveSheet()->setTitle($catName);
 
                 // Headers
