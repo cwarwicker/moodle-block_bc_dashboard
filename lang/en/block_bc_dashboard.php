@@ -17,9 +17,9 @@
 /**
  * Dashboard Reporting
  *
- * The Reporting Dashboard plugin is a block which runs alongside the ELBP and Grade Tracker blocks, to provide a better experience and extra features, 
+ * The Reporting Dashboard plugin is a block which runs alongside the ELBP and Grade Tracker blocks, to provide a better experience and extra features,
  * such as combined reporting across both plugins. It also allows you to create your own custom SQL reports which can be run on any aspect of Moodle.
- * 
+ *
  * @package     block_bc_dashboard
  * @copyright   2017-onwards Conn Warwicker
  * @author      Conn Warwicker <conn@cmrwarwicker.com>
@@ -27,7 +27,7 @@
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  *
  * Originally developed at Bedford College, now maintained by Conn Warwicker
- * 
+ *
  */
 
 $string['bc_dashboard:addinstance'] = 'Add the bc_dashboard block to a course';
@@ -43,6 +43,7 @@ $string['bc_dashboard:edit_report_schedule'] = 'Edit the schedule of a report'; 
 $string['bc_dashboard:edit_any_report_schedule'] = 'Edit the scheule or any report';
 $string['bc_dashboard:export_reports'] = 'Export the report structure as an XML file, to be imported onto another Moodle instance';
 $string['bc_dashboard:import_reports'] = 'Import repot structures from the exported XML files';
+$string['bc_dashboard:myaddinstance'] = 'Add the bc_dashboard block to My Dashboard';
 $string['bc_dashboard:run_reports'] = 'Run any of the reports you have access to view';
 $string['bc_dashboard:view_reports'] = 'View any reports created by yourself, or that are publically accessible';
 $string['bc_dashboard:view_bc_dashboard'] = 'View the bc_dashboard system';
@@ -204,11 +205,11 @@ $string['sendto'] = 'Send to';
 $string['separateemailscomma'] = 'Separate users with a comma, e.g. jsmith,brichards,dsingh';
 $string['scheduledby'] = 'Scheduled by';
 $string['scheduledtask:message'] = "Hello,
-    
+
     Your report has been successfully generated!
-    You should find the file attached to this email, if not, please use the following link to download it: 
+    You should find the file attached to this email, if not, please use the following link to download it:
     <a href='%url%'>%url%</a>
-    
+
     Have a nice day!";
 $string['scheduledtask:subject'] = 'Automated Report Generation';
 $string['settings'] = 'Settings';
