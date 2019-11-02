@@ -4,9 +4,9 @@
 <?= \bcdb_success( isset($messages['success']) ? $messages['success'] : false ) ?>
 
 <form id='report_form' action='' method='post'>
-    
+
     <div class="col-lg-6">
-        
+
         <h3><?= $string['details'] ?></h3>
 
         <div class="form-group">
@@ -18,7 +18,7 @@
             <label><?= $string['description'] ?></label>
             <textarea class="form-control" name='report_desc' style='height:120px;'><?= (isset($report)) ? \bcdb_html($report->getDescription()) : "" ?></textarea>
         </div>
-        
+
         <div class="form-group">
             <label><?= $string['type'] ?></label>
             <select class="form-control" name='report_options[type]' onchange='showHideChartOptions(this.value);return false;'>
@@ -27,21 +27,21 @@
                 <?php endforeach; ?>
             </select>
         </div>
-        
+
         <div class="form-group">
             <label><?= $string['datasource'] ?></label>
             <select class="form-control" name='report_options[source]'>
                 <option value='moodle' <?= (isset($report) && $report->getOption('source') == 'moodle') ? 'selected' : '' ?> >Moodle</option>
             </select>
         </div>
-                
-        <div class="form-group">
-            <label><?= $string['visibility'] ?></label>
-            <select class="form-control" name='report_privacy'>
-                <optgroup label="<?= $string['private'] ?>">
-                    <option value='private' <?= (isset($report) && is_null($report->getCategory())) ? 'selected' : '' ?> ><?= $string['private'] ?></option>
-                </optgroup>
-                <?php if (has_capability('block/bc_dashboard:assign_report_categories', $this->context)): ?>
+
+        <?php if (has_capability('block/bc_dashboard:assign_report_categories', $this->context)): ?>
+            <div class="form-group">
+                <label><?= $string['visibility'] ?></label>
+                <select class="form-control" name='report_privacy'>
+                    <optgroup label="<?= $string['private'] ?>">
+                        <option value='private' <?= (isset($report) && is_null($report->getCategory())) ? 'selected' : '' ?> ><?= $string['private'] ?></option>
+                    </optgroup>
                     <optgroup label="<?= $string['public'] ?>">
                         <?php if ($reportCats): ?>
                             <?php foreach($reportCats as $id => $name): ?>
@@ -49,26 +49,26 @@
                             <?php endforeach; ?>
                         <?php endif; ?>
                     </optgroup>
-                <?php endif; ?>
-            </select>
-        </div>
-        
+                </select>
+            </div>
+        <?php endif; ?>
+
     </div>
-    
-    
-    
+
+
+
     <div class="col-lg-6">
-        
+
         <h3><?= $string['options'] ?></h3>
-        
+
         <div class="form-group">
             <label><?= $string['limit'] ?></label>
             <input type='number' min='0' class="form-control" name='report_options[limit]' value='<?= (isset($report)) ? \bcdb_html($report->getOption("limit")) : 0 ?>' />
         </div>
-        
+
         <!-- Chart Options -->
         <div id="chart_options" class="form-group" style="display:<?= (isset($report) && in_array($report->getOption('type'), array('chart/bar', 'chart/line', 'chart/area'))) ? 'block' : 'none' ?>;">
-            
+
             <label><?= $string['xaxis'] ?></label>
             <select id='xaxis' class='selectpicker' name='report_options[xaxis]'>
                 <?php if ($sqlFields): ?>
@@ -87,33 +87,33 @@
                     <?php endforeach; ?>
                 <?php endif; ?>
             </select>
-            
+
         </div>
-                
-        
+
+
     </div>
-    
-    
+
+
     <div class='col-lg-8'>
-        
+
         <div id='sql_code_div'>
             <h3><?= $string['entersql'] ?></h3>
             <div id='sql_errors' class='col-lg-12 alert alert-danger' style='display:none;'></div>
             <textarea id="sql_code" name="report_query"><?= (isset($report)) ? \bcdb_html($report->getQuery()) : '' ?></textarea>
             <br>
             <a class='btn btn-primary' onclick='updateSQLParams();updateChartAxies();return false;'><i class='fa fa-refresh'></i> <?= $string['updateparams'] ?></a>
-        </div>             
-                
+        </div>
+
     </div>
-    
+
     <div class='col-lg-4'>
         <h3><?= $string['parameters'] ?></h3>
         <div id="sql_params_loader" class='text-center' style="display:none;"><img src="<?= $CFG->wwwroot ?>/blocks/bc_dashboard/resources/pix/loading.gif" /></div>
         <div id="sql_params"></div>
     </div>
-    
+
     <input type="hidden" name="report_id" value="<?= (isset($report)) ? $report->getID() : '' ?>" />
-    
+
 </form>
 
 <script>
@@ -124,7 +124,7 @@ var editor = CodeMirror.fromTextArea(document.getElementById("sql_code"), {
       theme: "neat",
       styleSelectedText: true
     });
-    
+
     editor.on("blur", function(){
         updateSQLParams();
         updateChartAxies();
@@ -133,18 +133,18 @@ var editor = CodeMirror.fromTextArea(document.getElementById("sql_code"), {
 
 <script>
     var formats = <?= json_encode($formats) ?>;
-    
+
     <?php if (isset($report)): ?>
         updateSQLParams(<?= json_encode($report->getParams()) ?>);
     <?php endif; ?>
-    
+
     var fixmeTop = $('#sql_code_div').offset().top - 150;
     $(window).scroll(function() {
         var currentScroll = $(window).scrollTop();
         if (currentScroll >= fixmeTop) {
-            
+
             var w = $('#sql_code_div').width();
-            
+
             $('#sql_code_div').css({
                 position: 'fixed',
                 top: '120px',
@@ -158,5 +158,5 @@ var editor = CodeMirror.fromTextArea(document.getElementById("sql_code"), {
             });
         }
     });
-    
+
 </script>

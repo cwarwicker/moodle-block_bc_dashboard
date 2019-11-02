@@ -1017,7 +1017,7 @@ class BuiltReport extends \BCDB\Report {
         // Options
         $this->startingPoint = $data['report_options']['startingpoint'];
 
-        if (ctype_digit($data['report_options']['cat']) && has_capability('block/bc_dashboard:assign_report_categories', $bcdb['context'])){
+        if (isset($data['report_options']['cat']) && ctype_digit($data['report_options']['cat']) && has_capability('block/bc_dashboard:assign_report_categories', $bcdb['context'])){
             $this->category = $data['report_options']['cat'];
             unset($data['report_options']['cat']);
         }
