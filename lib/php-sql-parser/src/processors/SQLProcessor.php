@@ -34,16 +34,16 @@ require_once(dirname(__FILE__) . '/AbstractProcessor.php');
 require_once(dirname(__FILE__) . '/SQLChunkProcessor.php');
 
 /**
- * 
+ *
  * This class processes the base SQL statements.
- * 
+ *
  * @author arothe
- * 
+ *
  */
 class SQLProcessor extends SQLChunkProcessor {
 
     /*
-     * This function breaks up the SQL statement into logical sections. 
+     * This function breaks up the SQL statement into logical sections.
      * Some sections are then further handled by specialized processors.
      */
     public function process($tokens) {
@@ -127,7 +127,7 @@ class SQLProcessor extends SQLChunkProcessor {
             case 'PLUGIN':
             # no separate section
                 if ($token_category === 'SHOW') {
-                    continue;
+                    continue 2;
                 }
                 $token_category = $upper;
                 break;
@@ -139,7 +139,7 @@ class SQLProcessor extends SQLChunkProcessor {
                 }
                 # no separate section
                 if ($token_category === 'SHOW') {
-                    continue;
+                    continue 2;
                 }
                 $token_category = $upper;
                 break;
@@ -149,7 +149,7 @@ class SQLProcessor extends SQLChunkProcessor {
             case 'SHOW':
                 $token_category = $upper;
                 break;
-                
+
             case 'DESC':
                 if ($token_category === '') {
                     // short version of DESCRIBE
@@ -167,10 +167,10 @@ class SQLProcessor extends SQLChunkProcessor {
             case 'DATABASE':
             case 'SCHEMA':
                 if ($prev_category === 'DROP') {
-                    continue;
+                    continue 2;
                 }
                 if ($prev_category === 'SHOW') {
-                    continue;
+                    continue 2;
                 }
                 $token_category = $upper;
                 break;
@@ -273,7 +273,7 @@ class SQLProcessor extends SQLChunkProcessor {
 
             case 'CREATE':
                 if ($prev_category === 'SHOW') {
-                    continue;
+                    continue 2;
                 }
                 $token_category = $upper;
                 break;
@@ -362,7 +362,7 @@ class SQLProcessor extends SQLChunkProcessor {
 
             case 'FOR':
                 if ($prev_category === 'SHOW') {
-                    continue;
+                    continue 2;
                 }
                 $skip_next = 1;
                 $out['OPTIONS'][] = 'FOR UPDATE';
