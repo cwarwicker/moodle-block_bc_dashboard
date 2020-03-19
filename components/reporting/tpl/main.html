@@ -8,7 +8,7 @@
             </div>
             <div class="panel-body">
                 <?= $string['buildreport:desc'] ?><br><br>
-                <a href="<?= $CFG->wwwroot ?>/blocks/bc_dashboard/reporting/builder/new" class="btn btn-primary"><?= $string['create'] ?></a>
+                <a href="<?= $CFG->wwwroot ?>/blocks/bc_dashboard/index.php?Qs=reporting/builder/new" class="btn btn-primary"><?= $string['create'] ?></a>
             </div>
         </div>
     </div>
@@ -22,11 +22,11 @@
             </div>
             <div class="panel-body">
                 <?= $string['writesqlreport:desc'] ?><br><br>
-                <a href="<?= $CFG->wwwroot ?>/blocks/bc_dashboard/reporting/sql/new" class="btn btn-primary"><?= $string['create'] ?></a>
+                <a href="<?= $CFG->wwwroot ?>/blocks/bc_dashboard/index.php?Qs=reporting/sql/new" class="btn btn-primary"><?= $string['create'] ?></a>
                 <?php if (has_capability('block/bc_dashboard:import_reports', $this->context)): ?>
                     <a href="#" class="btn btn-warning" onclick="$('#import_sql').toggle();return false;"><?= $string['import'] ?></a>
                     <br><br>
-                    <form id='import_sql' style='display:none;' action='<?= $CFG->wwwroot ?>/blocks/bc_dashboard/reporting/sql/new' method='post' enctype="multipart/form-data">
+                    <form id='import_sql' style='display:none;' action='<?= $CFG->wwwroot ?>/blocks/bc_dashboard/index.php?Qs=reporting/sql/new' method='post' enctype="multipart/form-data">
                         <div class="form-group">
                             <input type='file' name='file' style='display:inline-block;' />
                             <input type='submit' class='btn btn-success' value='<?= $string['submit'] ?>' />

@@ -17,9 +17,9 @@
 /**
  * Dashboard Reporting
  *
- * The Reporting Dashboard plugin is a block which runs alongside the ELBP and Grade Tracker blocks, to provide a better experience and extra features, 
+ * The Reporting Dashboard plugin is a block which runs alongside the ELBP and Grade Tracker blocks, to provide a better experience and extra features,
  * such as combined reporting across both plugins. It also allows you to create your own custom SQL reports which can be run on any aspect of Moodle.
- * 
+ *
  * @package     block_bc_dashboard
  * @copyright   2017-onwards Conn Warwicker
  * @author      Conn Warwicker <conn@cmrwarwicker.com>
@@ -27,13 +27,13 @@
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  *
  * Originally developed at Bedford College, now maintained by Conn Warwicker
- * 
+ *
  */
 
 namespace BCDB;
 
 abstract class Report {
-    
+
     protected $id = false;
     protected $type;
     protected $category;
@@ -46,13 +46,13 @@ abstract class Report {
     protected $createddate;
     protected $createdby;
     protected $del;
-    
+
     protected $errors = array();
     protected $data;
     protected $schedule = array();
 
     public function __construct($record = false) {
-                            
+
         if ($record){
 
             $this->id = $record->id;
@@ -69,30 +69,30 @@ abstract class Report {
             $this->del = $record->del;
 
         }
-            
-        
+
+
     }
-    
+
     public function isValid(){
         return ($this->id !== false);
     }
-    
+
     public function isDeleted(){
         return ($this->del == 1);
     }
-    
+
     public function getID(){
         return $this->id;
     }
-    
+
     public function getType(){
         return $this->type;
     }
-    
+
     public function getCategory(){
         return $this->category;
     }
-    
+
     /**
      * Get category name
      * NULL = private
@@ -101,115 +101,115 @@ abstract class Report {
      * @global \BCDB\type $DB
      */
     public function getCategoryName(){
-        
+
         global $DB;
-        
+
         if (is_null($this->category)){
             return get_string('myprivatereports', 'block_bc_dashboard');
         } elseif ($this->category == 0){
             return get_string('uncategorised', 'block_bc_dashboard');
-        } else {        
+        } else {
             return \bcdb_get_full_category_name($this->category);
         }
-        
+
     }
-    
+
     public function getName(){
         return $this->name;
     }
-    
+
     public function setName($val){
         $this->name = $val;
         return $this;
     }
-    
+
     public function getDescription(){
         return $this->description;
     }
-    
+
     public function setDescription($val){
         $this->description = $val;
         return $this;
     }
-    
+
     public function getQuery(){
         return $this->query;
     }
-    
+
     public function setQuery($val){
         $this->query = $val;
         return $this;
     }
-    
+
     public function getParams(){
         return $this->params;
     }
-    
+
     public function setParams($val){
         $this->params = $val;
         return $this;
     }
-    
+
     public function getOptions(){
         return $this->options;
     }
-    
+
     public function addOption($name, $val){
         $this->options[$name] = $val;
         return $this;
     }
-    
+
     public function setOptions($val){
         $this->options = $val;
         return $this;
     }
-    
+
     public function getFilters(){
         return $this->filters;
     }
-    
+
     public function setFilters($val){
         $this->filters = $val;
         return $this;
     }
-    
+
     public function getCreatedDate($format = false){
         return ($format) ? date($format, $this->createddate) : $this->createddate;
     }
-    
+
     public function getCreatedBy(){
         global $DB;
         return $DB->get_record("user", array("id" => $this->createdby));
     }
-    
+
     public function getCreatedByID(){
         return $this->createdby;
     }
-    
+
     public function getErrors(){
         return $this->errors;
     }
-    
+
     public function getData(){
         return $this->data;
     }
-    
+
     public function hasErrors(){
         return false;
     }
-    
+
     public function getOption($name){
         return (is_array($this->options) && array_key_exists($name, $this->options)) ? $this->options[$name] : null;
     }
-    
+
     public function getSchedule(){
         return $this->schedule;
     }
-    
+
     public function addSchedule(\BCDB\Schedule $schedule){
         $this->schedule[] = $schedule;
     }
-    
+
     /**
      * Can the user view this report?
      * Is it either their own report or one in a public category?
@@ -217,24 +217,24 @@ abstract class Report {
      * @return type
      */
     public function canView(){
-        
+
         global $USER, $bcdb;
         return ( has_capability('block/bc_dashboard:view_reports', $bcdb['context']) && ($this->createdby == $USER->id || !is_null($this->category) || is_siteadmin()));
-        
+
     }
-    
+
     /**
      * Check if current user can run the report
      * @global type $bcdb
      * @return type
      */
     public function canRun(){
-        
+
         global $bcdb;
         return ($this->canView() && has_capability('block/bc_dashboard:run_reports', $bcdb['context']));
-        
+
     }
-    
+
     /**
      * Check if current user can schedule the report to run
      * @return type
@@ -243,17 +243,17 @@ abstract class Report {
         global $bcdb;
         return ($this->canRun() && has_capability('block/bc_dashboard:edit_report_schedule', $bcdb['context']));
     }
-    
+
     abstract public function canEdit();
     abstract public function loadFormData($data);
     abstract public function run();
     abstract public function export($method);
-    
+
     public function exportXML() {
-                
+
         // Do not export these options, as they are things that will need to be set on the server its being imported into
         $excludeOptions = array('source');
-        
+
         $doc = new \SimpleXMLElement('<xml/>');
 
         $xml = $doc->addChild('report');
@@ -261,7 +261,7 @@ abstract class Report {
         $xml->addChild('description', $this->description);
         $xml->addChild('type', $this->type);
         $xml->addChild('query', $this->query);
-        
+
         $params = $xml->addChild('parameters');
         if ($this->params)
         {
@@ -270,7 +270,7 @@ abstract class Report {
                 $params->addChild('param', json_encode($param));
             }
         }
-        
+
         $opt = $xml->addChild('options');
         if ($this->options)
         {
@@ -282,7 +282,7 @@ abstract class Report {
                 }
             }
         }
-        
+
         $name = preg_replace("/[^a-z0-9]/i", "", $this->name);
         $name = str_replace(" ", "_", $name);
 
@@ -291,54 +291,61 @@ abstract class Report {
 
         echo $doc->asXML();
         exit;
-        
+
     }
-    
-    
+
+
     public function importXML(){}
     public function applyParams($params){}
-    
+
     /**
      * Mark a report as deleted
      * @global \BCDB\type $DB
      * @return boolean
      */
     public function delete(){
-        
+
         global $DB;
-        
+
         if (!$this->isValid()){
             return false;
         }
-        
+
         $record = new \stdClass();
         $record->id = $this->id;
         $record->del = 1;
-        
+
         $result = $DB->update_record("block_bcdb_reports", $record);
         if ($result){
             \BCDB\Log::add( \BCDB\Log::LOG_DELETE_REPORT, $this->id );
         }
-        
+
         return $result;
-        
+
     }
-    
+
     public function save(){
-        
-        global $DB, $USER;
-        
+
+        global $DB, $USER, $bcdb;
+
         $record = new \stdClass();
-        
+
         $record->id = ($this->isValid()) ? $this->id : null;
         $record->type = $this->type;
-        $record->category = $this->category;
         $record->name = $this->name;
         $record->description = $this->description;
         $record->query = $this->query;
         $record->params = (!is_null($this->params)) ? json_encode($this->params) : null;
         $record->options = (!is_null($this->options)) ? json_encode($this->options) : null;
         $record->filters = (!is_null($this->filters)) ? json_encode($this->filters) : null;
+
+        // If we have permissions, we can specify the category, otherwise, if it's our report it's private. If it's not ours and we don't have permission, then it doesn't get updated at all.
+        if (has_capability('block/bc_dashboard:assign_report_categories', $bcdb['context'])) {
+            $record->category = $this->category;
+        } elseif(!$this->isValid() || $this->createdby == $USER->id) {
+            $record->category = null;
+        }
+
 
         // Update
         if ($this->isValid()){
@@ -351,25 +358,25 @@ abstract class Report {
             $result = $this->id;
             \BCDB\Log::add( \BCDB\Log::LOG_CREATE_REPORT, $this->id );
         }
-            
+
         return $result;
-            
+
     }
-    
+
     /**
-     * 
+     *
      * @global type $DB
      * @return type
      */
     public function getLastRun(){
-        
+
         global $DB;
-        
+
         $record = $DB->get_records("block_bcdb_logs", array("reportid" => $this->id, "action" => "run"), "id DESC", "*", 0, 1);
         return ($record) ? array('time' => $record->timestamp, 'by' => $record->userid) : false;
-        
+
     }
-    
+
     /**
      * Get logs about this report
      * @global \BCDB\type $DB
@@ -378,17 +385,17 @@ abstract class Report {
      * @return type
      */
     public function getLogs($action = false, $limit = 15){
-        
+
         global $DB;
-        
+
         $return = array();
         $params = array();
-        
+
         $params['reportid'] = $this->id;
         if ($action){
             $params['action'] = $action;
         }
-        
+
         $records = $DB->get_records("block_bcdb_logs", $params, "id DESC", "*", 0, $limit);
         if ($records)
         {
@@ -398,70 +405,70 @@ abstract class Report {
                 $return[] = $record;
             }
         }
-        
+
         return $return;
-        
+
     }
-    
+
     /**
      * Get the headers to use from the result data
      * @return boolean
      */
     public function getHeaders(){
-        
+
         if (!$this->data){
             return false;
         }
-        
+
         return array_keys((array)reset($this->data));
-        
+
     }
-    
+
     /**
      * Get the datatypes of the data in each column, for table sorting
      * @return boolean|array
      */
     public function getDataTypes(){
-        
+
         if (!$this->data){
             return false;
         }
-        
+
         $types = array();
-        
+
         foreach($this->data as $row){
             foreach($row as $key => $val){
-                
+
                 if (!isset($types[$key])){
                     $types[$key] = '';
                 }
-                                               
+
                 if (is_numeric($val) && $types[$key] != 'string-ins' ){
                     $types[$key] = 'float';
                 }
-                
+
                 elseif (is_string($val)){
                     $types[$key] = 'string-ins';
                 }
-                
+
             }
         }
-        
+
         return $types;
-        
+
     }
-    
+
     /**
      * Get the scheduled tasks on this report which we have permission to edit
      * @global \BCDB\type $DB
      * @return \BCDB\Schedule
      */
     public function getEditableScheduledTasks(){
-        
+
         global $DB;
-        
+
         $return = array();
-        
+
         $records = $DB->get_records("block_bcdb_schedule", array("reportid" => $this->id), "scheduledtime ASC", "id");
         if ($records)
         {
@@ -474,22 +481,22 @@ abstract class Report {
                 }
             }
         }
-        
+
         return $return;
-        
+
     }
-        
+
     /**
      * Get all scheduled tasks
      * @global \BCDB\type $DB
      * @return type
      */
     public function getAllScheduledTasks(){
-        
+
         global $DB;
-        
+
         $return = array();
-        
+
         $records = $DB->get_records("block_bcdb_schedule", array("reportid" => $this->id), "scheduledtime ASC", "id");
         if ($records)
         {
@@ -502,10 +509,10 @@ abstract class Report {
                 }
             }
         }
-        
-        return $return;        
+
+        return $return;
     }
-    
+
     /**
      * Get your private reports
      * @global \BCDB\type $DB
@@ -513,9 +520,9 @@ abstract class Report {
      * @return type
      */
     public static function priv(){
-        
+
         global $DB, $USER;
-        
+
         $return = array();
         $records = $DB->get_records("block_bcdb_reports", array("createdby" => $USER->id, "category" => null, "del" => 0), "name ASC", "id");
         if ($records)
@@ -525,11 +532,11 @@ abstract class Report {
                 $return[] = self::load($record->id);
             }
         }
-        
+
         return $return;
-        
+
     }
-    
+
     /**
      * Get public reports
      * @global \BCDB\type $DB
@@ -537,13 +544,13 @@ abstract class Report {
      * @return type
      */
     public static function pub($catID = false){
-        
+
         global $DB;
-        
+
         $return = array();
-        
+
         if ($catID !== false){
-            
+
             $records = $DB->get_records("block_bcdb_reports", array("category" => $catID, "del" => 0), "name ASC", "id");
             if ($records)
             {
@@ -554,19 +561,19 @@ abstract class Report {
             }
 
             return $return;
-            
+
         } else {
-        
+
             $config = new \BCDB\Config();
 
             // First build up an array of public categories
             $return = $config->getReportCategories(true);
             return $return;
-        
+
         }
-                
+
     }
-    
+
     /**
      * Get any reports created by you, public or private
      * @global \BCDB\type $DB
@@ -574,9 +581,9 @@ abstract class Report {
      * @return type
      */
     public static function my(){
-        
+
         global $DB, $USER;
-        
+
         $return = array();
         $records = $DB->get_records("block_bcdb_reports", array("createdby" => $USER->id, "del" => 0), "name ASC", "id");
         if ($records)
@@ -586,11 +593,11 @@ abstract class Report {
                 $return[] = self::load($record->id);
             }
         }
-        
+
         return $return;
-        
+
     }
-    
+
     /**
      * Load a report into its relevant object
      * @global \BCDB\type $DB
@@ -598,9 +605,9 @@ abstract class Report {
      * @return \BCDB\Report\SQLReport|\BCDB\Report\BuiltReport
      */
     public static function load($id = false){
-        
+
         global $DB;
-        
+
         if ($id){
             $record = $DB->get_record("block_bcdb_reports", array("id" => $id));
             if ($record){
@@ -618,34 +625,34 @@ abstract class Report {
                 }
             }
         }
-        
+
     }
-    
-    
-    
+
+
+
     public static function loadFromXML($file){
-        
+
         // Check file uploaded correctly
         if ($file['error'] > 0){
             print_error('error:importreport', 'block_bc_dashboard');
         }
-        
+
         // Check mime type of file to make sure it is XML
         $fInfo = finfo_open(FILEINFO_MIME_TYPE);
             $mime = finfo_file($fInfo, $file['tmp_name']);
-        finfo_close($fInfo);           
-        
+        finfo_close($fInfo);
+
         // Has to be XML file, otherwise error and return
         if ($mime != 'application/xml' && $mime != 'text/plain'){
             print_error('error:importreport:mime', 'block_bc_dashboard', '', $mime);
         }
-        
+
         // Open file
         $doc = \simplexml_load_file($file['tmp_name']);
         if (!$doc){
             print_error('error:importreport:load', 'block_bc_dashboard');
         }
-                
+
         $type = $doc->report->type;
         if ($type == 'built'){
             $report = new \BCDB\Report\BuiltReport();
@@ -654,11 +661,11 @@ abstract class Report {
         } else {
             print_error('error:invalidreport', 'block_bc_dashboard');
         }
-        
+
         $report->setName($doc->report->name);
         $report->setDescription($doc->report->description);
         $report->setQuery($doc->report->query);
-        
+
         $paramsArray = array();
         $params = $doc->report->parameters->param;
         foreach($params as $param)
@@ -666,15 +673,15 @@ abstract class Report {
             $paramsArray[] = json_decode($param);
         }
         $report->setParams($paramsArray);
-        
+
         $options = (array)$doc->report->options;
         $report->setOptions($options);
-        
+
         // Type-specific stuff here, e.g. built report will have various other bits attached to it
-        
-        
+
+
         return $report;
-        
+
     }
-    
+
 }

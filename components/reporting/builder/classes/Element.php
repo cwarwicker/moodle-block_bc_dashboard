@@ -17,9 +17,9 @@
 /**
  * Dashboard Reporting
  *
- * The Reporting Dashboard plugin is a block which runs alongside the ELBP and Grade Tracker blocks, to provide a better experience and extra features, 
+ * The Reporting Dashboard plugin is a block which runs alongside the ELBP and Grade Tracker blocks, to provide a better experience and extra features,
  * such as combined reporting across both plugins. It also allows you to create your own custom SQL reports which can be run on any aspect of Moodle.
- * 
+ *
  * @package     block_bc_dashboard
  * @copyright   2017-onwards Conn Warwicker
  * @author      Conn Warwicker <conn@cmrwarwicker.com>
@@ -27,7 +27,7 @@
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  *
  * Originally developed at Bedford College, now maintained by Conn Warwicker
- * 
+ *
  */
 namespace BCDB\Report;
 
@@ -37,20 +37,20 @@ namespace BCDB\Report;
  * @author cwarwicker
  */
 abstract class Element {
-    
+
     // These variables are stored in the database
     protected $id;
     protected $name;
     protected $plugin;
     protected $subplugin;
     protected $enabled;
-    
+
     // These variables are static and defined on the element
     protected $level;
     protected $type;
     protected $datatype = 'numeric';
     protected $options; // These are the parameters you can CHOOSE from
-    
+
     // These variables are changed
     protected $displayName;
     protected $object;
@@ -58,152 +58,156 @@ abstract class Element {
     protected $sql;
     protected $alias;
     protected $ran = false;
-    
+
     const DATE_FORMAT = 'd-m-Y';
-    
+
     public function __construct($params = null) {
-                
+
         $this->sql = array(
             'select' => '',
             'join' => array(),
             'where' => array(),
             'params' => array()
         );
-                        
+
         $this->params = $params;
-        
+
     }
-    
+
     public function isEnabled(){
         return ($this->enabled == 1);
     }
-    
+
     public function getID(){
         return $this->id;
     }
-    
+
     public function setID($id){
         $this->id = $id;
         return $this;
     }
-        
+
     public function getName(){
         return $this->name;
     }
-    
+
     public function getPlugin(){
         return $this->plugin;
     }
-    
+
     public function getSubPlugin(){
         return $this->subplugin;
     }
-    
+
     public function setName($name){
         $this->name = $name;
         return $this;
     }
-    
+
     public function setPlugin($plugin){
         $this->plugin = $plugin;
         return $this;
     }
-    
+
     public function setSubPlugin($plugin){
         $this->subplugin = $plugin;
         return $this;
     }
-    
+
     public function setDisplayName($name){
         $this->displayName = $name;
         return $this;
     }
-    
+
     public function setEnabled($val){
         $this->enabled = $val;
     }
-    
+
     public function getDisplayName(){
         return (!is_null($this->displayName)) ? $this->displayName : $this->getStringName();
     }
-    
+
     public function getStringName(){
         return get_string('bc_dashboard:'.$this->name, $this->plugin);
     }
-    
+
     public function getLevel(){
         return $this->level;
-    }    
-    
+    }
+
     public function getDataType(){
         return $this->datatype;
     }
-    
+
     public function getType(){
         return $this->type;
     }
-    
+
     public function getOptions(){
         return $this->options;
     }
-    
+
     public function getEnabled(){
         return $this->enabled;
     }
-    
+
     public function getSQL(){
         return $this->parseSQL($this->sql);
     }
-    
+
     private function parseSQL($sqlArray){
-        
+
         $sqlArray['select'] = trim($sqlArray['select']);
-        
+
         if (strlen($sqlArray['select']) == 0){
             unset($sqlArray['select']);
             return $sqlArray;
         }
-        
+
         // Set alias on selected item
         $sqlArray['select'] .= ' as ' . $this->getAliasName();
-        
+
         return $sqlArray;
-        
+
     }
-    
+
     public function getParams(){
         return $this->params;
     }
-    
+
     public function getParam($id){
         return (isset($this->params[$id])) ? $this->params[$id] : false;
     }
-    
+
     public function setParams($params){
         $this->params = $params;
         return $this;
     }
-    
+
     public function setParam($key, $param){
         $this->params[$key] = $param;
         return $this;
     }
-    
+
     public function getAlias(){
         return $this->alias;
     }
-    
+
     public function setAlias($alias){
         $this->alias = $alias;
         return $this;
     }
-    
-    public function getAliasName(){
-        return $this->alias . "_value";
+
+    public function getAliasName($hybrid = false){
+
+        $alias = "{$this->alias}_value";
+        if (strlen($hybrid)) $alias .= ":{$hybrid}";
+
+        return $alias;
     }
-    
- 
-    
+
+
+
     public function run(){
         if (!$this->ran()){
             $this->get();
@@ -211,44 +215,44 @@ abstract class Element {
         }
         return $this->getSQL();
     }
-    
+
     public function ran(){
         return ($this->ran);
     }
-    
+
     /**
      * Get the value of this element for a given user object
      * @param type $obj
      */
     public function val($obj){
-        
+
         $field = $this->getAliasName();
         return $obj[$field];
-        
+
     }
-    
+
     // If the setting of one parameter affects others, this can be used to refresh them in individual elements
     public function refreshOptions(){}
-    
+
     abstract public function get();
     abstract public function call(&$results);
-    
+
     /**
      * This is to be overriden by actual aggregate methods
      * @param type $results
      */
     public function aggregate($results){
-        
+
         $field = $this->getAliasName();
         if ($this->datatype == 'string'){
             return array($field => '-');
         } else {
             return array($field => 0);
         }
-        
+
     }
 
-    
+
     /**
      * Load an element object from its id
      * @global \BCDB\Report\type $CFG
@@ -257,16 +261,16 @@ abstract class Element {
      * @return \BCDB\Report\classname|boolean
      */
     public static function load($id){
-        
+
         global $CFG, $DB;
-        
+
         $record = $DB->get_record("block_bcdb_report_elements", array("id" => $id));
         if ($record)
         {
-            
+
             // Require file
             require_once $CFG->dirroot . $record->filepath;
-            
+
             // Load class
             $element = new $record->classname();
             $element->setID($record->id);
@@ -274,63 +278,63 @@ abstract class Element {
             $element->setPlugin($record->plugin);
             $element->setSubPlugin($record->subplugin);
             $element->setEnabled($record->enabled);
-            
+
             return $element;
-            
+
         }
-        
+
         return false;
-        
+
     }
-    
-    
+
+
     /**
      * Retrieve all the elements from the database
      * @global \BCDB\Report\type $DB
      */
     public static function retrieve($enabledOnly = true, $flatList = false){
-        
+
         global $DB;
-        
+
         $return = array();
         $params = ($enabledOnly) ? array("enabled" => 1) : array();
-        
+
         $records = $DB->get_records("block_bcdb_report_elements", $params, "plugin, subplugin, name");
-        
+
         if ($records)
         {
             foreach($records as $record)
             {
-                
+
                 // Create an array for this plugin
                 if (!isset($return[$record->plugin]) && !$flatList){
                     $return[$record->plugin] = array();
                     $arr = &$return[$record->plugin];
                 }
-                
+
                 // If there is a subplugin, create an array for that as well
                 if (isset($record->subplugin) && !isset($return[$record->plugin][$record->subplugin]) && !$flatList){
                     $return[$record->plugin][$record->subplugin] = array();
                     $arr = &$return[$record->plugin][$record->subplugin];
-                }                               
-                    
+                }
+
                 if ($flatList){
                     $arr = &$return;
                 }
-                
-                $obj = \BCDB\Report\Element::load($record->id);     
+
+                $obj = \BCDB\Report\Element::load($record->id);
                 $obj->_id = $obj->getID();
                 $obj->_name = $obj->getDisplayName();
                 $obj->_enabled = $obj->getEnabled();
                 $arr[$record->id] = $obj;
-                
+
             }
         }
-        
+
         return $return;
-        
+
     }
-    
+
     /**
      * Scan for elements in moodle plugins
      * @global type $CFG
@@ -377,7 +381,7 @@ abstract class Element {
                                 {
                                     $elementsArray[] = $element->id;
                                 }
-                               
+
                             }
 
                         }
@@ -401,13 +405,13 @@ abstract class Element {
      * @return type
      */
     public static function update($obj){
-        
+
         global $DB;
         return $DB->update_record("block_bcdb_report_elements", $obj);
-        
+
     }
-    
-    
+
+
     /**
      * This one is used when scanning for new elements and updates/inserts based on name and plugin
      * @global \BCDB\Report\type $DB
@@ -477,6 +481,6 @@ abstract class Element {
     }
 
 
-    
-    
+
+
 }

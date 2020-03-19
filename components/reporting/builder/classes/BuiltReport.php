@@ -17,9 +17,9 @@
 /**
  * Dashboard Reporting
  *
- * The Reporting Dashboard plugin is a block which runs alongside the ELBP and Grade Tracker blocks, to provide a better experience and extra features, 
+ * The Reporting Dashboard plugin is a block which runs alongside the ELBP and Grade Tracker blocks, to provide a better experience and extra features,
  * such as combined reporting across both plugins. It also allows you to create your own custom SQL reports which can be run on any aspect of Moodle.
- * 
+ *
  * @package     block_bc_dashboard
  * @copyright   2017-onwards Conn Warwicker
  * @author      Conn Warwicker <conn@cmrwarwicker.com>
@@ -27,7 +27,7 @@
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  *
  * Originally developed at Bedford College, now maintained by Conn Warwicker
- * 
+ *
  */
 namespace BCDB\Report;
 
@@ -37,16 +37,16 @@ namespace BCDB\Report;
  * @author cwarwicker
  */
 class BuiltReport extends \BCDB\Report {
-        
+
     protected $type = 'builder';
-    
+
     private $elements = array();
     private $startingPoint;
-    
+
     public function __construct($record = false) {
-        
+
         parent::__construct($record);
-        
+
         if ($this->isValid())
         {
             // Set the starting point option into its own variable - WHY???
@@ -68,39 +68,39 @@ class BuiltReport extends \BCDB\Report {
                 }
             }
         }
-        
+
     }
-    
+
     public function addElement(\BCDB\Report\Element $element){
         $this->elements[] = $element;
         $element->setAlias('t'.count($this->elements));
     }
-    
+
     public function getElements(){
         return $this->elements;
     }
-    
+
     public function setElements(array $elements){
         $this->elements = $elements;
     }
-    
+
     public function setStartingPoint($start){
         $this->startingPoint = $start;
     }
-    
+
     public function getStartingPoint(){
         return $this->startingPoint;
     }
-    
+
     public function getStartingPointName(){
-        
-        $cat = \coursecat::get($this->startingPoint);
+
+        $cat = \core_course_category::get($this->startingPoint);
         return ($cat) ? $cat->get_formatted_name() : '';
-        
+
     }
-    
+
     public function getElementNames(){
-        
+
         $array = array();
         if ($this->elements)
         {
@@ -109,15 +109,15 @@ class BuiltReport extends \BCDB\Report {
                 $array[] = $element->getDisplayName();
             }
         }
-        
+
         return $array;
-        
+
     }
-        
+
     public function execute(){
-        
+
         $this->data = array();
-                       
+
         // Run for the starting point category
         if ($this->startingPoint > 0){
             $this->data[$this->startingPoint] = array();
@@ -125,11 +125,11 @@ class BuiltReport extends \BCDB\Report {
             $this->data[$this->startingPoint]['courses'] = array();
             $this->get($this->startingPoint);
         }
-        
+
         // Otherwise find all the top level categories in the configuration setting and use all of those
         else
         {
-            
+
             $Config = new \BCDB\Config();
             $cats = $Config->getTopLevelCourseCategories();
             if ($cats)
@@ -142,17 +142,16 @@ class BuiltReport extends \BCDB\Report {
                     $this->get($cat->id);
                 }
             }
-                        
+
         }
-                 
-        
+
     }
-    
+
     // Unused abstract method
     public function run(){}
-    
-    
-    
+
+
+
     /**
      * This is called by ->execute() on the starting category
      * @param type $catID
@@ -160,43 +159,43 @@ class BuiltReport extends \BCDB\Report {
      * @param type $results
      */
     private function get($catID, $courseID = null, &$results = null){
-                
+
         if (is_null($results)){
             $results = &$this->data[$catID];
         }
-                
+
         // If we passed through a course ID, now we find the users on the course
         if (!is_null($courseID))
         {
             $results = $this->results($courseID);
         }
-        
+
         // If we only passed through a category ID, find the courses on the category (and sub cats)
         else
         {
-                    
-            $cat = \coursecat::get($catID);
+
+            $cat = \core_course_category::get($catID);
             $results['name'] = $cat->name;
             $results['type'] = 'cat';
-            
+
             $courses = $this->getCourses($catID);
             if ($courses)
             {
                 foreach($courses as $course)
                 {
-                    
+
                     if (!isset($results['courses'][$course->id])){
                         $results['courses'][$course->id] = array();
                     }
-                    
+
                     $this->get($catID, $course->id, $results['courses'][$course->id]);
-                    
+
                 }
-            } 
-            
+            }
+
             // Sort courses
-            
-               
+
+
             // Sub Cats
             $subCats = $this->getSubCats($catID);
             if ($subCats)
@@ -208,44 +207,44 @@ class BuiltReport extends \BCDB\Report {
                     }
                     $this->get($subCat->id, null, $results['cats'][$subCat->id]);
                 }
-            }          
-            
-            
+            }
+
+
             // Now do the totalling up of everything underneath this
             $totalsArray = array($catID => array());
             $this->getTotals($results, $totalsArray, $catID);
-            
+
 
         }
-        
+
     }
-    
+
     /**
      * Add up the course totals
      * @param type $totalsArray
      * @return type
      */
     private function getTotals(&$results, &$totalsArray, $catID){
-                
+
         // First do each course in this category
         if (isset($results['courses']) && $results['courses'])
         {
             foreach($results['courses'] as $courseID => &$course)
             {
-                
+
                 // Total the users up on this course
                 $course['totals'] = $this->total($course['users']);
-                
+
                 // Then add the array of users to the overall array for the categories we are currently totalling
                 foreach($totalsArray as &$total)
                 {
                     $total = $total + $course['users'];
                 }
-                
+
             }
         }
-        
-        
+
+
         // Sub cats
         if (isset($results['cats']) && $results['cats'])
         {
@@ -254,20 +253,20 @@ class BuiltReport extends \BCDB\Report {
                 $this->getTotals($results['cats'][$subCatID], $totalsArray, $subCatID);
             }
         }
-                
+
         // Now we have finished evrything beneath this level, so total up this category and add it to the results array
         if (isset($totalsArray[$catID])){
             $results['usercnt'] = count($totalsArray[$catID]);
             $results['totals'] = $this->total($totalsArray[$catID]);
         }
-                
+
     }
-    
-    
+
+
     private function total($users){
-        
+
         $return = array();
-        
+
         if ($this->elements)
         {
             foreach($this->elements as $element)
@@ -276,16 +275,16 @@ class BuiltReport extends \BCDB\Report {
                 if ($aggregate)
                 {
                     $key = key($aggregate);
-                    $return[$key] = $aggregate[$key];                                
+                    $return[$key] = $aggregate[$key];
                 }
             }
         }
-        
+
         return $return;
-        
+
     }
-    
-    
+
+
     /**
      * Get courses in a category
      * @global \BCDB\Report\type $DB
@@ -293,19 +292,19 @@ class BuiltReport extends \BCDB\Report {
      * @return type
      */
     private function getCourses($catID){
-        
+
         global $DB;
-        
+
         // Get parent courses
-        $courses = $DB->get_records("course", array("category" => $catID), "fullname ASC");        
-        
+        $courses = $DB->get_records("course", array("category" => $catID), "fullname ASC");
+
         // If we only want child courses, now get all the child courses off them instead
         if ($this->getOption("course_type") == "child")
         {
-            
+
             // Loop through courses and get all the child courses
             $return = array();
-            
+
             if ($courses)
             {
                 foreach($courses as $course)
@@ -314,20 +313,20 @@ class BuiltReport extends \BCDB\Report {
                     $return = $return + $children;
                 }
             }
-            
+
             // Sort them
             \bcdb_sort($return, 'fullname');
-            
+
             return $return;
-            
+
         }
         else
-        {       
+        {
             return $courses;
         }
-        
+
     }
-    
+
     /**
      * Get course sub categories
      * @global type $DB
@@ -335,70 +334,70 @@ class BuiltReport extends \BCDB\Report {
      * @return type
      */
     private function getSubCats($catID){
-        
+
         global $DB;
         return $DB->get_records("course_categories", array("parent" => $catID));
-        
+
     }
-    
+
     private function results($courseID){
-        
+
         global $DB;
-        
+
         $course = \bcdb_get_course($courseID);
         if (!$course){
             return false;
         }
-        
+
         $return = array(
             'name' => $course->fullname,
             'type' => 'course',
             'users' => array()
         );
-        
+
         $query = $this->buildSQL($courseID);
         $sql = $query['sql'];
         $sqlParams = $query['params'];
-                
-        // Run the SQL        
+
+        // Run the SQL
         $return['users'] = $DB->get_records_sql($sql, $sqlParams);
         if ($return['users']){
             $return['users'] = \bcdb_to_array($return['users']);
         }
-                        
+
         $return['usercnt'] = count($return['users']);
-        
+
         // Now go through any which need to call functions instead of adding to the SQL
-        $this->functions($return);   
-        
+        $this->functions($return);
+
         return $return;
-        
+
     }
-    
-    
+
+
     private function functions(&$results){
-        
+
         if ($this->elements)
         {
             foreach($this->elements as $element)
             {
-                if ($element->getType() == 'function')
+                if ($element->getType() == 'function' || $element->getType() == 'hybrid')
                 {
-                    
+
                     // Call the function for each of the users in the results records
                     $element->call($results);
-                    
+
                 }
             }
         }
-        
+
     }
 
-    
+
     private function buildSQL($courseID){
-        
+
         $return = array('sql' => '', 'params' => array());
-        
+
         $sqlArray = array(
             'select' => array('distinct u.id', 'u.firstname', 'u.lastname', 'u.username'),
             'from' => '{user} u',
@@ -407,24 +406,24 @@ class BuiltReport extends \BCDB\Report {
             'group' => 'u.id',
             'order' => 'u.lastname, u.firstname, u.username'
         );
-        
+
         $paramsArray = array();
-        
+
         // Loop through elements
         if ($this->elements)
         {
             foreach($this->elements as $element)
             {
                 // Run the element to get
-                if ($element->getType() == 'sql')
+                if ($element->getType() == 'sql' || $element->getType() == 'hybrid')
                 {
-                    
+
                     // Run the definition and apply the table alias to the sql strings
                     $elementSQLArray = $element->run();
-                    
+
                     // Merge the sql for the element into the overall sql
                     $sqlArray = array_merge_recursive($sqlArray, $elementSQLArray);
-                    
+
                     // Get the sql params
                     if (isset($elementSQLArray['params']) && $elementSQLArray['params'])
                     {
@@ -433,14 +432,14 @@ class BuiltReport extends \BCDB\Report {
                             $paramsArray[] = $sqlParam;
                         }
                     }
-                    
+
                 }
             }
         }
-              
+
         // Now add the course ID param to the end of the params array
         $paramsArray[] = $courseID;
-        
+
         // Now any filters
         if ($this->filters)
         {
@@ -448,75 +447,75 @@ class BuiltReport extends \BCDB\Report {
             {
                 foreach($typeFilters as $filter)
                 {
-                    
+
                     // User filters
                     if ($type == 'user')
                     {
-                        
+
                         // Build the where clause
-                        
+
                         $clause = "u.".clean_param($filter->field, PARAM_ALPHANUMEXT)." ";
-                        
+
                         if ($filter->cmp == 'equals') $clause .= '= ';
                         elseif ($filter->cmp == 'notequals') $clause .= '!= ';
                         else continue;
-                            
+
                         $clause .= '?';
-                        
+
                         $sqlArray['where'][] = $clause;
                         $paramsArray[] = $filter->val;
-                        
+
                     }
-                    
-                }                
+
+                }
             }
         }
-        
+
         // Convert array to actual SQL statement
         $return['sql'] = $this->convertToSQL($sqlArray);
         $return['params'] = $paramsArray;
-                                                
+
         return $return;
-        
+
     }
-    
+
     /**
      * Convert an array of select, join, where, group, into an sql string
      * @param type $sqlArray
      * @return string
      */
     private function convertToSQL($sqlArray){
-        
+
         // Remove empty elements
         $sqlArray['select'] = array_filter($sqlArray['select']);
         $sqlArray['join'] = array_filter($sqlArray['join']);
         $sqlArray['where'] = array_filter($sqlArray['where']);
-        
+
         $sql = "";
-        
+
         // Select
         $sql .= "SELECT " . implode(", ", $sqlArray['select']) . " ";
-        
+
         // From
         $sql .= "FROM " . $sqlArray['from'] . " ";
-        
+
         // Joins
         foreach($sqlArray['join'] as $join)
         {
             $sql .= $join . " ";
         }
-        
+
         // Where
         $sql .= "WHERE " . implode(" AND ", $sqlArray['where']) . " ";
-        
+
         // Group
         $sql .= "GROUP BY " . $sqlArray['group'] . " ";
-        
+
         // Order
         $sql .= "ORDER BY " . $sqlArray['order'] . " ";
-        
+
         return $sql;
-        
+
     }
 
     /**
@@ -525,16 +524,16 @@ class BuiltReport extends \BCDB\Report {
      * @return type
      */
     public function canEdit(){
-        
+
         global $USER, $bcdb;
         return ( $this->canView() && has_capability('block/bc_dashboard:crud_built_report', $bcdb['context']) && ( $this->createdby == $USER->id || has_capability('block/bc_dashboard:edit_any_built_report', $bcdb['context']) ) );
-        
+
     }
 
     public function getHeaders($method = false) {
-        
+
         $headers = array();
-        
+
         if ($method == 'html'){
             $headers[] = get_string('name');
         } else {
@@ -544,9 +543,9 @@ class BuiltReport extends \BCDB\Report {
             $headers[] = get_string('lastname');
             $headers[] = get_string('username');
         }
-        
+
         $headers[] = get_string('numberofstudents', 'block_bc_dashboard');
-                
+
         // Elements
         if ($this->elements)
         {
@@ -555,59 +554,59 @@ class BuiltReport extends \BCDB\Report {
                 $headers[$element->getAliasName()] = $element->getDisplayName();
             }
         }
-        
+
         return $headers;
-        
+
     }
-    
+
 
     public function export($method = 'excel'){
-        
+
         global $CFG;
-        
+
         require_once $CFG->dirroot . '/lib/filelib.php';
 
         // Clear any output
         ob_end_clean();
-        
+
         // Try and create a directory to store the saved files in
         if (!\bcdb_create_data_dir("built_reports")){
             echo json_encode( array('errors' => array( get_string('error:createdir', 'block_bc_dashboard') ) ) );
             exit;
         }
-        
+
         // Try and create a directory to store the saved files in
         if (!\bcdb_create_data_dir("built_reports/{$this->id}")){
             echo json_encode( array('errors' => array( get_string('error:createdir', 'block_bc_dashboard') ) ) );
             exit;
         }
-                
+
         switch($method)
         {
-                        
+
             case 'excel':
             default:
-                
+
                 $this->runExportExcel();
-                
+
                 // Create download link
                 $code = \bcdb_create_download_code($this->savedFilePath);
-                                
+
                 // Send file
                 \BCDB\Log::add(\BCDB\Log::LOG_EXPORT_REPORT, $this->id);
-                echo json_encode( array('download' => $code) );      
+                echo json_encode( array('download' => $code) );
                 exit;
-                
+
             break;
-            
+
         }
-        
+
     }
-    
+
     private function getExcelStyle($type){
-        
+
         $styles = array(
-            
+
             'header' => array(
                     'fill' => array(
                         'type' => \PHPExcel_Style_Fill::FILL_SOLID,
@@ -618,7 +617,7 @@ class BuiltReport extends \BCDB\Report {
                         'color' => array('rgb' => 'ffffff')
                     )
                 ),
-            
+
             'cat' => array(
                     'fill' => array(
                         'type' => \PHPExcel_Style_Fill::FILL_SOLID,
@@ -629,7 +628,7 @@ class BuiltReport extends \BCDB\Report {
                         'color' => array('rgb' => 'ffffff')
                     )
                 ),
-            
+
             'course' => array(
                     'fill' => array(
                         'type' => \PHPExcel_Style_Fill::FILL_SOLID,
@@ -640,8 +639,8 @@ class BuiltReport extends \BCDB\Report {
                         'color' => array('rgb' => '000000')
                     )
                 ),
-            
-            
+
+
             'subcat' => array(
                     'fill' => array(
                         'type' => \PHPExcel_Style_Fill::FILL_SOLID,
@@ -652,8 +651,8 @@ class BuiltReport extends \BCDB\Report {
                         'color' => array('rgb' => 'ffffff')
                     )
                 ),
-            
-            
+
+
             'subcourse' => array(
                     'fill' => array(
                         'type' => \PHPExcel_Style_Fill::FILL_SOLID,
@@ -664,13 +663,13 @@ class BuiltReport extends \BCDB\Report {
                         'color' => array('rgb' => '000000')
                     )
                 ),
-            
+
         );
-        
+
         return (isset($styles[$type])) ? $styles[$type] : false;
-        
+
     }
-    
+
     /**
      * Run the export for a category's data and all the sub data below it
      * @param type $catID
@@ -680,11 +679,11 @@ class BuiltReport extends \BCDB\Report {
      * @param type $parentName
      */
     private function runRecursiveExcelCategory($catID, $data, &$objPHPExcel, &$rowNum, $parentName = ''){
-        
-        $category = \coursecat::get($catID);
-        
+
+        $category = \core_course_category::get($catID);
+
         $catName = $parentName . $category->name;
-        
+
         // Now do the category totals
         $objPHPExcel->getActiveSheet()->setCellValue("A{$rowNum}", $catName);
         $objPHPExcel->getActiveSheet()->setCellValue("B{$rowNum}", '-');
@@ -694,7 +693,7 @@ class BuiltReport extends \BCDB\Report {
         $objPHPExcel->getActiveSheet()->setCellValue("F{$rowNum}", $data['usercnt']);
 
         $letter = 'G';
-        
+
         if ($this->elements)
         {
             foreach($this->elements as $element)
@@ -720,7 +719,7 @@ class BuiltReport extends \BCDB\Report {
         {
             foreach($data['courses'] as $courseID => $courseRow)
             {
-                
+
                 // Course Info
                 $course = get_course($courseID);
 
@@ -765,7 +764,7 @@ class BuiltReport extends \BCDB\Report {
                         $objPHPExcel->getActiveSheet()->setCellValue("D{$rowNum}", $userRow['lastname']);
                         $objPHPExcel->getActiveSheet()->setCellValue("E{$rowNum}", $userRow['username']);
                         $objPHPExcel->getActiveSheet()->setCellValue("F{$rowNum}", '-');
-                        
+
                         $letter = 'G';
 
                         if ($this->elements)
@@ -782,14 +781,14 @@ class BuiltReport extends \BCDB\Report {
                         $rowNum++;
 
                     }
-                    
+
                 }
-                
+
             }
-            
+
         }
-        
-        
+
+
         // Now do any sub cats
         if (isset($data['cats']) && $data['cats'])
         {
@@ -798,11 +797,11 @@ class BuiltReport extends \BCDB\Report {
                 $this->runRecursiveExcelCategory($subCatID, $subCatRow, $objPHPExcel, $rowNum, $catName . ' / ');
             }
         }
-        
-        
+
+
     }
-    
-    
+
+
     /**
      * Run the Excel export
      * @global type $CFG
@@ -810,112 +809,113 @@ class BuiltReport extends \BCDB\Report {
      * @return type
      */
     public function runExportExcel(){
-        
+
         global $CFG, $USER;
-        
+
         require_once $CFG->dirroot . '/lib/phpexcel/PHPExcel.php';
-        
+
         // Filter report name to work properly as a excel file name
         $reportName = preg_replace("/[^a-z0-9 _]/i", "", $this->name);
         if (strlen($reportName) == 0){
             $reportName = 'RPT';
         }
-        
+
         $objPHPExcel = new \PHPExcel();
-        
+
         // Set file properties
         if ($USER->id){
             $objPHPExcel->getProperties()->setCreator(fullname($USER))
                         ->setLastModifiedBy(fullname($USER));
         }
-        
+
         $objPHPExcel->getProperties()->setTitle($reportName)
                                      ->setSubject($reportName)
                                      ->setDescription($reportName . " generated by BCDB Reporting Dashboard");
 
         $objPHPExcel->setActiveSheetIndex(0);
-        
+
         // Convert report data into rows
         if ($this->data)
         {
             foreach($this->data as $catID => $data)
             {
-                
+
                 // New worksheet for each top level category
-                $category = \coursecat::get($catID);
+                $category = \core_course_category::get($catID);
                 $catName = preg_replace("/[^a-z0-9 _]/i", "", $category->name);
                 $catName = substr($catName, 0, 31);
+                $catName = (strlen($catName)) ? $catName : '-';
                 $objPHPExcel->getActiveSheet()->setTitle($catName);
-                
+
                 // Headers
                 $rowNum = 1;
                 $headerLetter = 'A';
-                                
+
                 foreach($this->getHeaders() as $header)
                 {
                     $objPHPExcel->getActiveSheet()->setCellValue("{$headerLetter}{$rowNum}", $header);
                     $headerLetter++;
                 }
-                                
+
                 // Style the header row
                 $objPHPExcel->getActiveSheet()->getStyle("A{$rowNum}:".bcdb_decrement_letter($headerLetter)."{$rowNum}")->applyFromArray( $this->getExcelStyle('header') );
-                
+
                 // Increment the row
                 $rowNum++;
-                
-                
+
+
                 // Recursively run this category and all its sub categories
                 $this->runRecursiveExcelCategory($catID, $data, $objPHPExcel, $rowNum);
-                
-                
+
+
                 // Freeze the top row
                 $objPHPExcel->getActiveSheet()->freezePane('A2');
-                
+
                 // Increment for next category
                 $sheetID = $objPHPExcel->getActiveSheetIndex() + 1;
                 $objPHPExcel->createSheet($sheetID);
                 $objPHPExcel->setActiveSheetIndex( $sheetID );
-                
-                
+
+
             }
         }
-        
+
         // Reset the active sheet back to the first one
         $objPHPExcel->setActiveSheetIndex(0);
-        
+
         // Create the file
         $objWriter = \PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
         $filename = $USER->id . '-' . \bcdb_make_file_name($this->name) . '.xlsx';
         $file = $CFG->dataroot . '/BCDB/built_reports/' . $this->id . '/' . $filename;
         $objWriter->save( $file );
-        $this->savedFilePath = 'built_reports/' . $this->id . '/' . $filename;        
-        
+        $this->savedFilePath = 'built_reports/' . $this->id . '/' . $filename;
+
         return $objWriter;
-        
+
     }
-    
-    
-    
-    
-    
-    
+
+
+
+
+
+
     private function convertDataToRows($startingCatID){
-        
+
         $return = array();
         $data = $this->data;
-                
+
         // Starting at a category
         // Get its courses
         if ($data)
         {
-            
-            $cat = \coursecat::get($startingCatID);
+
+            $cat = \core_course_category::get($startingCatID);
             if ($cat)
             {
-                
+
                 // Category totals row
                 $return[] = array('type' => 'cat', 'nm_value' => $cat->name) + $this->filterElementsOnly($data['totals']);
-            
+
                 foreach($data['courses'] as $cID => $course)
                 {
 
@@ -938,19 +938,19 @@ class BuiltReport extends \BCDB\Report {
                     }
 
                 }
-            
+
             }
-            
+
         }
-                
+
         return $return;
-        
+
     }
-    
+
     private function filterElementsOnly($array){
-        
+
         $return = array();
-        
+
         foreach($this->elements as $el)
         {
             if (array_key_exists($el->getAliasName(), $array))
@@ -958,71 +958,71 @@ class BuiltReport extends \BCDB\Report {
                 $return[$el->getAliasName()] = $array[$el->getAliasName()];
             }
         }
-        
+
         return $return;
-        
+
     }
-    
+
     public function hasErrors(){
-        
+
         // Check for errors in the loaded form data
-        
+
         // Name must be filled out
         if ($this->name == ''){
             $this->errors[] = get_string('error:report:name', 'block_bc_dashboard');
         }
-        
+
         // Check all the elements to make sure the options have been filled out
         if ($this->elements){
-            
+
             foreach($this->elements as $element){
-                                
+
                 // Check each option to see if it's filled out with a valid value
                 if ($element->getOptions()){
-                    
+
                     foreach($element->getOptions() as $num => $option){
-                        
+
                         $possibleValues = $option[2];
                         $value = $element->getParam($num);
-                        
+
                         // If value is missing
                         if ($value === '' || $value === false){
                             $this->errors[] = sprintf( get_string('error:builderreport:elementoption', 'block_bc_dashboard'), $element->getDisplayName(), $num + 1 );
                         }
-                        
+
                     }
-                    
+
                 }
-                
+
             }
-            
-        }       
-                
+
+        }
+
         return ($this->errors);
-        
+
     }
 
     public function loadFormData($data) {
-                                     
+
         global $bcdb;
-        
+
         // Report info
         if (isset($data['report_id']) && $data['report_id'] > 0){
             $this->id = $data['report_id'];
         }
-        
+
         $this->name = trim($data['report_name']);
         $this->description = trim($data['report_desc']);
-        
+
         // Options
         $this->startingPoint = $data['report_options']['startingpoint'];
-        
-        if (ctype_digit($data['report_options']['cat']) && has_capability('block/bc_dashboard:assign_report_categories', $bcdb['context'])){
+
+        if (isset($data['report_options']['cat']) && ctype_digit($data['report_options']['cat']) && has_capability('block/bc_dashboard:assign_report_categories', $bcdb['context'])){
             $this->category = $data['report_options']['cat'];
             unset($data['report_options']['cat']);
         }
-                
-        // Elements        
+
+        // Elements
         $params = array();
 
         if (isset($data['elements']) && $data['elements'])
@@ -1045,13 +1045,13 @@ class BuiltReport extends \BCDB\Report {
                             $obj->setParam($oNum, $option);
                         }
                     }
-                    
+
                     // Refresh the options for when we go back to the page again
                     $obj->refreshOptions();
 
                     // Add the element to the object so it can be displayed back in the form
                     $this->addElement($obj);
-                    
+
                     // Then add to a params array to be stored in the DB minimally
                     $params[$num] = array(
                         'id' => $element['id'],
@@ -1063,10 +1063,10 @@ class BuiltReport extends \BCDB\Report {
 
             }
         }
-        
+
         // Parameters
         $this->params = $params;
-        
+
         // Filters
         $filters = array();
         if (isset($data['filters']) && $data['filters'])
@@ -1081,19 +1081,19 @@ class BuiltReport extends \BCDB\Report {
         }
 
         $this->filters = $filters;
-                
+
         // Options
         if ($data['report_options']){
             foreach($data['report_options'] as $name => $val){
                 $this->options[$name] = $val;
             }
         }
-        
-               
-        
+
+
+
     }
 
-    
+
     /**
      * Check if current user has permissions to delete this report
      * Need to:
@@ -1105,11 +1105,11 @@ class BuiltReport extends \BCDB\Report {
      * @return type
      */
     public function canDelete(){
-        
+
         global $USER, $bcdb;
         return ( $this->canView() && has_capability('block/bc_dashboard:crud_built_report', $bcdb['context']) && ( $this->createdby == $USER->id || has_capability('block/bc_dashboard:delete_any_built_report', $bcdb['context']) ) );
-        
+
     }
-    
-    
+
+
 }

@@ -62,7 +62,7 @@ class block_bc_dashboard  extends block_base
         }
         
         $this->content->text = "<ul class='bcdb_list_none'>";
-        $this->content->text .= "<li><img src='{$this->imgdir}report.png' style='width:16px;' /> <a href='{$CFG->wwwroot}/blocks/bc_dashboard/reporting'>".get_string('reports')."</a></li>";
+        $this->content->text .= "<li><img src='{$this->imgdir}report.png' style='width:16px;' /> <a href='{$CFG->wwwroot}/blocks/bc_dashboard/index.php?Qs=reporting'>".get_string('reports')."</a></li>";
         $this->content->text .= "</ul>";
         
         return $this->content;

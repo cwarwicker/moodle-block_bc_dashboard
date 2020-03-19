@@ -4,15 +4,15 @@
 <?= \bcdb_success( isset($messages['success']) ? $messages['success'] : false ) ?>
 
 <form id='report_form' action='' method='post'>
-        
+
     <div class="col-lg-12">
-        
+
         <div class="panel panel-default">
             <div class="panel-heading">
                 <h3 class="panel-title"><?= $string['details'] ?></h3>
             </div>
             <div class="panel-body">
-    
+
                 <div class="col-lg-6">
 
                     <div class="form-group">
@@ -49,13 +49,13 @@
                         </select>
                     </div>
 
-                    <div class="form-group">
-                        <label><?= $string['visibility'] ?></label>
-                        <select class="form-control" name='report_options[cat]'>
-                            <optgroup label="<?= $string['private'] ?>">
-                                <option value='private' <?= (isset($report) && is_null($report->getCategory())) ? 'selected' : '' ?> ><?= $string['private'] ?></option>
-                            </optgroup>
-                            <?php if (has_capability('block/bc_dashboard:assign_report_categories', $this->context)): ?>
+                    <?php if (has_capability('block/bc_dashboard:assign_report_categories', $this->context)): ?>
+                        <div class="form-group">
+                            <label><?= $string['visibility'] ?></label>
+                            <select class="form-control" name='report_options[cat]'>
+                                <optgroup label="<?= $string['private'] ?>">
+                                    <option value='private' <?= (isset($report) && is_null($report->getCategory())) ? 'selected' : '' ?> ><?= $string['private'] ?></option>
+                                </optgroup>
                                 <optgroup label="<?= $string['public'] ?>">
                                     <?php if ($reportCats): ?>
                                         <?php foreach($reportCats as $id => $name): ?>
@@ -63,27 +63,27 @@
                                         <?php endforeach; ?>
                                     <?php endif; ?>
                                 </optgroup>
-                            <?php endif; ?>
-                        </select>
-                    </div>
+                            </select>
+                        </div>
+                    <?php endif; ?>
 
                 </div>
-                
+
             </div>
-            
+
         </div>
-        
+
     </div>
-    
+
     <br>
-    
+
     <div class="col-lg-12">
         <div class="panel panel-default">
             <div class="panel-heading">
                 <h3 class="panel-title"><?= $string['filters'] ?></h3>
             </div>
             <div class="panel-body">
-                
+
                 <div>
                     <select id='choose_user_filters' class='selectpicker'>
                         <option value=''><?= $string['choosefilter'] ?></option>
@@ -98,9 +98,9 @@
                     &nbsp;&nbsp;
                     <button onclick="addFilter( 'user', $('#choose_user_filters').val() );return false;"><?= $string['add'] ?></button>
                 </div>
-                
+
                 <br>
-                
+
                 <div>
                     <h4><?= $string['selectedfilters'] ?></h4>
                     <table id='selected_filters' class='table table-bordered'>
@@ -137,21 +137,21 @@
                         </tbody>
                     </table>
                 </div>
-                
+
             </div>
-        </div>        
+        </div>
     </div>
-    
-        
+
+
     <br>
-    
+
     <div class="col-lg-12">
         <div class="panel panel-default">
             <div class="panel-heading">
                 <h3 class="panel-title"><?= $string['elements'] ?></h3>
             </div>
             <div class="panel-body">
-                
+
                 <div>
                     <?php if ($elements): ?>
                     <select id='choose_elements' class='selectpicker'>
@@ -169,19 +169,19 @@
                                 <?php endforeach; ?>
                             </optgroup>
                             <?php endforeach; ?>
-                    </select> 
+                    </select>
                     &nbsp;&nbsp;
                     <button onclick="addElement( $('#choose_elements').val() );return false;"><?= $string['add'] ?></button>
                 <?php else: ?>
-                    <?= $string['noelements'] ?> 
+                    <?= $string['noelements'] ?>
                     <?php if (has_capability('block/bc_dashboard:config', $this->context)): ?>
-                        <a href="<?= $CFG->wwwroot ?>/blocks/bc_dashboard/config"><?= $string['scanforelements'] ?></a>
+                        <a href="<?= $CFG->wwwroot ?>/blocks/bc_dashboard/index.php?Qs=config"><?= $string['scanforelements'] ?></a>
                     <?php endif; ?>
                 <?php endif; ?>
                 </div>
-                
+
                 <br>
-                
+
                 <div>
                     <h4><?= $string['selectedelements'] ?></h4>
                     <table id='builder_report_preview' class='table table-bordered'>
@@ -228,11 +228,11 @@
                         </tbody>
                     </table>
                 </div>
-                
+
             </div>
         </div>
     </div>
-    
+
     <input type="hidden" name="report_id" value="<?= (isset($report)) ? $report->getID() : '' ?>" />
-    
+
 </form>
