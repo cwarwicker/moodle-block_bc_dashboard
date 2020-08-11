@@ -34,5 +34,5 @@ $plugin->version = 2020031900;
 $plugin->requires = 2017111300;
 $plugin->component = 'block_bc_dashboard';
 $plugin->dependencies = array(
-    'local_df_hub' => 2020031900
+    'local_df_hub' => 2020081100
 );
