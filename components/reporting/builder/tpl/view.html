@@ -5,7 +5,7 @@
         <h3 class="panel-title"><?= $report->getCategoryName() ?> / <?= strtoupper($report->getName()) ?></h3>
     </div>
     <div class="panel-body">
-        
+
         <div class='col-lg-6'>
             <strong><?= $string['description'] ?></strong><br>
             <div><?= \bcdb_html($report->getDescription()) ?></div>
@@ -13,29 +13,29 @@
             <strong><?= $string['elements'] ?></strong><br>
             <div><?= implode(", ", $report->getElementNames()) ?></div>
         </div>
-        
+
         <div class='col-lg-6'>
-            
+
             <strong><?= $string['options'] ?></strong><br>
             <div><?= $string['startingpoint'] ?>: <em><?= $report->getStartingPointName() ?></em></div>
             <br>
-            
+
             <table class='report-details'>
-                
+
                 <tr>
                     <td><?= $string['created'] ?></td>
                     <td><?= \fullname($report->getCreatedBy()) ?>, <?= $report->getCreatedDate('D jS M Y, H:i') ?></td>
                 </tr>
-                
+
                 <tr>
                     <td><?= $string['lastrun'] ?></td>
                     <td><?= ($lastRun = $report->getLastRun()) ? \fullname($lastRun['by']) . ', ' . \date('D jS M Y, H:i', $lastRun['time']) : '-' ?></td>
                 </tr>
-                
+
             </table>
-            
+
         </div>
-        
+
     </div>
 </div>
 
@@ -63,7 +63,7 @@
                             <td><?= $task->repetitionToString() ?></td>
                             <td>
                                 <?php if ($task->getLastRunUnix() && file_exists($CFG->dataroot . '/BCDB/scheduled_tasks/'.$task->getID().'.xlsx')): ?>
-                                    <a href="<?= $CFG->wwwroot ?>/blocks/bc_dashboard/download.php?code=<?= \bcdb_create_download_code('scheduled_tasks/'.$task->getID().'.xlsx') ?>"><?= $task->getLastRun('D d M Y, H:i') ?></a>
+                                    <a href="<?= $CFG->wwwroot ?>/blocks/bc_dashboard/download.php?code=<?= \bcdb_create_download_code('scheduled_tasks/'.$task->getID().'.xlsx') ?>&time=<?= time() ?>"><?= $task->getLastRun('D d M Y, H:i') ?></a>
                                 <?php else: ?>
                                     <?= $task->getLastRun('D d M Y, H:i') ?>
                                 <?php endif; ?>

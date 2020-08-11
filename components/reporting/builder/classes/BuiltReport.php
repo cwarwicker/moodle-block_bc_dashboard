@@ -31,6 +31,13 @@
  */
 namespace BCDB\Report;
 
+defined('MOODLE_INTERNAL') or die();
+
+require_once($CFG->dirroot . '/local/df_hub/lib.php');
+
+use DF\Excel;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
+
 /**
  * Description of BuiltReport
  *
@@ -605,68 +612,13 @@ class BuiltReport extends \BCDB\Report {
 
     private function getExcelStyle($type){
 
-        $styles = array(
+        $formats = array();
+        $formats['header'] = ['bg_color' => '#041363', 'color' => '#ffffff', 'bold' => 1];
+        $formats['cat'] = ['bg_color' => '#87005E', 'color' => '#ffffff', 'bold' => 1];
+        $formats['course'] = ['bg_color' => '#FFED34', 'color' => '#000000', 'bold' => 1];
+        $formats['subcat'] = ['bg_color' => '#006E13', 'color' => '#ffffff', 'bold' => 1];
 
-            'header' => array(
-                    'fill' => array(
-                        'type' => \PHPExcel_Style_Fill::FILL_SOLID,
-                        'color' => array('rgb' => '041363')
-                    ),
-                    'font' => array(
-                        'bold' => true,
-                        'color' => array('rgb' => 'ffffff')
-                    )
-                ),
-
-            'cat' => array(
-                    'fill' => array(
-                        'type' => \PHPExcel_Style_Fill::FILL_SOLID,
-                        'color' => array('rgb' => '87005E')
-                    ),
-                    'font' => array(
-                        'bold' => true,
-                        'color' => array('rgb' => 'ffffff')
-                    )
-                ),
-
-            'course' => array(
-                    'fill' => array(
-                        'type' => \PHPExcel_Style_Fill::FILL_SOLID,
-                        'color' => array('rgb' => 'FFED34')
-                    ),
-                    'font' => array(
-                        'bold' => true,
-                        'color' => array('rgb' => '000000')
-                    )
-                ),
-
-
-            'subcat' => array(
-                    'fill' => array(
-                        'type' => \PHPExcel_Style_Fill::FILL_SOLID,
-                        'color' => array('rgb' => '006E13')
-                    ),
-                    'font' => array(
-                        'bold' => true,
-                        'color' => array('rgb' => 'ffffff')
-                    )
-                ),
-
-
-            'subcourse' => array(
-                    'fill' => array(
-                        'type' => \PHPExcel_Style_Fill::FILL_SOLID,
-                        'color' => array('rgb' => '904F00')
-                    ),
-                    'font' => array(
-                        'bold' => true,
-                        'color' => array('rgb' => '000000')
-                    )
-                ),
-
-        );
-
-        return (isset($styles[$type])) ? $styles[$type] : false;
+        return (isset($formats[$type])) ? $formats[$type] : false;
 
     }
 
@@ -674,23 +626,23 @@ class BuiltReport extends \BCDB\Report {
      * Run the export for a category's data and all the sub data below it
      * @param type $catID
      * @param type $data
-     * @param type $objPHPExcel
+     * @param type $sheet
      * @param type $rowNum
      * @param type $parentName
      */
-    private function runRecursiveExcelCategory($catID, $data, &$objPHPExcel, &$rowNum, $parentName = ''){
+    private function runRecursiveExcelCategory($catID, $data, &$sheet, &$rowNum, $parentName = ''){
 
         $category = \core_course_category::get($catID);
 
         $catName = $parentName . $category->name;
 
         // Now do the category totals
-        $objPHPExcel->getActiveSheet()->setCellValue("A{$rowNum}", $catName);
-        $objPHPExcel->getActiveSheet()->setCellValue("B{$rowNum}", '-');
-        $objPHPExcel->getActiveSheet()->setCellValue("C{$rowNum}", '-');
-        $objPHPExcel->getActiveSheet()->setCellValue("D{$rowNum}", '-');
-        $objPHPExcel->getActiveSheet()->setCellValue("E{$rowNum}", '-');
-        $objPHPExcel->getActiveSheet()->setCellValue("F{$rowNum}", $data['usercnt']);
+        $sheet->writeString($rowNum, 'A', $catName);
+        $sheet->writeString($rowNum, 'B', '-');
+        $sheet->writeString($rowNum, 'C', '-');
+        $sheet->writeString($rowNum, 'D', '-');
+        $sheet->writeString($rowNum, 'E', '-');
+        $sheet->writeString($rowNum, 'F', $data['usercnt']);
 
         $letter = 'G';
 
@@ -699,19 +651,17 @@ class BuiltReport extends \BCDB\Report {
             foreach($this->elements as $element)
             {
                 $val = (isset($data['totals'][$element->getAliasName()])) ? $element->val($data['totals']) : 0;
-                $objPHPExcel->getActiveSheet()->setCellValue("{$letter}{$rowNum}", $val);
+                $sheet->writeString($rowNum, $letter, $val);
                 $letter++;
             }
         }
 
         // Style the category row
         $style = ($parentName == '') ? 'cat' : 'subcat';
-        $objPHPExcel->getActiveSheet()->getStyle("A{$rowNum}:".bcdb_decrement_letter($letter)."{$rowNum}")->applyFromArray( $this->getExcelStyle($style) );
+        $sheet->applyRangeFormat('A', $rowNum, bcdb_decrement_letter($letter), $rowNum, $this->getExcelStyle($style));
 
         // Increment the row
         $rowNum++;
-
-
 
         // Now onto the courses
         // First do the courses on this category
@@ -724,12 +674,12 @@ class BuiltReport extends \BCDB\Report {
                 $course = get_course($courseID);
 
                 // Course Totals Row
-                $objPHPExcel->getActiveSheet()->setCellValue("A{$rowNum}", $catName);
-                $objPHPExcel->getActiveSheet()->setCellValue("B{$rowNum}", $course->fullname);
-                $objPHPExcel->getActiveSheet()->setCellValue("C{$rowNum}", '-');
-                $objPHPExcel->getActiveSheet()->setCellValue("D{$rowNum}", '-');
-                $objPHPExcel->getActiveSheet()->setCellValue("E{$rowNum}", '-');
-                $objPHPExcel->getActiveSheet()->setCellValue("F{$rowNum}", $courseRow['usercnt']);
+                $sheet->writeString($rowNum, 'A', $catName);
+                $sheet->writeString($rowNum, 'B', $course->fullname);
+                $sheet->writeString($rowNum, 'C', '-');
+                $sheet->writeString($rowNum, 'D', '-');
+                $sheet->writeString($rowNum, 'E', '-');
+                $sheet->writeString($rowNum, 'F', $data['usercnt']);
 
                 $letter = 'G';
 
@@ -738,19 +688,17 @@ class BuiltReport extends \BCDB\Report {
                     foreach($this->elements as $element)
                     {
                         $val = (isset($courseRow['totals'][$element->getAliasName()])) ? $element->val($courseRow['totals']) : 0;
-                        $objPHPExcel->getActiveSheet()->setCellValue("{$letter}{$rowNum}", $val);
+                        $sheet->writeString($rowNum, $letter, $val);
                         $letter++;
                     }
                 }
 
                 // Style the course row
-                $style = ($parentName == '') ? 'course' : 'subcourse';
-                $objPHPExcel->getActiveSheet()->getStyle("A{$rowNum}:".bcdb_decrement_letter($letter)."{$rowNum}")->applyFromArray( $this->getExcelStyle('course') );
-
+                $style = 'course';
+                $sheet->applyRangeFormat('A', $rowNum, bcdb_decrement_letter($letter), $rowNum, $this->getExcelStyle($style));
 
                 // Increment row
                 $rowNum++;
-
 
                 // Now the users
                 if ($courseRow['users'])
@@ -758,12 +706,12 @@ class BuiltReport extends \BCDB\Report {
                     foreach($courseRow['users'] as $userID => $userRow)
                     {
 
-                        $objPHPExcel->getActiveSheet()->setCellValue("A{$rowNum}", $catName);
-                        $objPHPExcel->getActiveSheet()->setCellValue("B{$rowNum}", $course->fullname);
-                        $objPHPExcel->getActiveSheet()->setCellValue("C{$rowNum}", $userRow['firstname']);
-                        $objPHPExcel->getActiveSheet()->setCellValue("D{$rowNum}", $userRow['lastname']);
-                        $objPHPExcel->getActiveSheet()->setCellValue("E{$rowNum}", $userRow['username']);
-                        $objPHPExcel->getActiveSheet()->setCellValue("F{$rowNum}", '-');
+                        $sheet->writeString($rowNum, 'A', $catName);
+                        $sheet->writeString($rowNum, 'B', $course->fullname);
+                        $sheet->writeString($rowNum, 'C', $userRow['firstname']);
+                        $sheet->writeString($rowNum, 'D', $userRow['lastname']);
+                        $sheet->writeString($rowNum, 'E', $userRow['username']);
+                        $sheet->writeString($rowNum, 'F', '-');
 
                         $letter = 'G';
 
@@ -772,7 +720,7 @@ class BuiltReport extends \BCDB\Report {
                             foreach($this->elements as $element)
                             {
                                 $val = (isset($userRow[$element->getAliasName()])) ? $element->val($userRow) : 0;
-                                $objPHPExcel->getActiveSheet()->setCellValue("{$letter}{$rowNum}", $val);
+                                $sheet->writeString($rowNum, $letter, $val);
                                 $letter++;
                             }
                         }
@@ -788,13 +736,12 @@ class BuiltReport extends \BCDB\Report {
 
         }
 
-
         // Now do any sub cats
         if (isset($data['cats']) && $data['cats'])
         {
             foreach($data['cats'] as $subCatID => $subCatRow)
             {
-                $this->runRecursiveExcelCategory($subCatID, $subCatRow, $objPHPExcel, $rowNum, $catName . ' / ');
+                $this->runRecursiveExcelCategory($subCatID, $subCatRow, $sheet, $rowNum, $catName . ' / ');
             }
         }
 
@@ -812,27 +759,25 @@ class BuiltReport extends \BCDB\Report {
 
         global $CFG, $USER;
 
-        require_once $CFG->dirroot . '/lib/phpexcel/PHPExcel.php';
-
         // Filter report name to work properly as a excel file name
         $reportName = preg_replace("/[^a-z0-9 _]/i", "", $this->name);
         if (strlen($reportName) == 0){
             $reportName = 'RPT';
         }
 
-        $objPHPExcel = new \PHPExcel();
+        $filename = $USER->id . '-' . \bcdb_make_file_name($this->name) . '.xlsx';
+
+        $objPHPExcel = new Excel($filename);
 
         // Set file properties
         if ($USER->id){
-            $objPHPExcel->getProperties()->setCreator(fullname($USER))
+            $objPHPExcel->getSpreadsheet()->getProperties()->setCreator(fullname($USER))
                         ->setLastModifiedBy(fullname($USER));
         }
 
-        $objPHPExcel->getProperties()->setTitle($reportName)
+        $objPHPExcel->getSpreadsheet()->getProperties()->setTitle($reportName)
                                      ->setSubject($reportName)
                                      ->setDescription($reportName . " generated by BCDB Reporting Dashboard");
-
-        $objPHPExcel->setActiveSheetIndex(0);
 
         // Convert report data into rows
         if ($this->data)
@@ -844,60 +789,48 @@ class BuiltReport extends \BCDB\Report {
                 $category = \core_course_category::get($catID);
                 $catName = preg_replace("/[^a-z0-9 _]/i", "", $category->name);
                 $catName = substr($catName, 0, 31);
-                $catName = (strlen($catName)) ? $catName : '-';
-                $objPHPExcel->getActiveSheet()->setTitle($catName);
+                $catName = (strlen($catName)) ? $catName : 'all';
+                $sheet = $objPHPExcel->addWorksheet($catName);
 
                 // Headers
-                $rowNum = 1;
+                $rowNum = 0;
                 $headerLetter = 'A';
 
                 foreach($this->getHeaders() as $header)
                 {
-                    $objPHPExcel->getActiveSheet()->setCellValue("{$headerLetter}{$rowNum}", $header);
+                    $sheet->writeString($rowNum, $headerLetter, $header);
                     $headerLetter++;
                 }
 
                 // Style the header row
-                $objPHPExcel->getActiveSheet()->getStyle("A{$rowNum}:".bcdb_decrement_letter($headerLetter)."{$rowNum}")->applyFromArray( $this->getExcelStyle('header') );
+                $sheet->applyRangeFormat('A', $rowNum, bcdb_decrement_letter($headerLetter), $rowNum,  $this->getExcelStyle('header'));
 
                 // Increment the row
                 $rowNum++;
 
-
                 // Recursively run this category and all its sub categories
-                $this->runRecursiveExcelCategory($catID, $data, $objPHPExcel, $rowNum);
-
+                $this->runRecursiveExcelCategory($catID, $data, $sheet, $rowNum);
 
                 // Freeze the top row
-                $objPHPExcel->getActiveSheet()->freezePane('A2');
+                $sheet->getWorksheet()->freezePane('A2');
 
-                // Increment for next category
-                $sheetID = $objPHPExcel->getActiveSheetIndex() + 1;
-                $objPHPExcel->createSheet($sheetID);
-                $objPHPExcel->setActiveSheetIndex( $sheetID );
-
+                // Autosize columns
+                $lastColumn = $sheet->getWorksheet()->getHighestColumn();
+                for ($col = 'A'; $col <= $lastColumn; $col++) {
+                    $sheet->getWorksheet()->getColumnDimension($col)->setAutoSize(true);
+                }
 
             }
+        } else {
+            $objPHPExcel->addWorksheet('');
         }
 
-        // Reset the active sheet back to the first one
-        $objPHPExcel->setActiveSheetIndex(0);
-
-        // Create the file
-        $objWriter = \PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
-        $filename = $USER->id . '-' . \bcdb_make_file_name($this->name) . '.xlsx';
-        $file = $CFG->dataroot . '/BCDB/built_reports/' . $this->id . '/' . $filename;
-        $objWriter->save( $file );
-        $this->savedFilePath = 'built_reports/' . $this->id . '/' . $filename;
-
-        return $objWriter;
+        // Create the file.
+        $file = 'built_reports/' . $this->id . '/' . $filename;
+        $objPHPExcel->save($CFG->dataroot . '/BCDB/' . $file);
+        $this->savedFilePath = $file;
 
     }
-
-
-
-
-
 
     private function convertDataToRows($startingCatID){
 

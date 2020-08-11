@@ -350,7 +350,7 @@ function submitReport(reportType, type){
         // Download any file
         if (typeof data['download'] !== 'undefined'){
             $('#report_results').html('');
-            window.location = www + '/blocks/bc_dashboard/download.php?code='+data['download'];
+            window.location = www + '/blocks/bc_dashboard/download.php?code='+data['download']+'&time='+Date.now();
             return false;
         }
 
