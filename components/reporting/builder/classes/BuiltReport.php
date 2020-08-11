@@ -35,8 +35,7 @@ defined('MOODLE_INTERNAL') or die();
 
 require_once($CFG->dirroot . '/local/df_hub/lib.php');
 
-use DF\Excel;
-use PhpOffice\PhpSpreadsheet\Style\Fill;
+use local_df_hub\excel;
 
 /**
  * Description of BuiltReport
@@ -767,7 +766,7 @@ class BuiltReport extends \BCDB\Report {
 
         $filename = $USER->id . '-' . \bcdb_make_file_name($this->name) . '.xlsx';
 
-        $objPHPExcel = new Excel($filename);
+        $objPHPExcel = new excel($filename);
 
         // Set file properties
         if ($USER->id){
