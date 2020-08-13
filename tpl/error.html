@@ -12,28 +12,28 @@
         <meta name="author" content="">
 
         <!-- Bootstrap Core CSS -->
-        <link href="<?= $CFG->wwwroot ?>/blocks/bc_dashboard/resources/css/bootstrap.css" rel="stylesheet">
+        <link href="<?php echo $CFG->wwwroot ?>/blocks/bc_dashboard/resources/css/bootstrap.css" rel="stylesheet">
 
         <!-- Custom CSS -->
-        <link href="<?= $CFG->wwwroot ?>/blocks/bc_dashboard/resources/css/sb-admin.css" rel="stylesheet">
+        <link href="<?php echo $CFG->wwwroot ?>/blocks/bc_dashboard/resources/css/sb-admin.css" rel="stylesheet">
 
-        <title><?= $string['dashboard'] ?></title>
+        <title><?php echo $string['dashboard'] ?></title>
 
     </head>
 
     <body>
-        
+
         <div id="page-wrapper">
 
             <div id="fof" class="clear">
 
                 <div class="hgroup clear">
-                    <h1><?= get_string('error') ?></h1>
-                    <h2><span><?= $msg ?></span></h2>
-                    <p><small><?= $trace ?></small></p>
+                    <h1><?php echo get_string('error') ?></h1>
+                    <h2><span><?php echo $msg ?></span></h2>
+                    <p><small><?php echo $trace ?></small></p>
                 </div>
                 <br class='clear-both'>
-                <p><a href="<?= $CFG->wwwroot ?>/blocks/bc_dashboard"><?= $string['returndashboard'] ?></a></p>
+                <p><a href="<?php echo $CFG->wwwroot ?>/blocks/bc_dashboard"><?php echo $string['returndashboard'] ?></a></p>
 
             </div>
 

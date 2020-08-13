@@ -1,39 +1,39 @@
 <?php if(!defined('BCDB')) exit; ?>
 
-<?= \bcdb_errors( isset($messages['errors']) ? $messages['errors'] : false ) ?>
-<?= \bcdb_success( isset($messages['success']) ? $messages['success'] : false ) ?>
+<?php echo \bcdb_errors( isset($messages['errors']) ? $messages['errors'] : false ) ?>
+<?php echo \bcdb_success( isset($messages['success']) ? $messages['success'] : false ) ?>
 <?php if (isset($messages['general']) && !empty($messages['general'])) echo '<div>'.$messages['general'].'</div>'; ?>
 
 <div class='col-lg-6'>
-    
+
     <div class="panel panel-default">
         <div class="panel-heading">
-            <h3 class="panel-title"><i class='fa fa-group'></i> <?= get_string('students') ?></h3>
+            <h3 class="panel-title"><i class='fa fa-group'></i> <?php echo get_string('students') ?></h3>
         </div>
         <div class="panel-body">
-            <?= $userPicker->toFormElement() ?>
+            <?php echo $userPicker->toFormElement() ?>
             <br>
-            <button class='btn green' onclick='loadStudentLink();return false;'><?= $string['load'] ?></button>
+            <button class='btn green' onclick='loadStudentLink();return false;'><?php echo $string['load'] ?></button>
         </div>
     </div>
-        
+
 </div>
 
 
 <div class='col-lg-6'>
-    
+
     <div class="panel panel-default">
         <div class="panel-heading">
-            <h3 class="panel-title"><i class='fa fa-book'></i> <?= get_string('courses') ?></h3>
+            <h3 class="panel-title"><i class='fa fa-book'></i> <?php echo get_string('courses') ?></h3>
         </div>
         <div class="panel-body">
-            <?= $coursePicker->toFormElement() ?>
+            <?php echo $coursePicker->toFormElement() ?>
             <br>
-            <button class='btn green' onclick='loadCourseLinks();return false;'><?= $string['load'] ?></button>
+            <button class='btn green' onclick='loadCourseLinks();return false;'><?php echo $string['load'] ?></button>
         </div>
     </div>
-    
-</div>           
+
+</div>
 
 
 <div id='output' class='col-lg-12'>

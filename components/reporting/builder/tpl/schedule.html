@@ -9,9 +9,9 @@
         <h3 class="panel-title"><?= $string['schedule'] ?></h3>
     </div>
     <div class="panel-body">
-        
+
         <form action="" method="post" id="schedule_form">
-            
+
             <table id="scheduling_table" class='table table-bordered table-hover'>
 
                 <thead>
@@ -27,31 +27,32 @@
 
             </table>
 
+            <input type="hidden" name="sesskey" value="<?php echo sesskey() ?>" />
             <input type='hidden' name='submitted' value='1' />
-            
+
         </form>
-        
-        
+
+
     </div>
 </div>
 
 
 <script>
     var num = 0;
-    
+
     function addNewScheduling(json){
-                                
+
         var output = "";
-                
+
         output += "<tr id='schedule_row_"+num+"'>";
-        
+
             // Time
             output += "<td>";
-            
+
                 output += "<input type='hidden' name='sid["+num+"]' value='"+( (typeof json !== 'undefined' && typeof json.id !== 'undefined') ? json.id : '' )+"' />";
-            
+
                 output += "<div class='form-group row'>";
-            
+
                     // Hours
                     output += "<div class='col-md-6'>";
                         output += "<select name='time["+num+"][h]' class='form-control'>";
@@ -77,12 +78,12 @@
                     output += "</div>";
 
                 output += "</div>";
-                
+
             output += "</td>";
-            
+
             // Repetition
             output += "<td>";
-            
+
                 output += "<select name='rep_type["+num+"]' class='form-control' onchange='setRepetitionType("+num+", this.value);return false;'>";
                     output += "<option value=''></option>";
                     output += "<option value='day' "+( (typeof json !== 'undefined' && typeof json.repetitiontype !== 'undefined' && json.repetitiontype == 'day') ? 'selected' : '' )+" ><?= $string['daily'] ?></option>";
@@ -90,47 +91,47 @@
                     output += "<option value='month' "+( (typeof json !== 'undefined' && typeof json.repetitiontype !== 'undefined' && json.repetitiontype == 'month') ? 'selected' : '' )+"><?= $string['monthly'] ?></option>";
                     output += "<option value='date' "+( (typeof json !== 'undefined' && typeof json.repetitiontype !== 'undefined' && json.repetitiontype == 'date') ? 'selected' : '' )+"><?= $string['specificdate'] ?></option>";
                 output += "</select>";
-                
+
                 output += "<div id='rep_type_"+num+"'></div>";
-                
+
             output += "</td>";
-            
+
             // Emails
             output += "<td>";
-                output += "<textarea name='emails["+num+"]' class='form-control' placeholder='<?= $string['separateemailscomma'] ?>'>";      
+                output += "<textarea name='emails["+num+"]' class='form-control' placeholder='<?= $string['separateemailscomma'] ?>'>";
                     output += (typeof json !== 'undefined' && typeof json.emailto !== 'undefined') ? json.emailto : '';
                 output += "</textarea>";
             output += "</td>";
-                        
+
             // Delete
             output += "<td class='bcdb_center'>";
                 output += "<a href='#' onclick='$(\"#schedule_row_"+num+"\").remove();return false;'><img src='<?= $CFG->wwwroot ?>/blocks/bc_dashboard/pix/remove.png' /></a>";
             output += "</td>";
-        
+
         output += "</tr>";
-        
+
         $('#scheduling_table').append(output);
-        
+
         // If we provided values of an existing task, load the repetition type as well
         if (typeof json !== 'undefined' && typeof json.repetitiontype !== 'undefined'){
             setRepetitionType(num, json.repetitiontype, json.repetitionvalues);
         }
-        
+
         num++;
-        
+
     }
-    
-    
+
+
     function setRepetitionType(n, type, val){
-        
+
         var output = "";
-        
+
         if (type == 'week'){
-            
+
             var valueArray = (typeof val !== 'undefined' && val !== null) ? val.split(',') : [];
-                        
+
             output += "<br>";
-            
+
             output += "<table class='table table-bordered bcdb_center'>";
                 output += "<tr>";
                     output += "<th class='bcdb_center'><?= get_string('mon', 'calendar') ?></th>";
@@ -141,7 +142,7 @@
                     output += "<th class='bcdb_center'><?= get_string('sat', 'calendar') ?></th>";
                     output += "<th class='bcdb_center'><?= get_string('sun', 'calendar') ?></th>";
                 output += "</tr>";
-                
+
                 // Uses the "N" numeric date representation
                 output += "<tr>";
                     output += "<td><input type='checkbox' name='rep["+n+"][]' value='1' "+( (valueArray.indexOf('1') >= 0) ? 'checked' : '' )+" /></td>";
@@ -153,9 +154,9 @@
                     output += "<td><input type='checkbox' name='rep["+n+"][]' value='7' "+( (valueArray.indexOf('7') >= 0) ? 'checked' : '' )+" /></td>";
                 output += "</tr>";
             output += "</table>";
-            
+
         } else if (type == 'month'){
-            
+
             var valueArray = (typeof val !== 'undefined' && val !== null) ? val.split(',') : [];
 
             output += "<br>";
@@ -164,23 +165,23 @@
                     output += "<option value='<?= $i ?>' "+( (valueArray.indexOf('<?= $i ?>') >= 0) ? 'selected' : '' )+" ><?= \bcdb_ordinal($i) ?></option>";
                 <?php endfor; ?>
             output += "</select>";
-            
+
         } else if (type == 'date'){
-            
+
             output += "<br>";
             output += "<input type='text' name='rep["+n+"]' class='datepicker form-control' value='"+( (typeof val !== 'undefined' && val !== null) ? val : '' )+"' />";
-            
+
         }
-        
+
         $('#rep_type_'+n).html(output);
-        
+
         // Datepickers
         $('.datepicker').datepicker({
             dateFormat: "dd-mm-yy",
             changeMonth: true,
             changeYear: true
         });
-        
+
     }
 
 
@@ -189,5 +190,5 @@
             addNewScheduling(<?= $task->toJson() ?>);
         <?php endforeach; ?>
     <?php endif; ?>
-    
+
 </script>

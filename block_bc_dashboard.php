@@ -17,9 +17,9 @@
 /**
  * Dashboard Reporting
  *
- * The Reporting Dashboard plugin is a block which runs alongside the ELBP and Grade Tracker blocks, to provide a better experience and extra features, 
+ * The Reporting Dashboard plugin is a block which runs alongside the ELBP and Grade Tracker blocks, to provide a better experience and extra features,
  * such as combined reporting across both plugins. It also allows you to create your own custom SQL reports which can be run on any aspect of Moodle.
- * 
+ *
  * @package     block_bc_dashboard
  * @copyright   2017-onwards Conn Warwicker
  * @author      Conn Warwicker <conn@cmrwarwicker.com>
@@ -27,54 +27,53 @@
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  *
  * Originally developed at Bedford College, now maintained by Conn Warwicker
- * 
+ *
  */
 
+defined('MOODLE_INTERNAL') or die();
+
 class block_bc_dashboard  extends block_base
-{ 
-    
+{
+
     private $string;
-    
-    public function init()
-    {
+
+    public function init() {
         global $CFG;
         $this->string = get_string_manager()->load_component_strings('block_bc_dashboard', $CFG->lang, true);
-        $this->title = $this->string['dashboard'];  
+        $this->title = $this->string['dashboard'];
         $this->imgdir = $CFG->wwwroot . '/blocks/bc_dashboard/pix/';
     }
-    
-    public function get_content()
-    {
-        
+
+    public function get_content() {
+
         global $COURSE, $CFG, $bcdb;
-        
-        require_once $CFG->dirroot . '/blocks/bc_dashboard/lib.php';
-        
-        if (!isset($bcdb['context'])){
+
+        require_once($CFG->dirroot . '/blocks/bc_dashboard/lib.php');
+
+        if (!isset($bcdb['context'])) {
             $bcdb['context'] = context_course::instance($COURSE->id);
         }
-        
+
         $this->content = new stdClass();
 
-        if (!has_capability('block/bc_dashboard:view_reports', $bcdb['context'])){
+        if (!has_capability('block/bc_dashboard:view_reports', $bcdb['context'])) {
 
             return $this->content;
         }
-        
+
         $this->content->text = "<ul class='bcdb_list_none'>";
         $this->content->text .= "<li><img src='{$this->imgdir}report.png' style='width:16px;' /> <a href='{$CFG->wwwroot}/blocks/bc_dashboard/index.php?Qs=reporting'>".get_string('reports')."</a></li>";
         $this->content->text .= "</ul>";
-        
+
         return $this->content;
 
     }
-    
+
     /**
      * Run the cron
      */
-    public function cron(){
-        
-        
+    public function cron() {
+
     }
-    
+
 }

@@ -4,10 +4,11 @@
 <?= \bcdb_success( isset($messages['success']) ? $messages['success'] : false ) ?>
 
 <form id='config_form' action='' method='post'>
-    
-    
+
+    <input type='hidden' name='sesskey' value='<?php echo sesskey() ?>' />
+
     <div class="col-lg-12">
-        
+
         <div class="panel panel-default">
             <div class="panel-heading">
                 <h3 class="panel-title"><i class="fa fa-puzzle-piece"></i> <?= $string['reportelements'] ?></h3>
@@ -50,9 +51,9 @@
                 </table>
             </div>
         </div>
-        
+
     </div>
-    
+
     <div class="col-lg-12">
 
         <div class="panel panel-default">
@@ -60,30 +61,30 @@
                 <h3 class="panel-title"><i class="fa fa-tasks"></i> <?= $string['reportcats'] ?></h3>
             </div>
             <div class="panel-body">
-                
+
                 <div class='col-lg-12'>
                     <button class='btn btn-success' onclick='jstreeBtn.create();return false;'><i class='fa fa-plus'></i> <?= $string['create'] ?></button>
                     <button class='btn btn-warning' onclick='jstreeBtn.rename();return false;'><i class='fa fa-pencil'></i> <?= $string['rename'] ?></button>
                     <button class='btn btn-danger' onclick='jstreeBtn.delete();return false;'><i class='fa fa-remove'></i> <?= $string['delete'] ?></button>
                 </div>
-                
+
                 <br><br>
-                
+
                 <div id="report-cats" class="demo">
                     <?= $reportCats['items'] ?>
                 </div>
-                
+
             </div>
-        </div>    
+        </div>
     </div>
 
     <?= $reportCats['inputs'] ?>
     <input type='hidden' name='submit_config' value='1' />
-    
+
     <br><br>
-    
+
     <div class="col-lg-12">
-        
+
         <div class="panel panel-default">
             <div class="panel-heading">
                 <h3 class="panel-title"><i class="fa fa-university"></i> <?= $string['reportcoursecats'] ?></h3>
@@ -96,9 +97,9 @@
                 </select>
             </div>
         </div>
-        
+
     </div>
-    
+
 </form>
 
 <script>
@@ -169,7 +170,7 @@ $('#report-cats').jstree({
     $('#rid_'+rID).remove();
     $('#rnm_'+rID).remove();
     $('#rpar_'+rID).remove();
-    
+
     // Delete all children as well
     $('.'+rID).remove();
 
@@ -179,25 +180,25 @@ $('#report-cats').jstree({
 var jstreeBtn = {};
 
 jstreeBtn._createBindings = function(tree, newNode){
-    
+
     tree.edit(newNode, null, function(node, status){
 
         o1 = node;
 
         var pID = '';
         var pClass = '';
-            
+
         // Get the reportid of the parent node
         if (node.parent !== undefined && node.parent !== false && node.parent !== '#'){
             var pID = $('#'+node.parent).attr('reportid');
             if ( $('#rid_'+node.parent).length > 0 ){
                 pClass = $('#rid_'+node.parent).attr('class');
             }
-        } 
+        }
 
         // Set id of li
         node.li_attr.reportid = node.id;
-        
+
         // And class of link to be blue
         node.a_attr.class = 'jstree-new';
         $('#'+node.id+' a').addClass('jstree-new');
@@ -209,7 +210,7 @@ jstreeBtn._createBindings = function(tree, newNode){
 
 
     });
-    
+
 };
 
 jstreeBtn.create = function(){
@@ -231,26 +232,26 @@ jstreeBtn.create = function(){
 
 
 jstreeBtn.rename = function(){
-    
+
     var ref = $('#report-cats').jstree(true), sel = ref.get_selected();
-    
+
     if(!sel.length) { return false; }
-    
+
     sel = sel[0];
-        
+
     ref.edit(sel);
-    
+
 };
 
 
 jstreeBtn.delete = function(){
-    
+
     var ref = $('#report-cats').jstree(true), sel = ref.get_selected();
-    
+
     if(!sel.length) { return false; }
-    
+
     ref.delete_node(sel);
-    
+
 };
 
 </script>

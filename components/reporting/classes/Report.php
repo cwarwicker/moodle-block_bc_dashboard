@@ -30,7 +30,9 @@
  *
  */
 
-namespace BCDB;
+namespace block_bc_dashboard;
+
+defined('MOODLE_INTERNAL') or die();
 
 abstract class Report {
 
@@ -53,7 +55,7 @@ abstract class Report {
 
     public function __construct($record = false) {
 
-        if ($record){
+        if ($record) {
 
             $this->id = $record->id;
             $this->type = $record->type;
@@ -70,26 +72,25 @@ abstract class Report {
 
         }
 
-
     }
 
-    public function isValid(){
+    public function isValid() {
         return ($this->id !== false);
     }
 
-    public function isDeleted(){
+    public function isDeleted() {
         return ($this->del == 1);
     }
 
-    public function getID(){
+    public function getID() {
         return $this->id;
     }
 
-    public function getType(){
+    public function getType() {
         return $this->type;
     }
 
-    public function getCategory(){
+    public function getCategory() {
         return $this->category;
     }
 
@@ -98,15 +99,15 @@ abstract class Report {
      * NULL = private
      * 0 = uncategorised
      * > 0 = DB record
-     * @global \BCDB\type $DB
+     * @global \block_bc_dashboard\type $DB
      */
-    public function getCategoryName(){
+    public function getCategoryName() {
 
         global $DB;
 
-        if (is_null($this->category)){
+        if (is_null($this->category)) {
             return get_string('myprivatereports', 'block_bc_dashboard');
-        } elseif ($this->category == 0){
+        } else if ($this->category == 0) {
             return get_string('uncategorised', 'block_bc_dashboard');
         } else {
             return \bcdb_get_full_category_name($this->category);
@@ -114,99 +115,99 @@ abstract class Report {
 
     }
 
-    public function getName(){
+    public function getName() {
         return $this->name;
     }
 
-    public function setName($val){
+    public function setName($val) {
         $this->name = $val;
         return $this;
     }
 
-    public function getDescription(){
+    public function getDescription() {
         return $this->description;
     }
 
-    public function setDescription($val){
+    public function setDescription($val) {
         $this->description = $val;
         return $this;
     }
 
-    public function getQuery(){
+    public function getQuery() {
         return $this->query;
     }
 
-    public function setQuery($val){
+    public function setQuery($val) {
         $this->query = $val;
         return $this;
     }
 
-    public function getParams(){
+    public function getParams() {
         return $this->params;
     }
 
-    public function setParams($val){
+    public function setParams($val) {
         $this->params = $val;
         return $this;
     }
 
-    public function getOptions(){
+    public function getOptions() {
         return $this->options;
     }
 
-    public function addOption($name, $val){
+    public function addOption($name, $val) {
         $this->options[$name] = $val;
         return $this;
     }
 
-    public function setOptions($val){
+    public function setOptions($val) {
         $this->options = $val;
         return $this;
     }
 
-    public function getFilters(){
+    public function getFilters() {
         return $this->filters;
     }
 
-    public function setFilters($val){
+    public function setFilters($val) {
         $this->filters = $val;
         return $this;
     }
 
-    public function getCreatedDate($format = false){
+    public function getCreatedDate($format = false) {
         return ($format) ? date($format, $this->createddate) : $this->createddate;
     }
 
-    public function getCreatedBy(){
+    public function getCreatedBy() {
         global $DB;
         return $DB->get_record("user", array("id" => $this->createdby));
     }
 
-    public function getCreatedByID(){
+    public function getCreatedByID() {
         return $this->createdby;
     }
 
-    public function getErrors(){
+    public function getErrors() {
         return $this->errors;
     }
 
-    public function getData(){
+    public function getData() {
         return $this->data;
     }
 
-    public function hasErrors(){
+    public function hasErrors() {
         return false;
     }
 
-    public function getOption($name){
+    public function getOption($name) {
         return (is_array($this->options) && array_key_exists($name, $this->options)) ? $this->options[$name] : null;
     }
 
-    public function getSchedule(){
+    public function getSchedule() {
         return $this->schedule;
     }
 
-    public function addSchedule(\BCDB\Schedule $schedule){
+    public function addSchedule(\block_bc_dashboard\Schedule $schedule) {
         $this->schedule[] = $schedule;
     }
 
@@ -216,7 +217,7 @@ abstract class Report {
      * @global type $USER
      * @return type
      */
-    public function canView(){
+    public function canView() {
 
         global $USER, $bcdb;
         return ( has_capability('block/bc_dashboard:view_reports', $bcdb['context']) && ($this->createdby == $USER->id || !is_null($this->category) || is_siteadmin()));
@@ -228,7 +229,7 @@ abstract class Report {
      * @global type $bcdb
      * @return type
      */
-    public function canRun(){
+    public function canRun() {
 
         global $bcdb;
         return ($this->canView() && has_capability('block/bc_dashboard:run_reports', $bcdb['context']));
@@ -239,13 +240,13 @@ abstract class Report {
      * Check if current user can schedule the report to run
      * @return type
      */
-    public function canSchedule(){
+    public function canSchedule() {
         global $bcdb;
         return ($this->canRun() && has_capability('block/bc_dashboard:edit_report_schedule', $bcdb['context']));
     }
 
     abstract public function canEdit();
-    abstract public function loadFormData($data);
+    abstract public function loadFormData();
     abstract public function run();
     abstract public function export($method);
 
@@ -263,21 +264,16 @@ abstract class Report {
         $xml->addChild('query', $this->query);
 
         $params = $xml->addChild('parameters');
-        if ($this->params)
-        {
-            foreach($this->params as $param)
-            {
+        if ($this->params) {
+            foreach ($this->params as $param) {
                 $params->addChild('param', json_encode($param));
             }
         }
 
         $opt = $xml->addChild('options');
-        if ($this->options)
-        {
-            foreach($this->options as $optionName => $option)
-            {
-                if (!in_array($optionName, $excludeOptions))
-                {
+        if ($this->options) {
+            foreach ($this->options as $optionName => $option) {
+                if (!in_array($optionName, $excludeOptions)) {
                     $opt->addChild($optionName, $option);
                 }
             }
@@ -295,19 +291,21 @@ abstract class Report {
     }
 
 
-    public function importXML(){}
-    public function applyParams($params){}
+    public function importXML() {
+    }
+    public function applyParams($params) {
+    }
 
     /**
      * Mark a report as deleted
-     * @global \BCDB\type $DB
+     * @global \block_bc_dashboard\type $DB
      * @return boolean
      */
-    public function delete(){
+    public function delete() {
 
         global $DB;
 
-        if (!$this->isValid()){
+        if (!$this->isValid()) {
             return false;
         }
 
@@ -316,15 +314,15 @@ abstract class Report {
         $record->del = 1;
 
         $result = $DB->update_record("block_bcdb_reports", $record);
-        if ($result){
-            \BCDB\Log::add( \BCDB\Log::LOG_DELETE_REPORT, $this->id );
+        if ($result) {
+            \block_bc_dashboard\Log::add( \block_bc_dashboard\Log::LOG_DELETE_REPORT, $this->id );
         }
 
         return $result;
 
     }
 
-    public function save(){
+    public function save() {
 
         global $DB, $USER, $bcdb;
 
@@ -342,21 +340,20 @@ abstract class Report {
         // If we have permissions, we can specify the category, otherwise, if it's our report it's private. If it's not ours and we don't have permission, then it doesn't get updated at all.
         if (has_capability('block/bc_dashboard:assign_report_categories', $bcdb['context'])) {
             $record->category = $this->category;
-        } elseif(!$this->isValid() || $this->createdby == $USER->id) {
+        } else if (!$this->isValid() || $this->createdby == $USER->id) {
             $record->category = null;
         }
 
-
         // Update
-        if ($this->isValid()){
+        if ($this->isValid()) {
             $result = $DB->update_record("block_bcdb_reports", $record);
-            \BCDB\Log::add( \BCDB\Log::LOG_EDIT_REPORT, $this->id );
+            \block_bc_dashboard\Log::add( \block_bc_dashboard\Log::LOG_EDIT_REPORT, $this->id );
         } else {
             $record->createddate = time();
             $record->createdby = $USER->id;
             $this->id = $DB->insert_record("block_bcdb_reports", $record);
             $result = $this->id;
-            \BCDB\Log::add( \BCDB\Log::LOG_CREATE_REPORT, $this->id );
+            \block_bc_dashboard\Log::add( \block_bc_dashboard\Log::LOG_CREATE_REPORT, $this->id );
         }
 
         return $result;
@@ -368,7 +365,7 @@ abstract class Report {
      * @global type $DB
      * @return type
      */
-    public function getLastRun(){
+    public function getLastRun() {
 
         global $DB;
 
@@ -379,12 +376,12 @@ abstract class Report {
 
     /**
      * Get logs about this report
-     * @global \BCDB\type $DB
+     * @global \block_bc_dashboard\type $DB
      * @param type $action
      * @param type $limit
      * @return type
      */
-    public function getLogs($action = false, $limit = 15){
+    public function getLogs($action = false, $limit = 15) {
 
         global $DB;
 
@@ -392,15 +389,13 @@ abstract class Report {
         $params = array();
 
         $params['reportid'] = $this->id;
-        if ($action){
+        if ($action) {
             $params['action'] = $action;
         }
 
         $records = $DB->get_records("block_bcdb_logs", $params, "id DESC", "*", 0, $limit);
-        if ($records)
-        {
-            foreach($records as $record)
-            {
+        if ($records) {
+            foreach ($records as $record) {
                 $record->user = (!is_null($record->userid)) ? $DB->get_record("user", array("id" => $record->userid)) : 'System';
                 $return[] = $record;
             }
@@ -414,9 +409,9 @@ abstract class Report {
      * Get the headers to use from the result data
      * @return boolean
      */
-    public function getHeaders(){
+    public function getHeaders() {
 
-        if (!$this->data){
+        if (!$this->data) {
             return false;
         }
 
@@ -428,26 +423,24 @@ abstract class Report {
      * Get the datatypes of the data in each column, for table sorting
      * @return boolean|array
      */
-    public function getDataTypes(){
+    public function getDataTypes() {
 
-        if (!$this->data){
+        if (!$this->data) {
             return false;
         }
 
         $types = array();
 
-        foreach($this->data as $row){
-            foreach($row as $key => $val){
+        foreach ($this->data as $row) {
+            foreach ($row as $key => $val) {
 
-                if (!isset($types[$key])){
+                if (!isset($types[$key])) {
                     $types[$key] = '';
                 }
 
-                if (is_numeric($val) && $types[$key] != 'string-ins' ){
+                if (is_numeric($val) && $types[$key] != 'string-ins' ) {
                     $types[$key] = 'float';
-                }
-
-                elseif (is_string($val)){
+                } else if (is_string($val)) {
                     $types[$key] = 'string-ins';
                 }
 
@@ -460,23 +453,20 @@ abstract class Report {
 
     /**
      * Get the scheduled tasks on this report which we have permission to edit
-     * @global \BCDB\type $DB
-     * @return \BCDB\Schedule
+     * @global \block_bc_dashboard\type $DB
+     * @return \block_bc_dashboard\Schedule
      */
-    public function getEditableScheduledTasks(){
+    public function getEditableScheduledTasks() {
 
         global $DB;
 
         $return = array();
 
         $records = $DB->get_records("block_bcdb_schedule", array("reportid" => $this->id), "scheduledtime ASC", "id");
-        if ($records)
-        {
-            foreach($records as $record)
-            {
-                $schedule = new \BCDB\ScheduledTask($record->id);
-                if ($schedule->isValid() && $schedule->canEdit())
-                {
+        if ($records) {
+            foreach ($records as $record) {
+                $schedule = new \block_bc_dashboard\ScheduledTask($record->id);
+                if ($schedule->isValid() && $schedule->canEdit()) {
                     $return[] = $schedule;
                 }
             }
@@ -488,23 +478,20 @@ abstract class Report {
 
     /**
      * Get all scheduled tasks
-     * @global \BCDB\type $DB
+     * @global \block_bc_dashboard\type $DB
      * @return type
      */
-    public function getAllScheduledTasks(){
+    public function getAllScheduledTasks() {
 
         global $DB;
 
         $return = array();
 
         $records = $DB->get_records("block_bcdb_schedule", array("reportid" => $this->id), "scheduledtime ASC", "id");
-        if ($records)
-        {
-            foreach($records as $record)
-            {
-                $schedule = new \BCDB\ScheduledTask($record->id);
-                if ($schedule->isValid())
-                {
+        if ($records) {
+            foreach ($records as $record) {
+                $schedule = new \block_bc_dashboard\ScheduledTask($record->id);
+                if ($schedule->isValid()) {
                     $return[] = $schedule;
                 }
             }
@@ -515,20 +502,18 @@ abstract class Report {
 
     /**
      * Get your private reports
-     * @global \BCDB\type $DB
-     * @global \BCDB\type $USER
+     * @global \block_bc_dashboard\type $DB
+     * @global \block_bc_dashboard\type $USER
      * @return type
      */
-    public static function priv(){
+    public static function priv() {
 
         global $DB, $USER;
 
         $return = array();
         $records = $DB->get_records("block_bcdb_reports", array("createdby" => $USER->id, "category" => null, "del" => 0), "name ASC", "id");
-        if ($records)
-        {
-            foreach($records as $record)
-            {
+        if ($records) {
+            foreach ($records as $record) {
                 $return[] = self::load($record->id);
             }
         }
@@ -539,23 +524,21 @@ abstract class Report {
 
     /**
      * Get public reports
-     * @global \BCDB\type $DB
+     * @global \block_bc_dashboard\type $DB
      * @param type $catID
      * @return type
      */
-    public static function pub($catID = false){
+    public static function pub($catID = false) {
 
         global $DB;
 
         $return = array();
 
-        if ($catID !== false){
+        if ($catID !== false) {
 
             $records = $DB->get_records("block_bcdb_reports", array("category" => $catID, "del" => 0), "name ASC", "id");
-            if ($records)
-            {
-                foreach($records as $record)
-                {
+            if ($records) {
+                foreach ($records as $record) {
                     $return[] = self::load($record->id);
                 }
             }
@@ -564,7 +547,7 @@ abstract class Report {
 
         } else {
 
-            $config = new \BCDB\Config();
+            $config = new \block_bc_dashboard\Config();
 
             // First build up an array of public categories
             $return = $config->getReportCategories(true);
@@ -576,20 +559,18 @@ abstract class Report {
 
     /**
      * Get any reports created by you, public or private
-     * @global \BCDB\type $DB
-     * @global \BCDB\type $USER
+     * @global \block_bc_dashboard\type $DB
+     * @global \block_bc_dashboard\type $USER
      * @return type
      */
-    public static function my(){
+    public static function my() {
 
         global $DB, $USER;
 
         $return = array();
         $records = $DB->get_records("block_bcdb_reports", array("createdby" => $USER->id, "del" => 0), "name ASC", "id");
-        if ($records)
-        {
-            foreach($records as $record)
-            {
+        if ($records) {
+            foreach ($records as $record) {
                 $return[] = self::load($record->id);
             }
         }
@@ -600,28 +581,27 @@ abstract class Report {
 
     /**
      * Load a report into its relevant object
-     * @global \BCDB\type $DB
+     * @global \block_bc_dashboard\type $DB
      * @param type $id
-     * @return \BCDB\Report\SQLReport|\BCDB\Report\BuiltReport
+     * @return \block_bc_dashboard\Report\SQLReport|\block_bc_dashboard\Report\BuiltReport
      */
-    public static function load($id = false){
+    public static function load($id = false) {
 
         global $DB;
 
-        if ($id){
+        if ($id) {
             $record = $DB->get_record("block_bcdb_reports", array("id" => $id));
-            if ($record){
-                switch($record->type)
-                {
+            if ($record) {
+                switch ($record->type) {
                     case 'builder':
-                        return new \BCDB\Report\BuiltReport($record);
-                    break;
+                        return new \block_bc_dashboard\Report\BuiltReport($record);
+                        break;
                     case 'sql':
-                        return new \BCDB\Report\SQLReport($record);
-                    break;
+                        return new \block_bc_dashboard\Report\SQLReport($record);
+                        break;
                     default:
                         print_error('error:invalidreport', 'block_bc_dashboard');
-                    break;
+                        break;
                 }
             }
         }
@@ -630,34 +610,34 @@ abstract class Report {
 
 
 
-    public static function loadFromXML($file){
+    public static function loadFromXML($file) {
 
         // Check file uploaded correctly
-        if ($file['error'] > 0){
+        if ($file['error'] > 0) {
             print_error('error:importreport', 'block_bc_dashboard');
         }
 
         // Check mime type of file to make sure it is XML
         $fInfo = finfo_open(FILEINFO_MIME_TYPE);
-            $mime = finfo_file($fInfo, $file['tmp_name']);
+        $mime = finfo_file($fInfo, $file['tmp_name']);
         finfo_close($fInfo);
 
         // Has to be XML file, otherwise error and return
-        if ($mime != 'application/xml' && $mime != 'text/plain'){
+        if ($mime != 'application/xml' && $mime != 'text/plain') {
             print_error('error:importreport:mime', 'block_bc_dashboard', '', $mime);
         }
 
         // Open file
         $doc = \simplexml_load_file($file['tmp_name']);
-        if (!$doc){
+        if (!$doc) {
             print_error('error:importreport:load', 'block_bc_dashboard');
         }
 
         $type = $doc->report->type;
-        if ($type == 'built'){
-            $report = new \BCDB\Report\BuiltReport();
-        } elseif ($type == 'sql'){
-            $report = new \BCDB\Report\SQLReport();
+        if ($type == 'built') {
+            $report = new \block_bc_dashboard\Report\BuiltReport();
+        } else if ($type == 'sql') {
+            $report = new \block_bc_dashboard\Report\SQLReport();
         } else {
             print_error('error:invalidreport', 'block_bc_dashboard');
         }
@@ -668,8 +648,7 @@ abstract class Report {
 
         $paramsArray = array();
         $params = $doc->report->parameters->param;
-        foreach($params as $param)
-        {
+        foreach ($params as $param) {
             $paramsArray[] = json_decode($param);
         }
         $report->setParams($paramsArray);
@@ -678,7 +657,6 @@ abstract class Report {
         $report->setOptions($options);
 
         // Type-specific stuff here, e.g. built report will have various other bits attached to it
-
 
         return $report;
 

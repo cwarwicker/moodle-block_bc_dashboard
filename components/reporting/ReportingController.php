@@ -17,9 +17,9 @@
 /**
  * Dashboard Reporting
  *
- * The Reporting Dashboard plugin is a block which runs alongside the ELBP and Grade Tracker blocks, to provide a better experience and extra features, 
+ * The Reporting Dashboard plugin is a block which runs alongside the ELBP and Grade Tracker blocks, to provide a better experience and extra features,
  * such as combined reporting across both plugins. It also allows you to create your own custom SQL reports which can be run on any aspect of Moodle.
- * 
+ *
  * @package     block_bc_dashboard
  * @copyright   2017-onwards Conn Warwicker
  * @author      Conn Warwicker <conn@cmrwarwicker.com>
@@ -27,52 +27,56 @@
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  *
  * Originally developed at Bedford College, now maintained by Conn Warwicker
- * 
+ *
  */
 
-namespace BCDB\Controllers;
+namespace block_bc_dashboard\Controllers;
 
-if (\block_instance('gradetracker')){
-    require_once $CFG->dirroot . '/blocks/gradetracker/lib.php';
+defined('MOODLE_INTERNAL') or die();
+
+if (\block_instance('gradetracker')) {
+    require_once($CFG->dirroot . '/blocks/gradetracker/lib.php');
 }
-
-
 
 /**
  * Description of DashboardController
  *
  * @author cwarwicker
  */
-class ReportingController extends \BCDB\Controller {
-    
+class ReportingController extends \block_bc_dashboard\Controller {
+
     protected $component = 'reporting';
-    
-    protected function initialCheckPermissions(){
-                
+
+    protected function initialCheckPermissions() {
+
         // Check permissions to view reporting
-        if (!has_capability('block/bc_dashboard:view_reports', $this->context)){
+        if (!has_capability('block/bc_dashboard:view_reports', $this->context)) {
             \bcdb_fatalError( get_string('invalidaccess', 'block_bc_dashboard') );
         }
-        
+
     }
-    
-    
-    public function action_exportxml($args){
-        
+
+
+    public function action_exportxml($args) {
+
         // Check they can export anything
-        if (!has_capability('block/bc_dashboard:export_reports', $this->context)){
+        if (!has_capability('block/bc_dashboard:export_reports', $this->context)) {
             \bcdb_fatalError( get_string('invalidaccess', 'block_bc_dashboard') );
         }
-        
+
         $reportID = (isset($args[0])) ? $args[0] : false;
-        $report = \BCDB\Report::load($reportID);
-        if (!$report) return false;
-        
+        $report = \block_bc_dashboard\Report::load($reportID);
+        if (!$report) {
+            return false;
+        }
+
         // Chekc they have access to this and not trying to export a report they can't actually run
-        if (!$report->canRun()) return false;
-        
+        if (!$report->canRun()) {
+            return false;
+        }
+
         $report->exportXML();
-                
+
     }
-    
+
 }

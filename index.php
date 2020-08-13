@@ -17,9 +17,9 @@
 /**
  * Dashboard Reporting
  *
- * The Reporting Dashboard plugin is a block which runs alongside the ELBP and Grade Tracker blocks, to provide a better experience and extra features, 
+ * The Reporting Dashboard plugin is a block which runs alongside the ELBP and Grade Tracker blocks, to provide a better experience and extra features,
  * such as combined reporting across both plugins. It also allows you to create your own custom SQL reports which can be run on any aspect of Moodle.
- * 
+ *
  * @package     block_bc_dashboard
  * @copyright   2017-onwards Conn Warwicker
  * @author      Conn Warwicker <conn@cmrwarwicker.com>
@@ -27,14 +27,13 @@
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  *
  * Originally developed at Bedford College, now maintained by Conn Warwicker
- * 
+ *
  */
-
 
 set_time_limit(0);
 
-require_once '../../config.php';
-require_once $CFG->dirroot . '/blocks/bc_dashboard/lib.php';
+require_once('../../config.php');
+require_once($CFG->dirroot . '/blocks/bc_dashboard/lib.php');
 require_login();
 
 $PAGE->set_context($bcdb['context']);
@@ -42,7 +41,7 @@ $PAGE->set_context($bcdb['context']);
 ob_start();
 
 // Nice url
-$URL = ( isset($_GET['Qs']) ) ? trim($_GET['Qs']) : '';
+$URL = optional_param('Qs', '', PARAM_TEXT);
 
 // Call router hook - this will work out where we want to go and what we want to do, based on the nice url
 bcdb_callHook($URL);

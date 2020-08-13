@@ -8,17 +8,17 @@
             <tr>
                 <th data-orderable="false"><input type='checkbox' id='chkall'  /></th>
                 <th data-orderable="false"></th>
-                <th><?= $string['name'] ?></th>
+                <th><?php echo $string['name'] ?></th>
 
                 <?php if ($bcdb['elbp']): ?>
-                    <?= $this->getStudentHeaders_Attendance() ?>
-                    <?= $this->getStudentHeaders_Tutorials() ?>
-                    <?= $this->getStudentHeaders_Comments() ?>
+                    <?php echo $this->getStudentHeaders_Attendance() ?>
+                    <?php echo $this->getStudentHeaders_Tutorials() ?>
+                    <?php echo $this->getStudentHeaders_Comments() ?>
                 <?php endif; ?>
 
                 <?php if ($bcdb['gradetracker']): ?>
-                    <?= $this->getStudentHeaders_TargetGrade() ?>
-                    <?= $this->getStudentHeaders_AspirationalGrade() ?>
+                    <?php echo $this->getStudentHeaders_TargetGrade() ?>
+                    <?php echo $this->getStudentHeaders_AspirationalGrade() ?>
                 <?php endif; ?>
 
             </tr>
@@ -29,31 +29,31 @@
                 <?php foreach($students as $student): ?>
                     <tr>
                         <td>
-                            <input type='checkbox' class='stud_checkbox' value='<?= $student->id ?>' />
+                            <input type='checkbox' class='stud_checkbox' value='<?php echo $student->id ?>' />
                         </td>
                         <td>
-                            <?= $OUTPUT->user_picture($student, array("size"=>30)); ?>
+                            <?php echo $OUTPUT->user_picture($student, array("size"=>30)); ?>
                         </td>
                         <td>
                             <?php if ($bcdb['elbp']): ?>
-                                <a href="<?= $CFG->wwwroot ?>/blocks/elbp/view.php?id=<?= $student->id ?>" target="_blank"><?= \fullname($student) ?></a>
+                                <a href="<?php echo $CFG->wwwroot ?>/blocks/elbp/view.php?id=<?php echo $student->id ?>" target="_blank"><?php echo \fullname($student) ?></a>
                             <?php else: ?>
-                                <?= \fullname($student) ?>
+                                <?php echo \fullname($student) ?>
                             <?php endif; ?>
                         </td>
 
                         <?php if ($bcdb['elbp']): ?>
-                            <?= $this->getStudentCells_Attendance($student->id) ?>
-                            <?= $this->getStudentCells_Tutorials($student->id) ?>
-                            <?= $this->getStudentCells_Comments($student->id) ?>
+                            <?php echo $this->getStudentCells_Attendance($student->id) ?>
+                            <?php echo $this->getStudentCells_Tutorials($student->id) ?>
+                            <?php echo $this->getStudentCells_Comments($student->id) ?>
                         <?php endif; ?>
 
                         <?php if ($bcdb['gradetracker']): ?>
-                            <?= $this->getStudentCells_TargetGrade($student->id) ?>
-                            <?= $this->getStudentCells_AspirationalGrade($student->id) ?>
+                            <?php echo $this->getStudentCells_TargetGrade($student->id) ?>
+                            <?php echo $this->getStudentCells_AspirationalGrade($student->id) ?>
                         <?php endif; ?>
 
-                        
+
                     </tr>
                 <?php endforeach; ?>
             <?php endif; ?>
@@ -65,17 +65,17 @@
         <div class='col-lg-3'>
             <select id='student_action' name='mass_action' class='form-control'>
 
-                <option value=''><?= $string['selectaction'] ?></option>
+                <option value=''><?php echo $string['selectaction'] ?></option>
 
                 <?php if ($bcdb['elbp'] && ( $type == 'mentees' || $type == 'additionalsupport') ): ?>
-                    <option value='remove'><?= $string['removestudents'] ?></option>
+                    <option value='remove'><?php echo $string['removestudents'] ?></option>
                 <?php endif; ?>
 
-                <option value='message'><?= $string['sendmessage'] ?></option>
+                <option value='message'><?php echo $string['sendmessage'] ?></option>
 
                 <?php if ($massActions): ?>
                     <?php foreach($massActions as $val => $text): ?>
-                        <option value='<?= $val ?>'><?= $text ?></option>
+                        <option value='<?php echo $val ?>'><?php echo $text ?></option>
                     <?php endforeach; ?>
                 <?php endif; ?>
 

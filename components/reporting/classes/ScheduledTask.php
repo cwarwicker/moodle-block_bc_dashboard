@@ -17,9 +17,9 @@
 /**
  * Dashboard Reporting
  *
- * The Reporting Dashboard plugin is a block which runs alongside the ELBP and Grade Tracker blocks, to provide a better experience and extra features, 
+ * The Reporting Dashboard plugin is a block which runs alongside the ELBP and Grade Tracker blocks, to provide a better experience and extra features,
  * such as combined reporting across both plugins. It also allows you to create your own custom SQL reports which can be run on any aspect of Moodle.
- * 
+ *
  * @package     block_bc_dashboard
  * @copyright   2017-onwards Conn Warwicker
  * @author      Conn Warwicker <conn@cmrwarwicker.com>
@@ -27,13 +27,15 @@
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  *
  * Originally developed at Bedford College, now maintained by Conn Warwicker
- * 
+ *
  */
 
-namespace BCDB;
+namespace block_bc_dashboard;
+
+defined('MOODLE_INTERNAL') or die();
 
 class ScheduledTask {
-    
+
     private $id = false;
     private $reportID;
     private $time;
@@ -44,18 +46,18 @@ class ScheduledTask {
     private $lastRun;
     private $nextRun;
     private $createdBy;
-    
+
     private $errors = array();
-    
+
     public function __construct($id = null) {
-        
+
         global $DB;
-        
-        if ($id > 0){
-            
+
+        if ($id > 0) {
+
             $record = $DB->get_record("block_bcdb_schedule", array("id" => $id));
-            if ($record){
-                
+            if ($record) {
+
                 $this->id = $record->id;
                 $this->reportID = $record->reportid;
                 $this->time = $record->scheduledtime;
@@ -66,224 +68,226 @@ class ScheduledTask {
                 $this->lastRun = $record->lastrun;
                 $this->nextRun = $record->nextrun;
                 $this->createdBy = $record->createdbyuserid;
-                
+
             }
-            
-        }        
-        
+
+        }
+
     }
-    
-    public function isValid(){
+
+    public function isValid() {
         return ($this->id > 0);
     }
-    
-    public function getID(){
+
+    public function getID() {
         return $this->id;
     }
-    
-    public function getReportID(){
+
+    public function getReportID() {
         return $this->reportID;
     }
-    
-    public function getScheduledTime(){
+
+    public function getScheduledTime() {
         return $this->time;
     }
-    
-    public function getRepetitionType(){
+
+    public function getRepetitionType() {
         return $this->repType;
     }
-    
-    public function getRepetitionValues(){
+
+    public function getRepetitionValues() {
         return $this->repValues;
     }
-    
-    public function getParams(){
+
+    public function getParams() {
         return $this->params;
     }
-    
-    public function getParamsArray(){
+
+    public function getParamsArray() {
         return explode(",", $this->params);
     }
-    
-    public function getParam($num){
+
+    public function getParam($num) {
         $params = explode(",", $this->params);
         return (isset($params[$num])) ? $params[$num] : null;
     }
-    
-    public function getEmailTo(){
+
+    public function getEmailTo() {
         return $this->emailTo;
     }
-    
-    public function getLastRunUnix(){
+
+    public function getLastRunUnix() {
         return $this->lastRun;
     }
-    
-    public function getNextRunUnix(){
+
+    public function getNextRunUnix() {
         return $this->nextRun;
     }
-    
+
     /**
      * Get a string of when the task last ran
      * @param type $format
      * @return type
      */
-    public function getLastRun($format){
-        
-        if ($this->lastRun > 0){
+    public function getLastRun($format) {
+
+        if ($this->lastRun > 0) {
             return date($format, $this->lastRun);
         } else {
             return get_string('never');
         }
-        
+
     }
-    
+
     /**
      * Get a string of when the task is next due to run
      * @param type $format
      * @return type
      */
-    public function getNextRun($format){
-        
-        if (!is_null($this->nextRun) && $this->nextRun <= time()){
+    public function getNextRun($format) {
+
+        if (!is_null($this->nextRun) && $this->nextRun <= time()) {
             return '<b>'.get_string('asap', 'block_bc_dashboard').'</b>';
-        } elseif (!is_null($this->nextRun) && $this->nextRun > 0){
+        } else if (!is_null($this->nextRun) && $this->nextRun > 0) {
             return date($format, $this->nextRun);
         } else {
             return get_string('never');
         }
-        
+
     }
-    
-    
-    public function getCreatedBy(){
+
+
+    public function getCreatedBy() {
         return $this->createdBy;
     }
-    
-    public function getCreatedByName(){
-        return \bcdb_get_user_name($this->createdBy);        
+
+    public function getCreatedByName() {
+        return \bcdb_get_user_name($this->createdBy);
     }
-    
-    public function getErrors(){
+
+    public function getErrors() {
         return $this->errors;
     }
-    
-    public function getFile(){
-        
+
+    public function getFile() {
+
         global $CFG;
-        
+
         $extensions = array('xlsx', 'csv');
-        foreach($extensions as $ext)
-        {
-            if (file_exists($CFG->dataroot . '/BCDB/scheduled_tasks/' . $this->id . '.' . $ext))
-            {
+        foreach ($extensions as $ext) {
+            if (file_exists($CFG->dataroot . '/BCDB/scheduled_tasks/' . $this->id . '.' . $ext)) {
                 return $this->id . '.' . $ext;
             }
         }
-        
+
         return null;
-        
+
     }
-    
-    public function setScheduledTime($val){
+
+    public function setScheduledTime($val) {
         $this->time = $val;
         return $this;
     }
-    
-    public function setRepetitionType($val){
+
+    public function setRepetitionType($val) {
         $this->repType = $val;
         return $this;
     }
-    
-    public function setRepetitionValues($val){
+
+    public function setRepetitionValues($val) {
         $this->repValues = $val;
         return $this;
     }
-    
-    public function setParams($val){
+
+    public function setParams($val) {
         $this->params = $val;
         return $this;
     }
-    
-    public function setEmailTo($val){
+
+    public function setEmailTo($val) {
         $this->emailTo = $val;
         return $this;
     }
-    
-    public function setReportID($val){
+
+    public function setReportID($val) {
         $this->reportID = $val;
         return $this;
     }
-        
+
     /**
      * Can they edit/delete this specific scheduled task on the report?
      * @global type $USER
      * @global type $bcdb
      * @return boolean
      */
-    public function canEdit(){
-        
+    public function canEdit() {
+
         global $USER, $bcdb;
-        
+
         // If this is a new one, then yes
-        if (!$this->isValid()) return true;
-        
+        if (!$this->isValid()) {
+            return true;
+        }
+
         // If we can't load the report, then no
-        $report = \BCDB\Report::load($this->reportID);
-        if (!$report) return false;
-        
+        $report = \block_bc_dashboard\Report::load($this->reportID);
+        if (!$report) {
+            return false;
+        }
+
         // Was this scheduled task either created by us, or do we have the capability to edit all of them?
         return ( $report->canSchedule() && ($this->createdBy == $USER->id || has_capability('block/bc_dashboard:edit_any_report_schedule', $bcdb['context'])) );
-        
+
     }
-    
+
     /**
      * Check for errors in the submitted form data
      * @return type
      */
-    public function hasErrors(){
-        
+    public function hasErrors() {
+
         $this->errors = array();
-        
+
         // Check email contacts are valid usernames
-        if ($this->emailTo){
+        if ($this->emailTo) {
             $contacts = explode(",", $this->emailTo);
-            foreach($contacts as $username){
+            foreach ($contacts as $username) {
                 $user = \bcdb_get_user_by_username($username);
-                if (!$user){
+                if (!$user) {
                     $this->errors[] = get_string('error:invaliduser', 'block_bc_dashboard') . ' - ' . $username;
                 }
             }
         }
-        
+
         return ($this->errors);
-        
+
     }
-    
+
     /**
      * Delete this task
      * @global type $DB
      * @return type
      */
-    public function delete(){
-        
+    public function delete() {
+
         global $DB;
         return $DB->delete_records("block_bcdb_schedule", array("id" => $this->id));
-        
+
     }
-    
+
     /**
      * Save a task to the database
-     * @global \BCDB\type $DB
-     * @global \BCDB\type $USER
+     * @global \block_bc_dashboard\type $DB
+     * @global \block_bc_dashboard\type $USER
      * @return type
      */
-    public function save(){
-        
+    public function save() {
+
         global $DB, $USER;
-                
+
         // Create new
-        if (!$this->isValid()){
-            
+        if (!$this->isValid()) {
+
             $obj = new \stdClass();
             $obj->reportid = $this->reportID;
             $obj->scheduledtime = $this->time;
@@ -294,15 +298,15 @@ class ScheduledTask {
             $obj->lastrun = null;
             $obj->nextrun = $this->calculateNextRunTime();
             $obj->createdbyuserid = $USER->id;
-            
+
             $result = $DB->insert_record("block_bcdb_schedule", $obj);
             $this->id = $result;
-            
+
             // Log action
-            \BCDB\Log::add( \BCDB\Log::LOG_CREATE_SCHEDULED_TASK, $this->id );
-            
+            \block_bc_dashboard\Log::add( \block_bc_dashboard\Log::LOG_CREATE_SCHEDULED_TASK, $this->id );
+
         } else {
-            
+
             // Edit existing
             $obj = new \stdClass();
             $obj->id = $this->id;
@@ -312,170 +316,155 @@ class ScheduledTask {
             $obj->params = $this->params;
             $obj->emailto = $this->emailTo;
             $obj->nextrun = $this->calculateNextRunTime();
-            
+
             $result = $DB->update_record("block_bcdb_schedule", $obj);
-            
+
             // Log action
-            \BCDB\Log::add( \BCDB\Log::LOG_EDIT_SCHEDULED_TASK, $this->id );
-            
+            \block_bc_dashboard\Log::add( \block_bc_dashboard\Log::LOG_EDIT_SCHEDULED_TASK, $this->id );
+
         }
-        
+
         return $result;
-        
+
     }
 
     /**
      * Calculate when this task should next run
      * @return int unix timestamp
      */
-    private function calculateNextRunTime(){
-        
+    private function calculateNextRunTime() {
+
         $unix = false;
         $now = time();
-        
+
         // Date
-        if ($this->repType == 'date'){
-            
+        if ($this->repType == 'date') {
+
             $unix = strtotime($this->repValues . ' ' . $this->time);
-            
+
             // Have we already run it?
-            if ($this->lastRun >= $unix){
+            if ($this->lastRun >= $unix) {
                 $unix = null;
             }
-            
-        }
-        
-        // Daily
-        elseif ($this->repType == 'day'){
-            
+
+        } else if ($this->repType == 'day') {
+
             // Check if this time has already passed today, in which case, next run will be tomorrow
             $today = strtotime($this->time);
-            if ($today > $now){
+            if ($today > $now) {
                 $unix = $today;
             } else {
                 $unix = strtotime("+1 day", $today);
             }
-        }
-        
-        // Weekly
-        elseif ($this->repType == 'week'){
-            
+        } else if ($this->repType == 'week') {
+
             $today = strtotime($this->time);
             $todayDayNum = date('N');
             $dayNumbers = explode(",", $this->repValues);
             sort($dayNumbers);
-            
+
             // Check if today is one of the days selected and the time hasn't passed yet
-            if (in_array($todayDayNum, $dayNumbers) && $today > $now){
+            if (in_array($todayDayNum, $dayNumbers) && $today > $now) {
                 $unix = $today;
             } else {
-            
+
                 // If not, go through the days selected and find the first one after today (or if there are none, then find the first one in the array)
                 $afterToday = array_filter($dayNumbers, function($d) use ($todayDayNum) {
                     return ($d > $todayDayNum);
                 });
 
                 // If there are some days after today, use the first one
-                if ($afterToday){
+                if ($afterToday) {
                     $day = reset($afterToday);
                 } else {
                     $day = reset($dayNumbers);
                 }
-                
+
                 $diff = ($day > $todayDayNum) ? $day - $todayDayNum : $day - $todayDayNum + 7;
                 $unix = strtotime("+{$diff} days", $today);
-            
+
             }
-                        
-        }
-        
-        // Monthly
-        elseif ($this->repType == 'month'){
-            
+
+        } else if ($this->repType == 'month') {
+
             $today = strtotime($this->time);
             $todayDateDay = date('j');
             $todayDateMonth = date('m');
             $todayDateYear = date('Y');
             $dayNumbers = explode(",", $this->repValues);
             sort($dayNumbers);
-            
+
             // If today is one of the dates selected and the time hasn't passed yet
-            if (in_array($todayDateDay, $dayNumbers) && $today > $now){
+            if (in_array($todayDateDay, $dayNumbers) && $today > $now) {
                 $unix = $today;
             } else {
-                
+
                 // If not, go through the days selected and find the first one after today (or if there are none, then find the first one in the array)
                 $afterToday = array_filter($dayNumbers, function($d) use ($todayDateDay) {
                     return ($d > $todayDateDay);
                 });
 
                 // If there are some days after today, use the first one
-                if ($afterToday){
+                if ($afterToday) {
                     $day = reset($afterToday);
-                    if ($day < 10) $day = '0'.$day;
+                    if ($day < 10) {
+                        $day = '0'.$day;
+                    }
                     $unix = strtotime($day . '-' . $todayDateMonth . '-' . $todayDateYear . ' ' . $this->time);
                 } else {
                     // If not then the day number is lower, so it will be next month
                     $day = reset($dayNumbers);
-                    if ($day < 10) $day = '0'.$day;
+                    if ($day < 10) {
+                        $day = '0'.$day;
+                    }
                     $unix = strtotime($day . '-' . $todayDateMonth . '-' . $todayDateYear . ' ' . $this->time . ' + 1 month');
                 }
-                                
+
             }
-                        
+
         }
-        
+
         return ($unix !== false) ? $unix : null;
-        
+
     }
-    
+
     /**
      * Get the repetition type and values as a string to display in the table
      * @return type
      */
-    public function repetitionToString(){
-    
-        if ($this->repType == 'date'){
+    public function repetitionToString() {
+
+        if ($this->repType == 'date') {
             return get_string('date') . "<br><small>({$this->repValues})</small>";
-        }
-        
-        elseif ($this->repType == 'day'){
+        } else if ($this->repType == 'day') {
             return get_string('daily', 'block_bc_dashboard');
-        }
-        
-        elseif ($this->repType == 'week'){
+        } else if ($this->repType == 'week') {
             $arr = array();
             $vals = explode(",", $this->repValues);
-            if ($vals)
-            {
-                foreach($vals as $num)
-                {
+            if ($vals) {
+                foreach ($vals as $num) {
                     $arr[] = date('D', strtotime("Sunday +{$num} days"));
                 }
             }
             return get_string('weekly', 'block_bc_dashboard') . "<br><small>(".implode(', ', $arr).")</small>";
-        }
-        
-        elseif ($this->repType == 'month'){
-            
+        } else if ($this->repType == 'month') {
+
             $arr = array();
             $vals = explode(",", $this->repValues);
-            if ($vals)
-            {
-                foreach($vals as $num)
-                {
+            if ($vals) {
+                foreach ($vals as $num) {
                     $arr[] = bcdb_ordinal($num);
                 }
             }
-            
+
             return get_string('monthly', 'block_bc_dashboard') . "<br><small>(".implode(', ', $arr).")</small>";
-            
+
         }
-        
+
     }
-    
-    public function toJson(){
-        
+
+    public function toJson() {
+
         $obj = new \stdClass();
         $obj->id = $this->id;
         $obj->reportid = $this->reportID;
@@ -488,130 +477,119 @@ class ScheduledTask {
         $obj->nextrun = $this->nextRun;
         $obj->createdbyuserid = $this->createdBy;
         $obj->createdbyusername = \bcdb_get_user_name( $this->createdBy );
-        
+
         return json_encode($obj);
-        
+
     }
-    
-    
-    public function run(){
-        
+
+
+    public function run() {
+
         global $CFG, $DB;
-        
-        $report = \BCDB\Report::load($this->reportID);
-        if (!$report){
+
+        $report = \block_bc_dashboard\Report::load($this->reportID);
+        if (!$report) {
             mtrace("Unable to load report id {$this->reportID}");
             return false;
         }
-        
+
         mtrace("Loaded report: {$report->getName()}...");
-                
+
         $report->applyParams( $this->getParamsArray() );
         $report->execute();
         $report->runExportExcel();
-        
-        if (!isset($report->savedFilePath)){
+
+        if (!isset($report->savedFilePath)) {
             mtrace("Unable to save excel file for report {$report->getName()}");
             return false;
         }
-        
+
         // Log the action
-        \BCDB\Log::add(\BCDB\Log::LOG_SCHEDULED_TASK_RAN, $report->getID(), 'scheduled task ' . $this->id);
-        
-        
+        \block_bc_dashboard\Log::add(\block_bc_dashboard\Log::LOG_SCHEDULED_TASK_RAN, $report->getID(), 'scheduled task ' . $this->id);
+
         // Take a copy of the excel file (as the name will be overwritten if it runs again) and copy it to a different path
         $ext = bcdb_get_file_extension($report->savedFilePath);
         $newLocalPath = 'scheduled_tasks/'.$this->id.'.' . $ext;
         $newFile = $CFG->dataroot . '/BCDB/'.$newLocalPath;
-        
+
         \bcdb_create_data_dir('scheduled_tasks');
-        
-        if (!copy($CFG->dataroot . '/BCDB/' . $report->savedFilePath, $newFile)){
+
+        if (!copy($CFG->dataroot . '/BCDB/' . $report->savedFilePath, $newFile)) {
             mtrace("Unable to copy excel file to scheduled_task directory...");
             return false;
         }
-        
+
         // Create a download link
         \bcdb_create_download_code($newLocalPath);
-        
+
         mtrace("Report successfully executed and file copied to {$newFile}...");
         mtrace("Looking for users to contact...");
-        
+
         // Is there anyone to email?
         $emailTo = array_filter( array_map( 'trim', explode(",", $this->emailTo) ) );
-        if ($emailTo)
-        {
-            
+        if ($emailTo) {
+
             mtrace("Found ".count($emailTo)." users to contact...");
-            
-            foreach($emailTo as $username)
-            {
-                                
+
+            foreach ($emailTo as $username) {
+
                 $user = \bcdb_get_user_by_username($username);
-                if ($user)
-                {
-                    
+                if ($user) {
+
                     $message = get_string('scheduledtask:message', 'block_bc_dashboard');
                     $message = str_replace("%url%", $CFG->wwwroot . '/blocks/bc_dashboard/download.php?code=' . \bcdb_create_download_code($newLocalPath), $message);
-                    if (email_to_user($user, $user, get_string('scheduledtask:subject', 'block_bc_dashboard') . ' - ' . $report->getName(), clean_param($message, PARAM_TEXT), nl2br($message), 'BCDB' . DIRECTORY_SEPARATOR . $newLocalPath, $report->getName().'.'.$ext) ){
+                    if (email_to_user($user, $user, get_string('scheduledtask:subject', 'block_bc_dashboard') . ' - ' . $report->getName(), clean_param($message, PARAM_TEXT), nl2br($message), 'BCDB' . DIRECTORY_SEPARATOR . $newLocalPath, $report->getName().'.'.$ext) ) {
                         mtrace("Sent report to {$user->username} ({$user->email})");
                     } else {
                         mtrace("Unable to sent report to {$user->username} ({$user->email})");
                     }
-                                        
-                }
-                else
-                {
+
+                } else {
                     mtrace($username . " is not a valid user");
                 }
-                
+
             }
         }
-        
+
         // Update the last run and next run values
         $obj = new \stdClass();
         $obj->id = $this->id;
         $obj->lastrun = time() + 1;
         $obj->nextrun = $this->calculateNextRunTime();
         return $DB->update_record("block_bcdb_schedule", $obj);
-                
+
     }
-    
+
     /**
      * Start the moodle scheduled task to find any reports scheduled to be run
-     * @global \BCDB\type $DB
+     * @global \block_bc_dashboard\type $DB
      */
-    public static function go(){
-        
+    public static function go() {
+
         global $DB;
-        
+
         // Find any scheduled tasks which are overdue
         $now = time();
         $tasks = array();
-        
+
         $records = $DB->get_records_sql("SELECT s.id FROM {block_bcdb_schedule} s INNER JOIN {block_bcdb_reports} r ON r.id = s.reportid WHERE s.nextrun <= ? AND r.del = 0 ORDER BY s.nextrun", array($now));
-        if ($records)
-        {
-            foreach($records as $record)
-            {
-                $task = new \BCDB\ScheduledTask($record->id);
-                if ($task->isValid())
-                {
+        if ($records) {
+            foreach ($records as $record) {
+                $task = new \block_bc_dashboard\ScheduledTask($record->id);
+                if ($task->isValid()) {
                     $tasks[$task->getID()] = $task;
                 }
             }
         }
-        
+
         mtrace("Found ".count($tasks)." scheduled reports waiting to be run...");
-        
-        if ($tasks)
-        {
-            foreach($tasks as $task)
-            {
+
+        if ($tasks) {
+            foreach ($tasks as $task) {
                 $task->run();
             }
         }
-                
+
     }
-    
+
 }

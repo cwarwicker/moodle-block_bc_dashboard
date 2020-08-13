@@ -30,6 +30,8 @@
  *
  */
 
+defined('MOODLE_INTERNAL') or die();
+
 $capabilities = array(
 
     'block/bc_dashboard:addinstance' => array(
@@ -120,7 +122,7 @@ $capabilities = array(
         )
     ),
 
-     'block/bc_dashboard:crud_built_report' => array(
+    'block/bc_dashboard:crud_built_report' => array(
         'captype' => 'read',
         'contextlevel' => CONTEXT_BLOCK,
         'archetypes' => array(
@@ -132,7 +134,7 @@ $capabilities = array(
     ),
 
 
-     'block/bc_dashboard:edit_any_built_report' => array(
+    'block/bc_dashboard:edit_any_built_report' => array(
         'captype' => 'read',
         'contextlevel' => CONTEXT_BLOCK,
         'archetypes' => array(
@@ -143,7 +145,7 @@ $capabilities = array(
         )
     ),
 
-     'block/bc_dashboard:delete_any_built_report' => array(
+    'block/bc_dashboard:delete_any_built_report' => array(
         'captype' => 'read',
         'contextlevel' => CONTEXT_BLOCK,
         'archetypes' => array(
@@ -154,7 +156,7 @@ $capabilities = array(
         )
     ),
 
-     'block/bc_dashboard:run_reports' => array(
+    'block/bc_dashboard:run_reports' => array(
         'captype' => 'read',
         'contextlevel' => CONTEXT_BLOCK,
         'archetypes' => array(

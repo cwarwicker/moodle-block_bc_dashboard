@@ -29,8 +29,9 @@
  * Originally developed at Bedford College, now maintained by Conn Warwicker
  *
  */
+defined('MOODLE_INTERNAL') or die();
 
-$plugin->version = 2020031900;
+$plugin->version = 2020081300;
 $plugin->requires = 2017111300;
 $plugin->component = 'block_bc_dashboard';
 $plugin->dependencies = array(

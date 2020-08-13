@@ -17,9 +17,9 @@
 /**
  * Dashboard Reporting
  *
- * The Reporting Dashboard plugin is a block which runs alongside the ELBP and Grade Tracker blocks, to provide a better experience and extra features, 
+ * The Reporting Dashboard plugin is a block which runs alongside the ELBP and Grade Tracker blocks, to provide a better experience and extra features,
  * such as combined reporting across both plugins. It also allows you to create your own custom SQL reports which can be run on any aspect of Moodle.
- * 
+ *
  * @package     block_bc_dashboard
  * @copyright   2017-onwards Conn Warwicker
  * @author      Conn Warwicker <conn@cmrwarwicker.com>
@@ -27,19 +27,18 @@
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  *
  * Originally developed at Bedford College, now maintained by Conn Warwicker
- * 
+ *
  */
 
+defined('MOODLE_INTERNAL') or die();
 
-function xmldb_block_bc_dashboard_upgrade($oldversion = 0)
-{
+function xmldb_block_bc_dashboard_upgrade($oldversion = 0) {
     global $DB;
-    
+
     $dbman = $DB->get_manager();
 
-    if ($oldversion < 2013082000)
-    {
-        
+    if ($oldversion < 2013082000) {
+
         // Define table block_bcdb_reports to be created
         $table = new xmldb_table('block_bcdb_reports');
 
@@ -69,12 +68,10 @@ function xmldb_block_bc_dashboard_upgrade($oldversion = 0)
         // bc_dashboard savepoint reached
         upgrade_block_savepoint(true, 2013082000, 'bc_dashboard');
 
-        
     }
-    
-    if ($oldversion < 2013091600)
-    {
-        
+
+    if ($oldversion < 2013091600) {
+
         // Define field lastruntook to be added to block_bcdb_reports
         $table = new xmldb_table('block_bcdb_reports');
         $field = new xmldb_field('lastruntook', XMLDB_TYPE_INTEGER, '20', null, null, null, null, 'data');
@@ -86,14 +83,12 @@ function xmldb_block_bc_dashboard_upgrade($oldversion = 0)
 
         // bc_dashboard savepoint reached
         upgrade_block_savepoint(true, 2013091600, 'bc_dashboard');
-        
+
     }
-    
-    
-    if ($oldversion < 2013093002)
-    {
-        
-         // Define field del to be added to block_bcdb_reports
+
+    if ($oldversion < 2013093002) {
+
+        // Define field del to be added to block_bcdb_reports
         $table = new xmldb_table('block_bcdb_reports');
         $field = new xmldb_field('del', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0', 'lastruntook');
 
@@ -104,12 +99,11 @@ function xmldb_block_bc_dashboard_upgrade($oldversion = 0)
 
         // bc_dashboard savepoint reached
         upgrade_block_savepoint(true, 2013093002, 'bc_dashboard');
-        
+
     }
-    
-    if ($oldversion < 2014010200)
-    {
-        
+
+    if ($oldversion < 2014010200) {
+
         // Define field category to be added to block_bcdb_reports
         $table = new xmldb_table('block_bcdb_reports');
         $field = new xmldb_field('category', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null, 'name');
@@ -121,13 +115,11 @@ function xmldb_block_bc_dashboard_upgrade($oldversion = 0)
 
         // bc_dashboard savepoint reached
         upgrade_block_savepoint(true, 2014010200, 'bc_dashboard');
-        
+
     }
-    
-    
-    if ($oldversion < 2014012700)
-    {
-        
+
+    if ($oldversion < 2014012700) {
+
         // Define table bcdb_settings to be created
         $table = new xmldb_table('block_bcdb_settings');
 
@@ -146,10 +138,9 @@ function xmldb_block_bc_dashboard_upgrade($oldversion = 0)
 
         // bc_dashboard savepoint reached
         upgrade_block_savepoint(true, 2014012700, 'bc_dashboard');
-        
+
     }
-    
-    
+
     if ($oldversion < 2014092300) {
 
         // Define table block_bcdb_schedule to be created.
@@ -174,10 +165,9 @@ function xmldb_block_bc_dashboard_upgrade($oldversion = 0)
 
         // Bc_dashboard savepoint reached.
         upgrade_block_savepoint(true, 2014092300, 'bc_dashboard');
-        
+
     }
-    
-    
+
     if ($oldversion < 2014092301) {
 
         // Define table block_bcdb_report_logs to be created.
@@ -201,14 +191,13 @@ function xmldb_block_bc_dashboard_upgrade($oldversion = 0)
 
         // Bc_dashboard savepoint reached.
         upgrade_block_savepoint(true, 2014092301, 'bc_dashboard');
-        
+
     }
 
-    
     if ($oldversion < 2014092401) {
 
         // Define field contact to be added to block_bcdb_schedule.
-         // Define field lastrun to be added to block_bcdb_schedule.
+        // Define field lastrun to be added to block_bcdb_schedule.
         $table = new xmldb_table('block_bcdb_schedule');
         $field = new xmldb_field('lastrun', XMLDB_TYPE_INTEGER, '20', null, XMLDB_NOTNULL, null, 0, 'contact');
 
@@ -219,16 +208,14 @@ function xmldb_block_bc_dashboard_upgrade($oldversion = 0)
 
         // Bc_dashboard savepoint reached.
         upgrade_block_savepoint(true, 2014092401, 'bc_dashboard');
-        
+
     }
 
-    
     // Delete old tables and create new tables for improved dashboard block
     if ($oldversion < 2017022000) {
-        
-        
+
         // DELETE OLD TABLES
-        
+
         // Define table block_bcdb_reports to be dropped.
         $table = new xmldb_table('block_bcdb_report_logs');
 
@@ -236,9 +223,7 @@ function xmldb_block_bc_dashboard_upgrade($oldversion = 0)
         if ($dbman->table_exists($table)) {
             $dbman->drop_table($table);
         }
-        
-        
-        
+
         // Define table block_bcdb_reports to be dropped.
         $table = new xmldb_table('block_bcdb_schedule');
 
@@ -246,9 +231,7 @@ function xmldb_block_bc_dashboard_upgrade($oldversion = 0)
         if ($dbman->table_exists($table)) {
             $dbman->drop_table($table);
         }
-        
-        
-        
+
         // Define table block_bcdb_reports to be dropped.
         $table = new xmldb_table('block_bcdb_reports');
 
@@ -256,11 +239,9 @@ function xmldb_block_bc_dashboard_upgrade($oldversion = 0)
         if ($dbman->table_exists($table)) {
             $dbman->drop_table($table);
         }
-        
-        
-        
+
         // CREATE NEW TABLES
-        
+
         // Define table block_bcdb_reports to be created.
         $table = new xmldb_table('block_bcdb_reports');
 
@@ -284,16 +265,12 @@ function xmldb_block_bc_dashboard_upgrade($oldversion = 0)
         if (!$dbman->table_exists($table)) {
             $dbman->create_table($table);
         }
-        
-        
 
         // Bc_dashboard savepoint reached.
         upgrade_block_savepoint(true, 2017022000, 'bc_dashboard');
-        
+
     }
-    
-    
-    
+
     if ($oldversion < 2017022800) {
 
         // Define table block_bcdb_report_categories to be created.
@@ -311,24 +288,21 @@ function xmldb_block_bc_dashboard_upgrade($oldversion = 0)
         if (!$dbman->table_exists($table)) {
             $dbman->create_table($table);
         }
-        
-        
+
         // Changing type of field category on table block_bcdb_reports to int.
         $table = new xmldb_table('block_bcdb_reports');
         $field = new xmldb_field('category', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null, 'type');
 
         // Launch change of type for field category.
         $dbman->change_field_type($table, $field);
-        
 
         // Bc_dashboard savepoint reached.
         upgrade_block_savepoint(true, 2017022800, 'bc_dashboard');
-        
+
     }
 
-    
-    if ($oldversion < 2017030200){
-        
+    if ($oldversion < 2017030200) {
+
         // Changing nullability of field category on table block_bcdb_reports to null.
         $table = new xmldb_table('block_bcdb_reports');
         $field = new xmldb_field('category', XMLDB_TYPE_INTEGER, '10', null, null, null, null, 'type');
@@ -338,15 +312,14 @@ function xmldb_block_bc_dashboard_upgrade($oldversion = 0)
 
         // Bc_dashboard savepoint reached.
         upgrade_block_savepoint(true, 2017030200, 'bc_dashboard');
-        
+
     }
-    
-    
-    if ($oldversion < 2017030300){
-        
-         // Define field createdby to be added to block_bcdb_reports.
+
+    if ($oldversion < 2017030300) {
+
+        // Define field createdby to be added to block_bcdb_reports.
         $table = new xmldb_table('block_bcdb_reports');
-        
+
         $field = new xmldb_field('createdby', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null, 'createddate');
 
         // Conditionally launch add field createdby.
@@ -360,13 +333,12 @@ function xmldb_block_bc_dashboard_upgrade($oldversion = 0)
         if ($dbman->field_exists($table, $field)) {
             $dbman->drop_field($table, $field);
         }
-        
+
         // Bc_dashboard savepoint reached.
         upgrade_block_savepoint(true, 2017030300, 'bc_dashboard');
-        
+
     }
-    
-    
+
     if ($oldversion < 2017030301) {
 
         // Define table block_bcdb_logs to be created.
@@ -392,8 +364,6 @@ function xmldb_block_bc_dashboard_upgrade($oldversion = 0)
         upgrade_block_savepoint(true, 2017030301, 'bc_dashboard');
     }
 
-    
-    
     if ($oldversion < 2017030800) {
 
         // Define table block_bcdb_download_codes to be created.
@@ -416,7 +386,6 @@ function xmldb_block_bc_dashboard_upgrade($oldversion = 0)
         upgrade_block_savepoint(true, 2017030800, 'bc_dashboard');
     }
 
-    
     if ($oldversion < 2017030801) {
 
         // Changing type of field path on table block_bcdb_download_codes to char.
@@ -430,7 +399,6 @@ function xmldb_block_bc_dashboard_upgrade($oldversion = 0)
         upgrade_block_savepoint(true, 2017030801, 'bc_dashboard');
     }
 
-    
     if ($oldversion < 2017042500) {
 
         // Define table block_bcdb_report_elements to be created.
@@ -454,11 +422,9 @@ function xmldb_block_bc_dashboard_upgrade($oldversion = 0)
 
         // Bc_dashboard savepoint reached.
         upgrade_block_savepoint(true, 2017042500, 'bc_dashboard');
-        
+
     }
 
-    
-    
     if ($oldversion < 2017042600) {
 
         // Define field subplugin to be added to block_bcdb_report_elements.
@@ -472,10 +438,9 @@ function xmldb_block_bc_dashboard_upgrade($oldversion = 0)
 
         // Bc_dashboard savepoint reached.
         upgrade_block_savepoint(true, 2017042600, 'bc_dashboard');
-        
+
     }
 
-    
     if ($oldversion < 2017050201) {
 
         // Changing nullability of field query on table block_bcdb_reports to null.
@@ -487,7 +452,7 @@ function xmldb_block_bc_dashboard_upgrade($oldversion = 0)
 
         // Bc_dashboard savepoint reached.
         upgrade_block_savepoint(true, 2017050201, 'bc_dashboard');
-        
+
     }
 
     if ($oldversion < 2017053000) {
@@ -516,10 +481,9 @@ function xmldb_block_bc_dashboard_upgrade($oldversion = 0)
 
         // Bc_dashboard savepoint reached.
         upgrade_block_savepoint(true, 2017053000, 'bc_dashboard');
-        
+
     }
-    
-    
+
     if ($oldversion < 2017053001) {
 
         // Define field createdbyuserid to be added to block_bcdb_schedule.
@@ -534,13 +498,12 @@ function xmldb_block_bc_dashboard_upgrade($oldversion = 0)
         // Launch add key cbuid_fk.
         $key = new xmldb_key('cbuid_fk', XMLDB_KEY_FOREIGN, array('createdbyuserid'), 'user', array('id'));
         $dbman->add_key($table, $key);
-        
+
         // Bc_dashboard savepoint reached.
         upgrade_block_savepoint(true, 2017053001, 'bc_dashboard');
-        
+
     }
-    
-    
+
     if ($oldversion < 2017060201) {
 
         // Define field params to be added to block_bcdb_schedule.
@@ -556,7 +519,6 @@ function xmldb_block_bc_dashboard_upgrade($oldversion = 0)
         upgrade_block_savepoint(true, 2017060201, 'bc_dashboard');
     }
 
-
     if ($oldversion < 2017060700) {
 
         // Define field filters to be added to block_bcdb_reports.
@@ -571,10 +533,9 @@ function xmldb_block_bc_dashboard_upgrade($oldversion = 0)
         // Bc_dashboard savepoint reached.
         upgrade_block_savepoint(true, 2017060700, 'bc_dashboard');
     }
-    
-    
-    if ($oldversion < 2017101201){
-        
+
+    if ($oldversion < 2017101201) {
+
         // Changing nullability of field params on table block_bcdb_reports to null.
         $table = new xmldb_table('block_bcdb_reports');
         $field = new xmldb_field('params', XMLDB_TYPE_TEXT, null, null, null, null, null, 'query');
@@ -584,12 +545,21 @@ function xmldb_block_bc_dashboard_upgrade($oldversion = 0)
 
         // Bc_dashboard savepoint reached.
         upgrade_block_savepoint(true, 2017101201, 'bc_dashboard');
-        
+
     }
 
-    
-    
+    if ($oldversion < 2020081300) {
+
+        // Changed the namespaces of the plugins, so the records in block_bcdb_report_elements need to change.
+        $records = $DB->get_records('block_bcdb_report_elements');
+        foreach ($records as $record) {
+            $record->classname = str_replace('block_elbp\\', 'block_elbp\\', $record->classname);
+            $record->classname = str_replace('GT\\', 'block_gradetracker\\', $record->classname);
+            $DB->update_record('block_bcdb_report_elements', $record);
+        }
+
+    }
+
     return true;
-    
-    
+
 }

@@ -1,16 +1,16 @@
 <?php if(!defined('BCDB')) exit; ?>
 
 <div class="bcdb_confirm_box">
-    
-    <h3><?= $title ?></h3>
-    
-    <div><?= $output ?></div>
-    
+
+    <h3><?php echo $title ?></h3>
+
+    <div><?php echo $output ?></div>
+
     <?php if (!is_null($url)): ?>
-        <br><br><img src="<?= $CFG->wwwroot ?>/blocks/bc_dashboard/pix/loader.gif" alt="loading" />
+        <br><br><img src="<?php echo $CFG->wwwroot ?>/blocks/bc_dashboard/pix/loader.gif" alt="loading" />
         <script>
-            setTimeout("window.location.href='<?= $url ?>';", <?= (int)$timeout * 1000 ?>);
+            setTimeout("window.location.href='<?php echo $url ?>';", <?php echo (int)$timeout * 1000 ?>);
         </script>
     <?php endif; ?>
-    
+
 </div>

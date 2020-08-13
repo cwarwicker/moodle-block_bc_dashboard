@@ -17,9 +17,9 @@
 /**
  * Dashboard Reporting
  *
- * The Reporting Dashboard plugin is a block which runs alongside the ELBP and Grade Tracker blocks, to provide a better experience and extra features, 
+ * The Reporting Dashboard plugin is a block which runs alongside the ELBP and Grade Tracker blocks, to provide a better experience and extra features,
  * such as combined reporting across both plugins. It also allows you to create your own custom SQL reports which can be run on any aspect of Moodle.
- * 
+ *
  * @package     block_bc_dashboard
  * @copyright   2017-onwards Conn Warwicker
  * @author      Conn Warwicker <conn@cmrwarwicker.com>
@@ -27,49 +27,56 @@
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  *
  * Originally developed at Bedford College, now maintained by Conn Warwicker
- * 
+ *
  */
 
-namespace BCDB\Controllers;
+namespace block_bc_dashboard\Controllers;
+
+defined('MOODLE_INTERNAL') or die();
 
 /**
  * Description of DashboardController
  *
  * @author cwarwicker
  */
-class ConfigController extends \BCDB\Controller {
-    
+class ConfigController extends \block_bc_dashboard\Controller {
+
     protected $component = 'config';
 
-    public function main(){
-        
-        if (!has_capability('block/bc_dashboard:config', $this->context)){
+    public function main() {
+
+        $submission = array(
+            'submit_config' => optional_param('submit_config', false, PARAM_TEXT),
+        );
+
+        if (!has_capability('block/bc_dashboard:config', $this->context)) {
             \bcdb_fatalError( get_string('invalidaccess', 'block_bc_dashboard') );
         }
-        
-        
+
         $messages = array();
-                                        
+
         // Form submitted and they have the capability to do it?
-        if (isset($_POST['submit_config'])){
-            
-            $Config = new \BCDB\Config();
+        if ($submission['submit_config']) {
+
+            require_sesskey();
+
+            $Config = new \block_bc_dashboard\Config();
             $Config->loadPostData();
-            
-            if (!$Config->hasErrors()){
-                if ($Config->save()){
+
+            if (!$Config->hasErrors()) {
+                if ($Config->save()) {
                     $messages['success'] = get_string('configsaved', 'block_bc_dashboard');;
                 } else {
                     $messages['errors'] = get_string('error:unknownsaveerror', 'block_bc_dashboard');
                 }
             } else {
                 $messages['errors'] = $Config->getErrors();
-            }            
-            
+            }
+
         }
-                
+
         $this->view->set("messages", $messages);
-        
+
     }
-    
+
 }

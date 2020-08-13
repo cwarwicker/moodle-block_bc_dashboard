@@ -1,6 +1,6 @@
 <?php if(!defined('BCDB')) exit; ?>
 
-            <!-- End Page Content -->   
+            <!-- End Page Content -->
 
             </div>
             <!-- /.container-fluid -->
@@ -12,13 +12,13 @@
     <!-- /#wrapper -->
 
     <!-- Bootstrap Core JavaScript -->
-    <script src="<?= $CFG->wwwroot ?>/blocks/bc_dashboard/resources/js/bootstrap.min.js"></script>
-    
+    <script src="<?php echo $CFG->wwwroot ?>/blocks/bc_dashboard/resources/js/bootstrap.min.js"></script>
+
     <script>
         <?php if (\block_instance('gradetracker')): ?>
             var block_gradetracker = {};
             <?php if (isset($listOfQuals)): ?>
-                block_gradetracker['quals'] = <?= json_encode($listOfQuals) ?>;
+                block_gradetracker['quals'] = <?php echo json_encode($listOfQuals) ?>;
             <?php endif; ?>
         <?php endif; ?>
     </script>

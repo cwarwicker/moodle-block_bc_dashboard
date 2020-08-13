@@ -17,9 +17,9 @@
 /**
  * Dashboard Reporting
  *
- * The Reporting Dashboard plugin is a block which runs alongside the ELBP and Grade Tracker blocks, to provide a better experience and extra features, 
+ * The Reporting Dashboard plugin is a block which runs alongside the ELBP and Grade Tracker blocks, to provide a better experience and extra features,
  * such as combined reporting across both plugins. It also allows you to create your own custom SQL reports which can be run on any aspect of Moodle.
- * 
+ *
  * @package     block_bc_dashboard
  * @copyright   2017-onwards Conn Warwicker
  * @author      Conn Warwicker <conn@cmrwarwicker.com>
@@ -27,40 +27,39 @@
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  *
  * Originally developed at Bedford College, now maintained by Conn Warwicker
- * 
+ *
  */
 
-namespace BCDB;
+namespace block_bc_dashboard;
+
+defined('MOODLE_INTERNAL') or die();
 
 class Setting {
 
-    public static function getSetting($setting, $obj = false){
-        
+    public static function getSetting($setting, $obj = false) {
+
         global $DB;
         $check = $DB->get_record("block_bcdb_settings", array("setting" => $setting));
         return ($check) ? (($obj) ? $check : $check->value) : false;
-        
+
     }
-    
-    public static function updateSetting($setting, $value){
-        
+
+    public static function updateSetting($setting, $value) {
+
         global $DB;
-        
+
         $check = self::getSetting($setting, true);
-        if ($check)
-        {
+        if ($check) {
             $check->value = $value;
             return $DB->update_record("block_bcdb_settings", $check);
-        }
-        else
-        {
+        } else {
             $obj = new \stdClass();
             $obj->setting = $setting;
             $obj->value = $value;
             return $DB->insert_record("block_bcdb_settings", $obj);
         }
-        
+
     }
-    
-    
+
+
 }

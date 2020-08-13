@@ -30,9 +30,9 @@
  *
  */
 
-require_once '../../config.php';
-require_once $CFG->dirroot . '/blocks/bc_dashboard/lib.php';
-require_once $CFG->dirroot . '/lib/filelib.php';
+require_once('../../config.php');
+require_once($CFG->dirroot . '/blocks/bc_dashboard/lib.php');
+require_once($CFG->dirroot . '/lib/filelib.php');
 require_login();
 
 $code = required_param('code', PARAM_TEXT);

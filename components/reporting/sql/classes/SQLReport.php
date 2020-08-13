@@ -29,28 +29,30 @@
  * Originally developed at Bedford College, now maintained by Conn Warwicker
  *
  */
-namespace BCDB\Report;
+namespace block_bc_dashboard\Report;
+
+defined('MOODLE_INTERNAL') or die();
 
 /**
  * Description of SQLReport
  *
  * @author cwarwicker
  */
-class SQLReport extends \BCDB\Report {
+class SQLReport extends \block_bc_dashboard\Report {
 
     const REGEX_PARAMS = "/(?!\B\"|'[^\"|']*)\?(?![^\"|']*\"|'\B)/";
     const REPORT_TYPES = array("standard", "chart/bar", "chart/line", "chart/area");
 
     protected $type = 'sql';
 
-    public static function getParamsInQuery($sql){
+    public static function getParamsInQuery($sql) {
 
         preg_match_all(self::REGEX_PARAMS, $sql, $matches, PREG_OFFSET_CAPTURE);
         return $matches[0];
 
     }
 
-    public function fields(){
+    public function fields() {
         return self::getSQLFields($this->query);
     }
 
@@ -59,37 +61,27 @@ class SQLReport extends \BCDB\Report {
      * @param type $sql
      * @return type
      */
-    public static function getSQLFields($sql){
+    public static function getSQLFields($sql) {
 
         try {
 
             $parser = new \PHPSQLParser($sql, true);
             $fields = array();
 
-            if (isset($parser->parsed['SELECT']) && $parser->parsed['SELECT'])
-            {
+            if (isset($parser->parsed['SELECT']) && $parser->parsed['SELECT']) {
 
-                foreach($parser->parsed['SELECT'] as $select)
-                {
+                foreach ($parser->parsed['SELECT'] as $select) {
 
                     // Functions must use an alias or they will be ignored
-                    if ($select['expr_type'] == 'function' || $select['expr_type'] == 'aggregate_function'){
-                        if ($select['alias']){
+                    if ($select['expr_type'] == 'function' || $select['expr_type'] == 'aggregate_function') {
+                        if ($select['alias']) {
                             $fields[] = $select['alias']['no_quotes'];
                         }
-                    }
-
-                    // Otherwise
-                    elseif ($select['alias'])
-                    {
+                    } else if ($select['alias']) {
                         $fields[] = $select['alias']['no_quotes'];
-                    }
-                    elseif (isset($select['no_quotes']))
-                    {
+                    } else if (isset($select['no_quotes'])) {
                         $fields[] = (strpos($select['no_quotes'], '.') !== false) ? explode('.', $select['no_quotes'])[1] : $select['no_quotes'];
-                    }
-                    else
-                    {
+                    } else {
                         $fields[] = (strpos($select['base_expr'], '.') !== false) ? explode('.', $select['base_expr'])[1] : $select['base_expr'];
                     }
                 }
@@ -97,19 +89,31 @@ class SQLReport extends \BCDB\Report {
 
             return $fields;
 
-        } catch (\Exception $ex){
+        } catch (\Exception $ex) {
             return array('error' => $ex->getMessage());
         }
 
     }
 
-    public function isGraphical(){
+    public function isGraphical() {
         return (in_array($this->type, array('chart/bar', 'chart/line', 'chart/area')));
     }
 
-    public function loadFormData($data) {
+    public function loadFormData() {
 
-        if (isset($data['report_id']) && $data['report_id'] > 0){
+        global $bcdb;
+
+        $data = array(
+            'report_id' => optional_param('report_id', false, PARAM_INT),
+            'report_name' => optional_param('report_name', false, PARAM_TEXT),
+            'report_desc' => optional_param('report_desc', false, PARAM_TEXT),
+            'report_options' => df_optional_param_array_recursive('report_options', false, PARAM_TEXT),
+            'report_params' => df_optional_param_array_recursive('report_params', false, PARAM_TEXT),
+            'report_query' => optional_param('report_query', false, PARAM_TEXT),
+            'report_privacy' => optional_param('report_privacy', false, PARAM_TEXT),
+        );
+
+        if (isset($data['report_id']) && $data['report_id'] > 0) {
             $this->id = $data['report_id'];
         }
 
@@ -119,36 +123,40 @@ class SQLReport extends \BCDB\Report {
         $this->params = (isset($data['report_params'])) ? $data['report_params'] : null;
         $this->query = trim($data['report_query']);
 
-        if (isset($data['report_privacy']) && ctype_digit($data['report_privacy']) && has_capability('block/bc_dashboard:assign_report_categories', $bcdb['context'])){
+        if (isset($data['report_privacy']) && ctype_digit($data['report_privacy']) && has_capability('block/bc_dashboard:assign_report_categories', $bcdb['context'])) {
             $this->category = $data['report_privacy'];
         }
 
         // If not graphical, remove axies from options
-        if (!$this->isGraphical()){
-            if (isset($this->options['xaxis'])) unset($this->options['xaxis']);
-            if (isset($this->options['yaxis'])) unset($this->options['yaxis']);
+        if (!$this->isGraphical()) {
+            if (isset($this->options['xaxis'])) {
+                unset($this->options['xaxis']);
+            }
+            if (isset($this->options['yaxis'])) {
+                unset($this->options['yaxis']);
+            }
         }
-
 
     }
 
-    public function hasErrors(){
+    public function hasErrors() {
 
         // Check for errors in the loaded form data
+        require_sesskey();
 
         // Name must be filled out
-        if ($this->name == ''){
+        if ($this->name == '') {
             $this->errors[] = get_string('error:report:name', 'block_bc_dashboard');
         }
 
         // Query must be filled out
-        if ($this->query == ''){
+        if ($this->query == '') {
             $this->errors[] = get_string('error:report:query', 'block_bc_dashboard');
         }
 
         // Parameter count must match number of parameters sent in form, with their types and defaults
         $pCnt = count( self::getParamsInQuery($this->query) );
-        if ($pCnt <> count($this->params)){
+        if ($pCnt <> count($this->params)) {
             $this->errors[] = sprintf( get_string('error:report:sqlparams', 'block_bc_dashboard'), $pCnt, count($this->params) );
         }
 
@@ -159,10 +167,9 @@ class SQLReport extends \BCDB\Report {
     }
 
 
-    public function applyParams($params){
+    public function applyParams($params) {
 
-        foreach($this->params as $key => $param)
-        {
+        foreach ($this->params as $key => $param) {
             $val = (isset($params[$key])) ? $params[$key] : $param->default;
             $param->value = $val;
         }
@@ -173,33 +180,32 @@ class SQLReport extends \BCDB\Report {
      * Alias of calling export('csv')
      * @return type
      */
-    public function runExportExcel(){
+    public function runExportExcel() {
         return $this->export();
     }
 
 
-    public function export($method = 'csv'){
+    public function export($method = 'csv') {
 
         global $CFG, $USER;
 
-        require_once $CFG->dirroot . '/lib/filelib.php';
+        require_once($CFG->dirroot . '/lib/filelib.php');
 
         // Try and create a directory to store the saved files in
-        if (!\bcdb_create_data_dir("sql_reports")){
+        if (!\bcdb_create_data_dir("sql_reports")) {
             echo json_encode( array('errors' => array( get_string('error:createdir', 'block_bc_dashboard') ) ) );
             exit;
         }
 
         // Try and create a directory to store the saved files in
-        if (!\bcdb_create_data_dir("sql_reports/{$this->id}")){
+        if (!\bcdb_create_data_dir("sql_reports/{$this->id}")) {
             echo json_encode( array('errors' => array( get_string('error:createdir', 'block_bc_dashboard') ) ) );
             exit;
         }
 
         $filename = $USER->id . '-' . \bcdb_make_file_name($this->name);
 
-        switch($method)
-        {
+        switch ($method) {
 
             case 'csv':
             default:
@@ -207,14 +213,14 @@ class SQLReport extends \BCDB\Report {
                 // Create a CSV file in moodledata
                 $filename .= '.csv';
                 $file = @fopen( $CFG->dataroot . '/BCDB/sql_reports/' . $this->id . '/' . $filename, 'w+' );
-                if (!$file){
+                if (!$file) {
                     echo json_encode( array('errors' => array( get_string('error:createfile', 'block_bc_dashboard') ) ) );
                     exit;
                 }
 
                 // Header row
                 $headers = $this->getHeaders();
-                if (!$headers){
+                if (!$headers) {
                     echo json_encode( array('data' => '') );
                     exit;
                 }
@@ -222,10 +228,8 @@ class SQLReport extends \BCDB\Report {
                 fputcsv($file, $headers);
 
                 // Data
-                if ($this->data)
-                {
-                    foreach($this->data as $row)
-                    {
+                if ($this->data) {
+                    foreach ($this->data as $row) {
                         fputcsv($file, (array)$row);
                     }
                 }
@@ -241,10 +245,10 @@ class SQLReport extends \BCDB\Report {
                 $this->savedFilePath = $path;
 
                 // Send file
-                \BCDB\Log::add(\BCDB\Log::LOG_EXPORT_REPORT, $this->id);
+                \block_bc_dashboard\Log::add(\block_bc_dashboard\Log::LOG_EXPORT_REPORT, $this->id);
                 echo json_encode( array('download' => $code) );
 
-            break;
+                break;
 
         }
 
@@ -254,7 +258,7 @@ class SQLReport extends \BCDB\Report {
      * Alias of "run" method
      * @return type
      */
-    public function execute(){
+    public function execute() {
         return $this->run();
     }
 
@@ -262,21 +266,14 @@ class SQLReport extends \BCDB\Report {
 
         // Set parameter values into an array
         $sqlParams = array();
-        if ($this->params)
-        {
-            foreach($this->params as $param)
-            {
+        if ($this->params) {
+            foreach ($this->params as $param) {
 
                 // Date
-                if ($param->type == 'date')
-                {
+                if ($param->type == 'date') {
                     $date = \DateTime::createFromFormat('d-m-Y H:i:s', $param->value . ' 00:00:00');
                     $param->value = $date->format("U");
-                }
-
-                // Datetime
-                elseif ($param->type == 'datetime')
-                {
+                } else if ($param->type == 'datetime') {
                     $date = \DateTime::createFromFormat('d-m-Y H:i:s', $param->value . ':00');
                     $param->value = $date->format("U");
                 }
@@ -286,15 +283,12 @@ class SQLReport extends \BCDB\Report {
             }
         }
 
-
-
         // We are not going to do any error checking, because it shoudln't have saved if there were any errors anyway
 
         // Datasource
         $source = $this->getOption('source');
 
-        switch($source)
-        {
+        switch ($source) {
 
             case 'moodle':
             default:
@@ -305,9 +299,8 @@ class SQLReport extends \BCDB\Report {
                 $rowNum = 1;
 
                 $result = $DB->get_records_sql($this->query, $sqlParams, 0, (int)$this->getOption('limit'));
-                if ($result)
-                {
-                    foreach($result as $row) {
+                if ($result) {
+                    foreach ($result as $row) {
                         $this->data[$rowNum] = $row;
                         $rowNum++;
                     }
@@ -315,10 +308,9 @@ class SQLReport extends \BCDB\Report {
 
                 return $this->data;
 
-            break;
+                break;
 
         }
-
 
     }
 
@@ -327,7 +319,7 @@ class SQLReport extends \BCDB\Report {
      * @global type $USER
      * @return type
      */
-    public function canEdit(){
+    public function canEdit() {
 
         global $USER, $bcdb;
         return ( $this->canView() && has_capability('block/bc_dashboard:crud_sql_report', $bcdb['context']) && ( $this->createdby == $USER->id || has_capability('block/bc_dashboard:edit_any_sql_report', $bcdb['context']) ) );
@@ -340,11 +332,11 @@ class SQLReport extends \BCDB\Report {
      * - Be able to view it
      * - Have CRUD SQL report permissions
      * - Either own this report or have the delete_any_sql_report permission
-     * @global \BCDB\Report\type $USER
+     * @global \block_bc_dashboard\Report\type $USER
      * @global type $bcdb
      * @return type
      */
-    public function canDelete(){
+    public function canDelete() {
 
         global $USER, $bcdb;
         return ( $this->canView() && has_capability('block/bc_dashboard:crud_sql_report', $bcdb['context']) && ( $this->createdby == $USER->id || has_capability('block/bc_dashboard:delete_any_sql_report', $bcdb['context']) ) );

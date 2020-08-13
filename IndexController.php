@@ -17,9 +17,9 @@
 /**
  * Dashboard Reporting
  *
- * The Reporting Dashboard plugin is a block which runs alongside the ELBP and Grade Tracker blocks, to provide a better experience and extra features, 
+ * The Reporting Dashboard plugin is a block which runs alongside the ELBP and Grade Tracker blocks, to provide a better experience and extra features,
  * such as combined reporting across both plugins. It also allows you to create your own custom SQL reports which can be run on any aspect of Moodle.
- * 
+ *
  * @package     block_bc_dashboard
  * @copyright   2017-onwards Conn Warwicker
  * @author      Conn Warwicker <conn@cmrwarwicker.com>
@@ -27,125 +27,137 @@
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  *
  * Originally developed at Bedford College, now maintained by Conn Warwicker
- * 
+ *
  */
 
+namespace block_bc_dashboard\Controllers;
 
-namespace BCDB\Controllers;
+defined('MOODLE_INTERNAL') or die();
 
 /**
  * Description of DashboardController
  *
  * @author cwarwicker
  */
-class IndexController extends \BCDB\Controller {
-    
+class IndexController extends \block_bc_dashboard\Controller {
+
     protected $component = 'index';
-    
-    public function main(){
-        
+
+    public function main() {
+
         // Check permissions to view reporting
-        if (!$this->hasCapability('block/bc_dashboard:view_bc_dashboard')){
+        if (!$this->hasCapability('block/bc_dashboard:view_bc_dashboard')) {
             \bcdb_fatalError( get_string('invalidaccess', 'block_bc_dashboard') );
         }
-        
+
     }
-    
-    public function action_view($args = false){
-        
+
+    public function action_view($args = false) {
+
         global $CFG, $USER, $bcdb;
+
+        $submission = array(
+            'mass_action' => optional_param('mass_action', false, PARAM_TEXT),
+            'submit_assign' => optional_param('submit_assign', false, PARAM_TEXT),
+        );
+
+        $settings = array(
+            'students' => df_optional_param_array_recursive('students', false, PARAM_INT),
+            'findstudent' => df_optional_param_array_recursive('findstudent', false, PARAM_TEXT),
+        );
 
         $type = (isset($args[0])) ? $args[0] : 'all';
         $id = (isset($args[1])) ? $args[1] : false;
-                        
-        
+
         // If we're trying to look at the list of students on a specific course, they either need:
         // Capability on that course
         // Capability on frontpage and assigned to that course as a teacher
-        if ($type == 'course' && $id){
-            
-            if (!$this->hasCapability('block/bc_dashboard:view_bc_dashboard', $id)){
+        if ($type == 'course' && $id) {
+
+            if (!$this->hasCapability('block/bc_dashboard:view_bc_dashboard', $id)) {
                 \bcdb_fatalError( get_string('invalidaccess', 'block_bc_dashboard') );
             }
-            
+
         } else {
-            
+
             // Otherwise, we just want to see if they have this permission on any of their contexts
-            if (!$this->hasCapability('block/bc_dashboard:view_bc_dashboard')){
+            if (!$this->hasCapability('block/bc_dashboard:view_bc_dashboard')) {
                 \bcdb_fatalError( get_string('invalidaccess', 'block_bc_dashboard') );
             }
-                        
+
         }
-        
-        
-            
-                            
+
         // Mass Actions
-        if (isset($_POST['mass_action']) && isset($_POST['students']))
-        {
-            $this->runMassActions($type);            
-        }
-        
-        
-        // Add students
-        elseif (isset($_POST['submit_assign']))
-        {
-            
-            if ($type == 'mentees'){
-                $OBJ = new \ELBP\PersonalTutor();
-            } elseif ($type == 'additionalsupport'){
-                $OBJ = new \ELBP\ASL();
+        if ($submission['mass_action'] && $settings['students']) {
+            $this->runMassActions($type);
+        } else if ($submission['submit_assign']) {
+
+            // Add students
+
+            if ($type == 'mentees') {
+                $OBJ = new \block_elbp\PersonalTutor();
+            } else if ($type == 'additionalsupport') {
+                $OBJ = new \block_elbp\ASL();
             } else {
                 return false;
             }
-            
+
             $OBJ->loadTutorID($USER->id);
 
             // Loop through students
             $OBJ->setAssignBy("username");
-            $OBJ->assignIndividualMentees($_POST['findstudent']);
+            $OBJ->assignIndividualMentees($settings['findstudent']);
 
             $this->view->set("messages", array('general' => $OBJ->getOutputMsg()));
-                        
+
         }
-        
-        
+
     }
-    
-    public function runMassActions($type = null){
-        
+
+    public function runMassActions($type = null) {
+
         global $CFG, $USER, $bcdb;
+
+        $submission = array(
+            'confirmed' => optional_param('confirmed', false, PARAM_TEXT),
+        );
+
+        $settings = array(
+            'students' => df_optional_param_array_recursive('students', false, PARAM_INT),
+            'mass_action' => optional_param('mass_action', false, PARAM_TEXT),
+            'subject' => optional_param('subject', false, PARAM_TEXT),
+            'message' => optional_param('message', false, PARAM_TEXT),
+        );
 
         // Sort students into an array first
         $usersArray = array();
-        
-        foreach($_POST['students'] as $id){
+
+        foreach ($settings['students'] as $id) {
             $user = \bcdb_get_user($id);
-            if ($user){
+            if ($user) {
                 $usersArray[$user->id] = $user;
             }
         }
-        
+
         \bcdb_sort_users($usersArray);
-        
-        
+
         // Send a message
-        if ($_POST['mass_action'] == 'message')
-        {
+        if ($settings['mass_action'] == 'message') {
 
             // Confirmed
-            if (isset($_POST['confirmed']) && !empty($_POST['message']))
-            {
+            if ($submission['confirmed'] && !empty($settings['message'])) {
 
-                $Alert = new \ELBP\EmailAlert();
-                $subject = (!empty($_POST['subject'])) ? $_POST['subject'] : get_string('nosubject', 'block_bc_dashboard');
-                $content = $_POST['message'];
+                require_sesskey();
+
+                $Alert = new \block_elbp\EmailAlert();
+                $subject = (!empty($settings['subject'])) ? $settings['subject'] : get_string('nosubject', 'block_bc_dashboard');
+                $content = $settings['message'];
                 $htmlContent = nl2br($content);
 
                 $successMsg = array();
                 $errMsg = array();
 
-                foreach($usersArray as $user){
+                foreach ($usersArray as $user) {
 
                     $usersArray[$user->id] = $user;
 
@@ -165,25 +177,23 @@ class IndexController extends \BCDB\Controller {
                 $this->view->set("messages", $messages);
                 $this->view->set("students", $usersArray);
 
-            }
+            } else {
 
-            // Not confirmed
-            else
-            {
-
+                // Not confirmed
                 $output = "";
                 $hidden = "";
 
-                foreach($usersArray as $user){
+                foreach ($usersArray as $user) {
                     $output .= bcdb_get_user_name($user->id) . ", ";
                     $hidden .= "<input type='hidden' name='students[]' value='{$user->id}' />";
                 }
 
                 $output = substr($output, 0, -2);
                 $output .= "<form action='' method='post'>{$hidden}";
+                $output .= "<input type='hidden' name='sesskey' value='".sesskey()."' />";
                 $output .= "<br><input type='text' name='subject' placeholder='".get_string('subject', 'block_bc_dashboard')."' /><br>";
                 $output .= "<br><textarea name='message' style='width:80%;height:200px;'></textarea><br><br>";
-                $output .= "<button class='btn btn-primary' type='submit' name='confirmed'>".get_string('sendmessage', 'block_bc_dashboard')."</button>";
+                $output .= "<button class='btn btn-primary' type='submit' name='confirmed' value='1'>".get_string('sendmessage', 'block_bc_dashboard')."</button>";
                 $output .= "<input type='hidden' name='mass_action' value='message' /> &nbsp;&nbsp; ";
                 $output .= "<a href='' class='btn btn-danger'>".get_string('cancel')."</a></form>";
 
@@ -191,40 +201,33 @@ class IndexController extends \BCDB\Controller {
 
             }
 
-        }
+        } else if ($settings['mass_action'] == 'remove' && $settings['students']) {
 
-        // Remove student
-        elseif ($_POST['mass_action'] == 'remove' && isset($_POST['students']))
-        {
+            // Remove student
 
             // Confirmed
-            if (isset($_POST['confirmed']))
-            {
+            if ($submission['confirmed']) {
+
+                require_sesskey();
 
                 $successMsg = array();
                 $errorMsg = array();
 
-                // Mentees
-                if ($type == 'mentees')
-                {
+                if ($type == 'mentees') {
 
-                    $PT = new \ELBP\PersonalTutor();
+                    $PT = new \block_elbp\PersonalTutor();
                     $PT->loadTutorID($USER->id);
 
-                }
-                // Addiiotnal SUpport tutor
-                elseif ($type == 'additionalsupport')
-                {
+                } else if ($type == 'additionalsupport') {
 
-                    $PT = new \ELBP\ASL();
+                    $PT = new \block_elbp\ASL();
                     $PT->loadTutorID($USER->id);
 
                 }
 
+                foreach ($usersArray as $user) {
 
-                foreach($usersArray as $user){
-
-                    if ($PT->removeMentee($user->id)){
+                    if ($PT->removeMentee($user->id)) {
                         $successMsg[] = '<i class="fa fa-check-square"></i> ' . get_string('removedstudent', 'block_bc_dashboard') . ": " . bcdb_get_user_name($user->id, false);
                     } else {
                         $errorMsg[] = '<i class="fa fa-check-square"></i> ' . get_string('removestudent:error', 'block_bc_dashboard') . ": " . bcdb_get_user_name($user->id, false) . " - {$PT->getOutputMsg()}";
@@ -239,24 +242,23 @@ class IndexController extends \BCDB\Controller {
 
                 $this->view->set("messages", $messages);
 
-            }
-            // Not confirmed
-            else
-            {
+            } else {
+
+                // Not confirmed
 
                 $output = "";
                 $hidden = "";
 
                 $output .= get_string('removestudents:sure', 'block_bc_dashboard') . "<br><br>";
 
-                foreach($usersArray as $user){
+                foreach ($usersArray as $user) {
                     $output .= bcdb_get_user_name($user->id) . ", ";
                     $hidden .= "<input type='hidden' name='students[]' value='{$user->id}' />";
                 }
 
                 $output = substr($output, 0, -2);
                 $output .= "<form action='' method='post'>{$hidden}<br>";
-                $output .= "<button class='btn btn-primary' type='submit' name='confirmed'>".get_string('confirm')."</button>";
+                $output .= "<button class='btn btn-primary' type='submit' name='confirmed' value='1'>".get_string('confirm')."</button>";
                 $output .= "<input type='hidden' name='mass_action' value='remove' /> &nbsp;&nbsp; ";
                 $output .= "<a href='' class='btn btn-danger'>".get_string('cancel')."</a></form>";
 
@@ -264,31 +266,24 @@ class IndexController extends \BCDB\Controller {
 
             }
 
-        }
+        } else {
 
+            // Else, see if its a ELBP plugin mass action
 
-        // Else, see if its a ELBP plugin mass action
-        else
-        {
+            if (strpos($settings['mass_action'], ":") && $bcdb['elbp'] == true) {
 
-            if (strpos($_POST['mass_action'], ":") && $bcdb['elbp'] == true)
-            {
-
-                $explode = explode(":", $_POST['mass_action']);
+                $explode = explode(":", $settings['mass_action']);
                 $pluginID = $explode[0];
                 $action = $explode[1];
 
-                if (is_numeric($pluginID) && !empty($action))
-                {
+                if (is_numeric($pluginID) && !empty($action)) {
 
                     // Get plugin
-                    $ELBP = new \ELBP\ELBP();
+                    $ELBP = new \block_elbp\ELBP();
                     $plugin = $ELBP->getPluginByID($pluginID);
-                    if ($plugin)
-                    {
+                    if ($plugin) {
                         $result = $plugin->massAction($action, $usersArray);
-                        if ($result && $result['result'])
-                        {
+                        if ($result && $result['result']) {
                             $this->view->set("messages", array(
                                 'success' => $result['success']
                             ));
@@ -301,35 +296,39 @@ class IndexController extends \BCDB\Controller {
             }
 
         }
-        
+
     }
-    
-    
-    public function action_admin(){
-        
+
+
+    public function action_admin() {
+
         global $bcdb;
-        
+
+        $settings = array(
+            'students' => df_optional_param_array_recursive('students', false, PARAM_INT),
+            'mass_action' => optional_param('mass_action', false, PARAM_TEXT),
+        );
+
         // ELBP
-        if (!$bcdb['elbp']){
+        if (!$bcdb['elbp']) {
             exit;
         }
-        
-        $ELBP = new \ELBP\ELBP();
-        
+
+        $ELBP = new \block_elbp\ELBP();
+
         // permissions
         $access = $ELBP->getCoursePermissions(SITEID);
-        if (!$access['god'] && !$access['elbpadmin']){
+        if (!$access['god'] && !$access['elbpadmin']) {
             \bcdb_fatalError( get_string('invalidaccess', 'block_bc_dashboard') );
         }
-        
+
         // Mass Actions
-        if (isset($_POST['mass_action']) && isset($_POST['students']))
-        {
-            $this->runMassActions();            
+        if ($settings['mass_action'] && $settings['students']) {
+            $this->runMassActions();
         }
-        
+
     }
-    
-    
-    
+
+
+
 }

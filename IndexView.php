@@ -30,10 +30,11 @@
  *
  */
 
+namespace block_bc_dashboard\Views;
 
-namespace BCDB\Views;
+defined('MOODLE_INTERNAL') or die();
 
-class IndexView extends \BCDB\View {
+class IndexView extends \block_bc_dashboard\View {
 
     public function __construct() {
 
@@ -41,14 +42,13 @@ class IndexView extends \BCDB\View {
 
         parent::__construct();
 
-        if ($bcdb['elbp'])
-        {
-            $this->set("ELBP", new \ELBP\ELBP());
+        if ($bcdb['elbp']) {
+            $this->set("ELBP", new \block_elbp\ELBP());
         }
 
     }
 
-    public function main(){
+    public function main() {
 
         global $bcdb;
 
@@ -66,13 +66,13 @@ class IndexView extends \BCDB\View {
         $this->set("sideNavigation", self::buildSideNav());
 
         // Recent activity
-        if ($bcdb['elbp']){
-            $this->set("recentActivity", \ELBP\Log::parseListOfLogs($this->getRecentActivity()));
+        if ($bcdb['elbp']) {
+            $this->set("recentActivity", \block_elbp\Log::parseListOfLogs($this->getRecentActivity()));
         }
 
     }
 
-    public function action_view($args){
+    public function action_view($args) {
 
         global $CFG;
 
@@ -87,12 +87,10 @@ class IndexView extends \BCDB\View {
 
         // Breadcrumbs
         $this->addBreadcrumb( array('title' => get_string('viewstudents:'.$type, 'block_bc_dashboard')) );
-        if ($type == 'course')
-        {
+        if ($type == 'course') {
             $courseID = @$args[1];
             $course = get_course($courseID);
-            if ($course)
-            {
+            if ($course) {
                 $this->addBreadcrumb( array('title' => $course->fullname, 'url' => $CFG->wwwroot . '/course/view.php?id='.$course->id) );
             }
         }
@@ -101,7 +99,6 @@ class IndexView extends \BCDB\View {
 
         // Side navigation
         $this->set("sideNavigation", self::buildSideNav());
-
 
         // Now get the list of students
         $students = $this->getStudentList($args);
@@ -112,7 +109,7 @@ class IndexView extends \BCDB\View {
 
     }
 
-    public function action_admin($args){
+    public function action_admin($args) {
 
         // Page title
         $this->set("pageTitle", get_string('viewstudents:admin', 'block_bc_dashboard'));
@@ -127,8 +124,8 @@ class IndexView extends \BCDB\View {
         $this->set("sideNavigation", self::buildSideNav());
 
         // Pickers
-        $userPicker = new \BCDB\SQLParameter('u', 'user', 'user_picker');
-        $coursePicker = new \BCDB\SQLParameter('c', 'course', 'course_picker');
+        $userPicker = new \block_bc_dashboard\SQLParameter('u', 'user', 'user_picker');
+        $coursePicker = new \block_bc_dashboard\SQLParameter('c', 'course', 'course_picker');
         $this->set("userPicker", $userPicker)->set("coursePicker", $coursePicker);
 
         // Get the mass actions that can be applied
@@ -139,20 +136,19 @@ class IndexView extends \BCDB\View {
     /**
      * Get recent activity on your students
      * @global type $DB
-     * @global \BCDB\Views\type $USER
+     * @global \block_bc_dashboard\Views\type $USER
      * @param type $limit
      * @return type
      */
-    public function getRecentActivity($limit = 25)
-    {
+    public function getRecentActivity($limit = 25) {
 
         global $DB, $USER;
 
-        $ELBP = new \ELBP\ELBP();
+        $ELBP = new \block_elbp\ELBP();
         $ELBP->getUserPermissions($USER->id);
 
         // If elbp admin, show for all students, not just our own, also double the limit
-        if (\elbp_has_capability('block/elbp:elbp_admin', $ELBP->getAccess())){
+        if (\elbp_has_capability('block/elbp:elbp_admin', $ELBP->getAccess())) {
             $limit = $limit * 2;
             $recent = $DB->get_records_sql("SELECT * FROM {lbp_logs} WHERE module = 'ELBP' AND element != 'SETTINGS' ORDER BY time DESC", null, 0, $limit);
             return $recent;
@@ -160,15 +156,13 @@ class IndexView extends \BCDB\View {
 
         $studentIDs = array();
         $students = $this->getAllStudents();
-        if ($students)
-        {
-            foreach($students as $student)
-            {
+        if ($students) {
+            foreach ($students as $student) {
                 $studentIDs[] = (int)$student->id;
             }
         }
 
-        if ($studentIDs){
+        if ($studentIDs) {
             $recent = $DB->get_records_sql("SELECT * FROM {lbp_logs} WHERE studentid IN (".implode(',', $studentIDs).") AND module = 'ELBP' AND element != 'SETTINGS' ORDER BY time DESC", null, 0, $limit);
             return $recent;
         }
@@ -182,19 +176,16 @@ class IndexView extends \BCDB\View {
      * Get the headers for attendance
      * @return type
      */
-    public function getStudentHeaders_Attendance(){
+    public function getStudentHeaders_Attendance() {
 
         $headers = "";
-        $ELBP = new \ELBP\ELBP();
+        $ELBP = new \block_elbp\ELBP();
         $att = $ELBP->getPlugin("Attendance");
 
-        if ($att)
-        {
+        if ($att) {
             $types = $att->getTypes();
-            if ($types)
-            {
-                foreach($types as $type)
-                {
+            if ($types) {
+                foreach ($types as $type) {
                     $headers .= "<th>{$type}</th>";
                 }
             }
@@ -209,13 +200,12 @@ class IndexView extends \BCDB\View {
      * Get the comments header
      * @return string
      */
-    public function getStudentHeaders_Comments(){
+    public function getStudentHeaders_Comments() {
 
         $headers = "";
-        $ELBP = new \ELBP\ELBP();
+        $ELBP = new \block_elbp\ELBP();
         $plugin = $ELBP->getPlugin("Comments");
-        if ($plugin)
-        {
+        if ($plugin) {
             $headers .= "<th>".get_string('unresolvedcomments', 'block_elbp')."</th>";
         }
 
@@ -227,14 +217,13 @@ class IndexView extends \BCDB\View {
      * Get the tutorials header
      * @return string
      */
-    public function getStudentHeaders_Tutorials(){
+    public function getStudentHeaders_Tutorials() {
 
         $headers = "";
 
-        $ELBP = new \ELBP\ELBP();
+        $ELBP = new \block_elbp\ELBP();
         $plugin = $ELBP->getPlugin("Tutorials");
-        if ($plugin)
-        {
+        if ($plugin) {
             $headers .= "<th>".get_string('tutorials', 'block_elbp')."</th>";
         }
 
@@ -246,7 +235,7 @@ class IndexView extends \BCDB\View {
      * Get the target grade header
      * @return string
      */
-    public function getStudentHeaders_TargetGrade(){
+    public function getStudentHeaders_TargetGrade() {
 
         $headers = "";
         $headers .= "<th>".get_string('targetgrade', 'block_gradetracker')."</th>";
@@ -258,7 +247,7 @@ class IndexView extends \BCDB\View {
      * Get the asp grade header
      * @return string
      */
-    public function getStudentHeaders_AspirationalGrade(){
+    public function getStudentHeaders_AspirationalGrade() {
 
         $headers = "";
         $headers .= "<th>".get_string('aspirationalgrade', 'block_gradetracker')."</th>";
@@ -271,13 +260,12 @@ class IndexView extends \BCDB\View {
      * @param type $studentID
      * @return type
      */
-    public function getStudentCells_Comments($studentID){
+    public function getStudentCells_Comments($studentID) {
 
         $return = '';
         $plugin = $this->vars['ELBP']->getPlugin("Comments");
 
-        if ($plugin)
-        {
+        if ($plugin) {
 
             $plugin->loadStudent($studentID);
 
@@ -286,12 +274,9 @@ class IndexView extends \BCDB\View {
             $total = count($userComments);
             $unresolved = 0;
 
-            if ($userComments)
-            {
-                foreach($userComments as $cmt)
-                {
-                    if (!$cmt->isResolved())
-                    {
+            if ($userComments) {
+                foreach ($userComments as $cmt) {
+                    if (!$cmt->isResolved()) {
                         $unresolved++;
                     }
                 }
@@ -300,7 +285,6 @@ class IndexView extends \BCDB\View {
             $return = "<td>{$unresolved} / {$total}</td>";
 
         }
-
 
         return $return;
 
@@ -311,13 +295,12 @@ class IndexView extends \BCDB\View {
      * @param type $studentID
      * @return type
      */
-    public function getStudentCells_Tutorials($studentID){
+    public function getStudentCells_Tutorials($studentID) {
 
         $cells = "";
 
         $plugin = $this->vars['ELBP']->getPlugin("Tutorials");
-        if ($plugin)
-        {
+        if ($plugin) {
             $plugin->loadStudent($studentID);
             $tutorials = $plugin->getUserTutorials();
             $total = count($tutorials);
@@ -332,19 +315,16 @@ class IndexView extends \BCDB\View {
      * Get the cells for attendance
      * @return type
      */
-    public function getStudentCells_Attendance($studentID){
+    public function getStudentCells_Attendance($studentID) {
 
         $cells = "";
         $att = $this->vars['ELBP']->getPlugin("Attendance");
 
-        if ($att)
-        {
+        if ($att) {
             $att->loadStudent($studentID);
             $types = $att->getTypes();
-            if ($types)
-            {
-                foreach($types as $type)
-                {
+            if ($types) {
+                foreach ($types as $type) {
                     $period = $att->getSetting("student_summary_display_".$type);
                     $cells .= "<td>".$att->getRecord( array("type" => $type, "period" => $period) )."</td>";
                 }
@@ -361,17 +341,15 @@ class IndexView extends \BCDB\View {
      * @param type $studentID
      * @return type
      */
-    public function getStudentCells_TargetGrade($studentID){
+    public function getStudentCells_TargetGrade($studentID) {
 
         $grades = array();
 
-        $user = new \GT\User($studentID);
+        $user = new \block_gradetracker\User($studentID);
         $userGrades = $user->getAllUserGrades('target');
 
-        if ($userGrades)
-        {
-            foreach($userGrades as $grade)
-            {
+        if ($userGrades) {
+            foreach ($userGrades as $grade) {
                 $grades[] = $grade['grade']->getName();
             }
         }
@@ -385,17 +363,15 @@ class IndexView extends \BCDB\View {
      * @param type $studentID
      * @return type
      */
-    public function getStudentCells_AspirationalGrade($studentID){
+    public function getStudentCells_AspirationalGrade($studentID) {
 
         $grades = array();
 
-        $user = new \GT\User($studentID);
+        $user = new \block_gradetracker\User($studentID);
         $userGrades = $user->getAllUserGrades('aspirational');
 
-        if ($userGrades)
-        {
-            foreach($userGrades as $grade)
-            {
+        if ($userGrades) {
+            foreach ($userGrades as $grade) {
                 $grades[] = $grade['grade']->getName();
             }
         }
@@ -409,7 +385,7 @@ class IndexView extends \BCDB\View {
      * @param type $args
      * @return type
      */
-    private function getStudentList($args){
+    private function getStudentList($args) {
 
         global $bcdb;
 
@@ -417,25 +393,24 @@ class IndexView extends \BCDB\View {
 
         $type = (isset($args[0])) ? $args[0] : 'all';
 
-        switch($type)
-        {
+        switch ($type) {
 
             case 'course':
                 $courseID = @$args[1];
                 $return = $this->getAllStudentsOnCourse($courseID);
-            break;
+                break;
 
             case 'mentees':
                 $return = $this->getAllMentees();
-            break;
+                break;
 
             case 'additionalsupport':
                 $return = $this->getAllAdditionalSupport();
-            break;
+                break;
 
             case 'all':
                 $return = $this->getAllStudents();
-            break;
+                break;
 
         }
 
@@ -443,23 +418,23 @@ class IndexView extends \BCDB\View {
 
     }
 
-    public static function countAllStudents(){
-        $obj = new \BCDB\Views\IndexView(true);
+    public static function countAllStudents() {
+        $obj = new \block_bc_dashboard\Views\IndexView(true);
         return count($obj->getAllStudents());
     }
 
-    public static function countAllMentees(){
-        $obj = new \BCDB\Views\IndexView(true);
+    public static function countAllMentees() {
+        $obj = new \block_bc_dashboard\Views\IndexView(true);
         return count($obj->getAllMentees());
     }
 
-    public static function countAllAdditionalSupport(){
-        $obj = new \BCDB\Views\IndexView(true);
+    public static function countAllAdditionalSupport() {
+        $obj = new \block_bc_dashboard\Views\IndexView(true);
         return count($obj->getAllAdditionalSupport());
     }
 
-     public static function countCourseStudents($courseID){
-        $obj = new \BCDB\Views\IndexView(true);
+    public static function countCourseStudents($courseID) {
+        $obj = new \block_bc_dashboard\Views\IndexView(true);
         return count($obj->getAllStudentsOnCourse($courseID));
     }
 
@@ -467,7 +442,7 @@ class IndexView extends \BCDB\View {
      * Get all the tutor's students
      * @return type
      */
-    private function getAllStudents(){
+    private function getAllStudents() {
 
         $students = array();
 
@@ -479,10 +454,8 @@ class IndexView extends \BCDB\View {
 
         // Then all course students
         $courses = \bcdb_get_user_courses();
-        if ($courses)
-        {
-            foreach($courses as $course)
-            {
+        if ($courses) {
+            foreach ($courses as $course) {
                 $students = $students + $this->getAllStudentsOnCourse($course->id);
             }
         }
@@ -500,13 +473,15 @@ class IndexView extends \BCDB\View {
      * @global type $USER
      * @return boolean
      */
-    private function getAllAdditionalSupport(){
+    private function getAllAdditionalSupport() {
 
         global $bcdb, $USER;
 
-        if (!$bcdb['elbp']) return array();
+        if (!$bcdb['elbp']) {
+            return array();
+        }
 
-        $DBC = new \ELBP\DB();
+        $DBC = new \block_elbp\DB();
 
         $students = $DBC->getStudentsOnAsl($USER->id);
         $this->sortUsers($students);
@@ -517,17 +492,19 @@ class IndexView extends \BCDB\View {
 
     /**
      * Get all students assigned to the tutor as mentees
-     * @global \BCDB\Views\type $bcdb
-     * @global \BCDB\Views\type $USER
+     * @global \block_bc_dashboard\Views\type $bcdb
+     * @global \block_bc_dashboard\Views\type $USER
      * @return boolean
      */
-    private function getAllMentees(){
+    private function getAllMentees() {
 
         global $bcdb, $USER;
 
-        if (!$bcdb['elbp']) return array();
+        if (!$bcdb['elbp']) {
+            return array();
+        }
 
-        $DBC = new \ELBP\DB();
+        $DBC = new \block_elbp\DB();
 
         $students = $DBC->getMenteesOnTutor($USER->id);
         $this->sortUsers($students);
@@ -541,9 +518,11 @@ class IndexView extends \BCDB\View {
      * @param type $courseID
      * @return boolean
      */
-    private function getAllStudentsOnCourse($courseID){
+    private function getAllStudentsOnCourse($courseID) {
 
-        if (!$courseID) return array();
+        if (!$courseID) {
+            return array();
+        }
 
         $students = bcdb_get_users_on_course($courseID, array('student'));
         $this->sortUsers($students);
@@ -556,8 +535,8 @@ class IndexView extends \BCDB\View {
      * Sort an array of user objects
      * @param type $students
      */
-    private function sortUsers(&$students){
-       \bcdb_sort_users($students);
+    private function sortUsers(&$students) {
+        \bcdb_sort_users($students);
     }
 
 
@@ -565,28 +544,23 @@ class IndexView extends \BCDB\View {
      * Get mass actions that can be applied to a list of students
      * @param type $actions
      */
-    public function getMassActions(){
+    public function getMassActions() {
 
         global $bcdb;
 
         $actions = array();
 
-        if ($bcdb['elbp'])
-        {
+        if ($bcdb['elbp']) {
 
-            $ELBP = new \ELBP\ELBP();
+            $ELBP = new \block_elbp\ELBP();
             $plugins = $ELBP->getPlugins();
 
-            if ($plugins)
-            {
-                foreach($plugins as $plugin)
-                {
+            if ($plugins) {
+                foreach ($plugins as $plugin) {
 
                     $pluginActions = $plugin->getMassActions();
-                    if ($pluginActions)
-                    {
-                        foreach($pluginActions as $action => $title)
-                        {
+                    if ($pluginActions) {
+                        foreach ($pluginActions as $action => $title) {
                             $title = $plugin->getTitle() . ": " . $title;
                             $action = $plugin->getID() . ":" . $action;
                             $actions[$action] = $title;
@@ -605,10 +579,10 @@ class IndexView extends \BCDB\View {
 
     /**
      * Build the array for the side navigation, so we can call this from other view files
-     * @global \BCDB\Views\type $CFG
+     * @global \block_bc_dashboard\Views\type $CFG
      * @return string
      */
-    public static function buildSideNav(){
+    public static function buildSideNav() {
 
         global $CFG, $bcdb;
 
@@ -618,10 +592,8 @@ class IndexView extends \BCDB\View {
         // Get courses
         $courses = \bcdb_get_user_courses();
         $courseArray = array();
-        if ($courses)
-        {
-            foreach($courses as $course)
-            {
+        if ($courses) {
+            foreach ($courses as $course) {
                 $courseArray[] = array('title' => $course->fullname. ' ('.self::countCourseStudents($course->id).')', 'url' => $CFG->wwwroot . '/blocks/bc_dashboard/index.php?Qs=view/course/' . $course->id, 'class' => 'report');
             }
         }
@@ -629,8 +601,7 @@ class IndexView extends \BCDB\View {
         $sideNav[] = array( 'title' => get_string('allstudents', 'block_bc_dashboard') . ' ('.self::countAllStudents().')', 'icon' => 'fa-users', 'url' => $CFG->wwwroot . '/blocks/bc_dashboard/index.php?Qs=view/all' );
 
         // If the PLP is installed
-        if ($bcdb['elbp'] == true)
-        {
+        if ($bcdb['elbp'] == true) {
             $sideNav[] = array( 'title' => get_string('mentees', 'block_bc_dashboard'). ' ('.self::countAllMentees().')', 'icon' => 'fa-user-circle-o',  'url' => $CFG->wwwroot . '/blocks/bc_dashboard/index.php?Qs=view/mentees' );
             $sideNav[] = array( 'title' => get_string('additionalsupport', 'block_bc_dashboard'). ' ('.self::countAllAdditionalSupport().')', 'icon' => 'fa-user-circle', 'url' => $CFG->wwwroot . '/blocks/bc_dashboard/index.php?Qs=view/additionalsupport' );
         }

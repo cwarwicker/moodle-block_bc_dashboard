@@ -1,45 +1,45 @@
 <?php if(!defined('BCDB')) exit; ?>
 
-<p><?= $string['plsselectstudents'] ?></p>
+<p><?php echo $string['plsselectstudents'] ?></p>
 
 <hr>
 
 <?php if (isset($recentActivity)): ?>
 
 <div class='col-lg-12'>
-    
+
     <div class="panel panel-primary">
         <div class="panel-heading">
-            <h3 class="panel-title"><?= $string['recentactivity'] ?></h3>
+            <h3 class="panel-title"><?php echo $string['recentactivity'] ?></h3>
         </div>
         <div class="panel-body">
-                        
+
             <ul class="recent-activity">
 
                 <?php foreach($recentActivity as $activity): ?>
                     <li class="event-box">
                         <div class='activity-avatar pull-left'>
-                            <a href='<?= $CFG->wwwroot ?>/blocks/elbp/view.php?id=<?= $activity['student']->id ?>' target='_blank'>
-                                <?= $OUTPUT->user_picture($activity['student'], array("courseid"=>SITEID, "size"=>50, "class" => "avatar", "link" => false)); ?>
+                            <a href='<?php echo $CFG->wwwroot ?>/blocks/elbp/view.php?id=<?php echo $activity['student']->id ?>' target='_blank'>
+                                <?php echo $OUTPUT->user_picture($activity['student'], array("courseid"=>SITEID, "size"=>50, "class" => "avatar", "link" => false)); ?>
                             </a>
                         </div>
                         <div class="event">
                           <div class="action">
-                            <?= $activity['info'] ?>
+                            <?php echo $activity['info'] ?>
                           </div>
                           <div class="time">
                             <i class="icon-time"></i>
-                            <?= \elbp_time_elapsed_string($activity['log']->time) ?>
+                            <?php echo \elbp_time_elapsed_string($activity['log']->time) ?>
                           </div>
                         </div>
                     </li>
                 <?php endforeach; ?>
 
           </ul>
-            
+
         </div>
-    </div>    
-          
+    </div>
+
 </div>
 
 <?php endif; ?>

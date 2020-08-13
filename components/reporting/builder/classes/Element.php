@@ -29,7 +29,9 @@
  * Originally developed at Bedford College, now maintained by Conn Warwicker
  *
  */
-namespace BCDB\Report;
+namespace block_bc_dashboard\Report;
+
+defined('MOODLE_INTERNAL') or die();
 
 /**
  * Description of Element
@@ -74,92 +76,92 @@ abstract class Element {
 
     }
 
-    public function isEnabled(){
+    public function isEnabled() {
         return ($this->enabled == 1);
     }
 
-    public function getID(){
+    public function getID() {
         return $this->id;
     }
 
-    public function setID($id){
+    public function setID($id) {
         $this->id = $id;
         return $this;
     }
 
-    public function getName(){
+    public function getName() {
         return $this->name;
     }
 
-    public function getPlugin(){
+    public function getPlugin() {
         return $this->plugin;
     }
 
-    public function getSubPlugin(){
+    public function getSubPlugin() {
         return $this->subplugin;
     }
 
-    public function setName($name){
+    public function setName($name) {
         $this->name = $name;
         return $this;
     }
 
-    public function setPlugin($plugin){
+    public function setPlugin($plugin) {
         $this->plugin = $plugin;
         return $this;
     }
 
-    public function setSubPlugin($plugin){
+    public function setSubPlugin($plugin) {
         $this->subplugin = $plugin;
         return $this;
     }
 
-    public function setDisplayName($name){
+    public function setDisplayName($name) {
         $this->displayName = $name;
         return $this;
     }
 
-    public function setEnabled($val){
+    public function setEnabled($val) {
         $this->enabled = $val;
     }
 
-    public function getDisplayName(){
+    public function getDisplayName() {
         return (!is_null($this->displayName)) ? $this->displayName : $this->getStringName();
     }
 
-    public function getStringName(){
+    public function getStringName() {
         return get_string('bc_dashboard:'.$this->name, $this->plugin);
     }
 
-    public function getLevel(){
+    public function getLevel() {
         return $this->level;
     }
 
-    public function getDataType(){
+    public function getDataType() {
         return $this->datatype;
     }
 
-    public function getType(){
+    public function getType() {
         return $this->type;
     }
 
-    public function getOptions(){
+    public function getOptions() {
         return $this->options;
     }
 
-    public function getEnabled(){
+    public function getEnabled() {
         return $this->enabled;
     }
 
-    public function getSQL(){
+    public function getSQL() {
         return $this->parseSQL($this->sql);
     }
 
-    private function parseSQL($sqlArray){
+    private function parseSQL($sqlArray) {
 
         $sqlArray['select'] = trim($sqlArray['select']);
 
-        if (strlen($sqlArray['select']) == 0){
+        if (strlen($sqlArray['select']) == 0) {
             unset($sqlArray['select']);
             return $sqlArray;
         }
@@ -171,52 +173,54 @@ abstract class Element {
 
     }
 
-    public function getParams(){
+    public function getParams() {
         return $this->params;
     }
 
-    public function getParam($id){
+    public function getParam($id) {
         return (isset($this->params[$id])) ? $this->params[$id] : false;
     }
 
-    public function setParams($params){
+    public function setParams($params) {
         $this->params = $params;
         return $this;
     }
 
-    public function setParam($key, $param){
+    public function setParam($key, $param) {
         $this->params[$key] = $param;
         return $this;
     }
 
-    public function getAlias(){
+    public function getAlias() {
         return $this->alias;
     }
 
-    public function setAlias($alias){
+    public function setAlias($alias) {
         $this->alias = $alias;
         return $this;
     }
 
-    public function getAliasName($hybrid = false){
+    public function getAliasName($hybrid = false) {
 
         $alias = "{$this->alias}_value";
-        if (strlen($hybrid)) $alias .= ":{$hybrid}";
+        if (strlen($hybrid)) {
+            $alias .= ":{$hybrid}";
+        }
 
         return $alias;
     }
 
 
 
-    public function run(){
-        if (!$this->ran()){
+    public function run() {
+        if (!$this->ran()) {
             $this->get();
             $this->ran = true;
         }
         return $this->getSQL();
     }
 
-    public function ran(){
+    public function ran() {
         return ($this->ran);
     }
 
@@ -224,7 +228,7 @@ abstract class Element {
      * Get the value of this element for a given user object
      * @param type $obj
      */
-    public function val($obj){
+    public function val($obj) {
 
         $field = $this->getAliasName();
         return $obj[$field];
@@ -232,7 +236,8 @@ abstract class Element {
     }
 
     // If the setting of one parameter affects others, this can be used to refresh them in individual elements
-    public function refreshOptions(){}
+    public function refreshOptions() {
+    }
 
     abstract public function get();
     abstract public function call(&$results);
@@ -241,10 +246,10 @@ abstract class Element {
      * This is to be overriden by actual aggregate methods
      * @param type $results
      */
-    public function aggregate($results){
+    public function aggregate($results) {
 
         $field = $this->getAliasName();
-        if ($this->datatype == 'string'){
+        if ($this->datatype == 'string') {
             return array($field => '-');
         } else {
             return array($field => 0);
@@ -255,21 +260,20 @@ abstract class Element {
 
     /**
      * Load an element object from its id
-     * @global \BCDB\Report\type $CFG
-     * @global \BCDB\Report\type $DB
+     * @global \block_bc_dashboard\Report\type $CFG
+     * @global \block_bc_dashboard\Report\type $DB
      * @param type $id
-     * @return \BCDB\Report\classname|boolean
+     * @return \block_bc_dashboard\Report\classname|boolean
      */
-    public static function load($id){
+    public static function load($id) {
 
         global $CFG, $DB;
 
         $record = $DB->get_record("block_bcdb_report_elements", array("id" => $id));
-        if ($record)
-        {
+        if ($record) {
 
             // Require file
-            require_once $CFG->dirroot . $record->filepath;
+            require_once($CFG->dirroot . $record->filepath);
 
             // Load class
             $element = new $record->classname();
@@ -290,9 +294,9 @@ abstract class Element {
 
     /**
      * Retrieve all the elements from the database
-     * @global \BCDB\Report\type $DB
+     * @global \block_bc_dashboard\Report\type $DB
      */
-    public static function retrieve($enabledOnly = true, $flatList = false){
+    public static function retrieve($enabledOnly = true, $flatList = false) {
 
         global $DB;
 
@@ -301,28 +305,26 @@ abstract class Element {
 
         $records = $DB->get_records("block_bcdb_report_elements", $params, "plugin, subplugin, name");
 
-        if ($records)
-        {
-            foreach($records as $record)
-            {
+        if ($records) {
+            foreach ($records as $record) {
 
                 // Create an array for this plugin
-                if (!isset($return[$record->plugin]) && !$flatList){
+                if (!isset($return[$record->plugin]) && !$flatList) {
                     $return[$record->plugin] = array();
                     $arr = &$return[$record->plugin];
                 }
 
                 // If there is a subplugin, create an array for that as well
-                if (isset($record->subplugin) && !isset($return[$record->plugin][$record->subplugin]) && !$flatList){
+                if (isset($record->subplugin) && !isset($return[$record->plugin][$record->subplugin]) && !$flatList) {
                     $return[$record->plugin][$record->subplugin] = array();
                     $arr = &$return[$record->plugin][$record->subplugin];
                 }
 
-                if ($flatList){
+                if ($flatList) {
                     $arr = &$return;
                 }
 
-                $obj = \BCDB\Report\Element::load($record->id);
+                $obj = self::load($record->id);
                 $obj->_id = $obj->getID();
                 $obj->_name = $obj->getDisplayName();
                 $obj->_enabled = $obj->getEnabled();
@@ -339,7 +341,7 @@ abstract class Element {
      * Scan for elements in moodle plugins
      * @global type $CFG
      */
-    public static function scan(){
+    public static function scan() {
 
         $elementsArray = array();
 
@@ -350,25 +352,21 @@ abstract class Element {
         foreach ($plugintypes as $type => $typedir) {
 
             $plugins = \get_plugin_list($type);
-            if ($plugins)
-            {
-                foreach($plugins as $pluginName => $dir)
-                {
+            if ($plugins) {
+                foreach ($plugins as $pluginName => $dir) {
 
                     unset($elements);
 
                     // Look for a /db/bc_dashboard.php file
-                    if (file_exists($dir . '/db/bc_dashboard.php')){
+                    if (file_exists($dir . '/db/bc_dashboard.php')) {
 
                         // Include the file
-                        include_once $dir . '/db/bc_dashboard.php';
+                        include_once($dir . '/db/bc_dashboard.php');
 
                         // Load the elements array
-                        if (isset($elements) && $elements)
-                        {
+                        if (isset($elements) && $elements) {
 
-                            foreach($elements as $elementName => $elementArr)
-                            {
+                            foreach ($elements as $elementName => $elementArr) {
 
                                 // Combine the type of plugin and the plugin name, e.g. "block_gradetracker"
                                 $plugin = $type . '_' . $pluginName;
@@ -377,8 +375,7 @@ abstract class Element {
                                 $element = self::updateElement($elementName, $plugin, $elementArr);
 
                                 // Store the IDs of the ones we have saved to we can delete any others
-                                if ($element)
-                                {
+                                if ($element) {
                                     $elementsArray[] = $element->id;
                                 }
 
@@ -400,11 +397,11 @@ abstract class Element {
 
     /**
      * This one updates a DB record, using the object provided
-     * @global \BCDB\Report\type $DB
+     * @global \block_bc_dashboard\Report\type $DB
      * @param type $obj
      * @return type
      */
-    public static function update($obj){
+    public static function update($obj) {
 
         global $DB;
         return $DB->update_record("block_bcdb_report_elements", $obj);
@@ -414,37 +411,32 @@ abstract class Element {
 
     /**
      * This one is used when scanning for new elements and updates/inserts based on name and plugin
-     * @global \BCDB\Report\type $DB
+     * @global \block_bc_dashboard\Report\type $DB
      * @param type $name
      * @param type $plugin
      * @param type $arr
      * @return type
      */
-    public static function updateElement($name, $plugin, $arr){
+    public static function updateElement($name, $plugin, $arr) {
 
         global $DB;
 
         $check = $DB->get_record("block_bcdb_report_elements", array("name" => $name, "plugin" => $plugin));
 
         // If it exists, update and return
-        if ($check)
-        {
+        if ($check) {
 
             $check->filepath = $arr['file'];
             $check->classname = $arr['class'];
             $check->subplugin = (isset($arr['sub'])) ? $arr['sub'] : null;
-            if (isset($arr['enabled'])){
+            if (isset($arr['enabled'])) {
                 $check->enabled = $arr['enabled'];
             }
             $result = $DB->update_record("block_bcdb_report_elements", $check);
 
             return ($result) ? $check : false;
 
-        }
-
-        // Else, insert and return
-        else
-        {
+        } else {
 
             $ins = new \stdClass();
             $ins->name = $name;
@@ -452,7 +444,7 @@ abstract class Element {
             $ins->filepath = $arr['file'];
             $ins->classname = $arr['class'];
             $ins->subplugin = (isset($arr['sub'])) ? $arr['sub'] : null;
-            if (isset($arr['enabled'])){
+            if (isset($arr['enabled'])) {
                 $ins->enabled = $arr['enabled'];
             }
             $ins->id = $DB->insert_record("block_bcdb_report_elements", $ins);
@@ -465,11 +457,11 @@ abstract class Element {
 
     /**
      * Delete elements from the database that can no longer be found in the plugins
-     * @global \BCDB\Report\type $DB
+     * @global \block_bc_dashboard\Report\type $DB
      * @param type $elementIDs
      * @return type
      */
-    public static function deleteMissingElements($elementIDs){
+    public static function deleteMissingElements($elementIDs) {
 
         global $DB;
 

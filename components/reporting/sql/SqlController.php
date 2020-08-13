@@ -17,9 +17,9 @@
 /**
  * Dashboard Reporting
  *
- * The Reporting Dashboard plugin is a block which runs alongside the ELBP and Grade Tracker blocks, to provide a better experience and extra features, 
+ * The Reporting Dashboard plugin is a block which runs alongside the ELBP and Grade Tracker blocks, to provide a better experience and extra features,
  * such as combined reporting across both plugins. It also allows you to create your own custom SQL reports which can be run on any aspect of Moodle.
- * 
+ *
  * @package     block_bc_dashboard
  * @copyright   2017-onwards Conn Warwicker
  * @author      Conn Warwicker <conn@cmrwarwicker.com>
@@ -27,14 +27,15 @@
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  *
  * Originally developed at Bedford College, now maintained by Conn Warwicker
- * 
+ *
  */
 
-namespace BCDB\Controllers\reporting;
+namespace block_bc_dashboard\Controllers\reporting;
 
+defined('MOODLE_INTERNAL') or die();
 
-require_once $CFG->dirroot . '/blocks/bc_dashboard/components/config/classes/Config.php';
-require_once $CFG->dirroot . '/blocks/bc_dashboard/lib/php-sql-parser/src/PHPSQLParser.php';
+require_once($CFG->dirroot . '/blocks/bc_dashboard/components/config/classes/Config.php');
+require_once($CFG->dirroot . '/blocks/bc_dashboard/lib/php-sql-parser/src/PHPSQLParser.php');
 
 
 /**
@@ -42,91 +43,98 @@ require_once $CFG->dirroot . '/blocks/bc_dashboard/lib/php-sql-parser/src/PHPSQL
  *
  * @author cwarwicker
  */
-class SqlController extends \BCDB\Controller {
-    
+class SqlController extends \block_bc_dashboard\Controller {
+
     protected $action = 'action_edit';
-    
-    public function getReportFromArgs($args){
-        
-        if (isset($args[0]) && is_numeric($args[0])){
+
+    public function getReportFromArgs($args) {
+
+        if (isset($args[0]) && is_numeric($args[0])) {
             $id = $args[0];
-            $report = \BCDB\Report::load($id);
-            if ($report && $report->isValid() && !$report->isDeleted() && $report->getType() == 'sql'){
+            $report = \block_bc_dashboard\Report::load($id);
+            if ($report && $report->isValid() && !$report->isDeleted() && $report->getType() == 'sql') {
                 return $report;
             }
         }
-        
+
         return false;
-        
+
     }
-    
-    
-    
-    public function action_ajax(){
-                                
+
+
+
+    public function action_ajax() {
+
         global $CFG;
-        
-        if ($_SERVER['REQUEST_METHOD'] != 'POST'){
+
+        // Only allow actions if we POST to the script.
+        if ($_SERVER['REQUEST_METHOD'] != 'POST') {
             exit;
         }
-                
-        switch($_POST['action'])
-        {
+
+        $settings = array(
+            'action' => optional_param('action', false, PARAM_TEXT),
+            'sql' => optional_param('sql', false, PARAM_TEXT),
+        );
+
+        switch ($settings['action']) {
             case 'count_sql_params':
-                echo json_encode( \BCDB\Report\SQLReport::getParamsInQuery($_POST['sql']) );
-            break;            
-        
+                echo json_encode( \block_bc_dashboard\Report\SQLReport::getParamsInQuery($settings['sql']) );
+                break;
+
             case 'parse_sql':
-                
-                require_once $CFG->dirroot . '/blocks/bc_dashboard/lib/php-sql-parser/src/PHPSQLParser.php';
-                $fields = \BCDB\Report\SQLReport::getSQLFields($_POST['sql']);
-                
+
+                require_once($CFG->dirroot . '/blocks/bc_dashboard/lib/php-sql-parser/src/PHPSQLParser.php');
+                $fields = \block_bc_dashboard\Report\SQLReport::getSQLFields($settings['sql']);
+
                 echo json_encode($fields);
                 exit;
-                
-            break;
-        
+
+                break;
+
             case 'run':
             case 'export':
-                                
+
+                $settings['params'] = optional_param('params', false, PARAM_TEXT);
+
                 // Get params from serialized form
                 $params = false;
-                if (isset($_POST['params'])){
-                    parse_str($_POST['params'], $params);
+                if ($settings['params']) {
+                    parse_str($settings['params'], $params);
                 }
-                
-                if (!isset($params['id'])){
+
+                if (!isset($params['id'])) {
                     echo get_string('error:invalidreport', 'block_bc_dashboard');
                     exit;
                 }
-                
-                $report = \BCDB\Report::load($params['id']);
-                if (!$report){
+
+                $report = \block_bc_dashboard\Report::load($params['id']);
+                if (!$report) {
                     echo get_string('error:invalidreport', 'block_bc_dashboard');
                     exit;
                 }
-                
+
                 // Can we run it?
-                if (!$report->canRun()){
+                if (!$report->canRun()) {
                     echo get_string('error:invalidaccess', 'block_bc_dashboard');
                     exit;
                 }
-                
+
                 // Apply the parameter values we set into the report
-                if (isset($params['param'])){
+                if (isset($params['param'])) {
                     $report->applyParams( $params['param'] );
                 }
-                
+
                 // Run the report
                 $report->run();
-                
-                if ($_POST['action'] == 'export'){
-                    
+
+                if ($settings['action'] == 'export') {
+
                     $report->export();
                     exit;
-                    
+
                 } else {
-                    
+
                     // Return the results to the webpage
                     $result = array(
                         'ok' => 1,
@@ -136,76 +144,73 @@ class SqlController extends \BCDB\Controller {
                         'y-axis' => $report->getOption('yaxis'),
                         'datatypes' => $report->getDataTypes(),
                         'headers' => $report->getHeaders(),
-                        'data' =>  $report->getData()
+                        'data' => $report->getData()
                     );
 
-                    \BCDB\Log::add(\BCDB\Log::LOG_RUN_REPORT, $report->getID());
-                                                            
+                    \block_bc_dashboard\Log::add(\block_bc_dashboard\Log::LOG_RUN_REPORT, $report->getID());
+
                     echo json_encode($result);
                     exit;
 
                 }
-                
-                
-                
-            break;
-          
-        
+
+                break;
+
         }
-        
+
         exit;
-        
+
     }
-    
-    public function action_edit($args){
-        
+
+    public function action_edit($args) {
+
         global $USER;
-        
-        if (!has_capability('block/bc_dashboard:crud_sql_report', $this->context)){
+
+        $settings = array(
+            'report_id' => optional_param('report_id', false, PARAM_INT),
+        );
+
+        if (!has_capability('block/bc_dashboard:crud_sql_report', $this->context)) {
             \bcdb_fatalError( get_string('invalidaccess', 'block_bc_dashboard') );
         }
-        
+
         // If we submitted an import from XML, build up a report object from that and load the form, so they can change any bits they want to
-        if (isset($_FILES['file'])){
-            $report = \BCDB\Report::loadFromXML($_FILES['file']);
+        if (isset($_FILES['file'])) {
+            $report = \block_bc_dashboard\Report::loadFromXML($_FILES['file']);
             $this->view->set("report", $report);
-        }
-       
-        // If we have an integer passed through, then it is a report ID we are editing             
-        elseif (isset($args[0]) && is_numeric($args[0])){
+        } else if (isset($args[0]) && is_numeric($args[0])) {
+            // If we have an integer passed through, then it is a report ID we are editing
             $id = $args[0];
-            $report = \BCDB\Report::load($id);
-            if ($report && $report->isValid() && !$report->isDeleted() && $report->getType() == 'sql'){
-                
+            $report = \block_bc_dashboard\Report::load($id);
+            if ($report && $report->isValid() && !$report->isDeleted() && $report->getType() == 'sql') {
+
                 // If it's not our report, we need permission to edit all
-                if ($report->getCreatedByID() <> $USER->id && !has_capability('block/bc_dashboard:edit_any_sql_report', $this->context)){
+                if ($report->getCreatedByID() <> $USER->id && !has_capability('block/bc_dashboard:edit_any_sql_report', $this->context)) {
                     \bcdb_fatalError( get_string('invalidaccess', 'block_bc_dashboard') );
                 }
-                
+
                 $this->view->set("report", $report);
-                
+
             }
         }
-        
-        
+
         // Have we submitted the form?
-        if (isset($_POST['report_id'])){
+        if ($settings['report_id'] !== false) {
             return $this->submit_edit();
         }
-            
-        
+
     }
-    
-    
-    private function submit_edit(){
-        
+
+
+    private function submit_edit() {
+
         $messages = array();
-        
-        $report = new \BCDB\Report\SQLReport();
-        $report->loadFormData($_POST);
-                        
-        if (!$report->hasErrors()){
-            if ($report->save()){
+
+        $report = new \block_bc_dashboard\Report\SQLReport();
+        $report->loadFormData();
+
+        if (!$report->hasErrors()) {
+            if ($report->save()) {
                 $messages['success'] = get_string('reportsaved', 'block_bc_dashboard');;
             } else {
                 $messages['errors'] = get_string('error:unknownsaveerror', 'block_bc_dashboard');
@@ -213,119 +218,134 @@ class SqlController extends \BCDB\Controller {
         } else {
             $messages['errors'] = $report->getErrors();
         }
-        
+
         $this->view->set("messages", $messages);
         $this->view->set("report", $report);
-        
-        
+
     }
-    
-    public function action_delete($args){
-        
+
+    public function action_delete($args) {
+
+        $submission = array(
+            'confirm' => optional_param('confirm', false, PARAM_TEXT),
+        );
+
         $report = $this->getReportFromArgs($args);
-        if (!$report || !$report->canDelete()){
+        if (!$report || !$report->canDelete()) {
             \bcdb_fatalError( get_string('invalidaccess', 'block_bc_dashboard') );
         }
-        
-        if (isset($_POST['confirm'])){
-            
+
+        if ($submission['confirm']) {
+
+            require_sesskey();
+
             $messages = array();
-            
-            if ($report->delete() ){
+
+            if ($report->delete() ) {
                 $messages['success'] = get_string('reportdeleted', 'block_bc_dashboard');
             } else {
                 $messages['errors'] = get_string('error:delete', 'block_bc_dashboard');
-            }        
-            
+            }
+
             $this->view->set("messages", $messages);
-                
+
         }
-        
+
     }
-    
-     
+
+
     /**
      * Schedule page
      * @param type $args
      */
-    public function action_schedule($args){
-        
+    public function action_schedule($args) {
+
+        $submission = array(
+            'submitted' => optional_param('submitted', false, PARAM_TEXT),
+        );
+
+        $settings = array(
+            'sid' => df_optional_param_array_recursive('sid', false, PARAM_INT),
+            'time' => df_optional_param_array_recursive('time', false, PARAM_INT),
+            'rep_type' => df_optional_param_array_recursive('rep_type', false, PARAM_TEXT),
+            'rep' => df_optional_param_array_recursive('rep', false, PARAM_TEXT),
+            'param' => df_optional_param_array_recursive('param', false, PARAM_TEXT),
+            'emails' => df_optional_param_array_recursive('emails', false, PARAM_TEXT),
+        );
+
         $report = $this->getReportFromArgs($args);
-        if (!$report || !$report->canSchedule()){
+        if (!$report || !$report->canSchedule()) {
             \bcdb_fatalError( get_string('invalidaccess', 'block_bc_dashboard') );
         }
-        
-        if (isset($_POST['submitted'])){
-            
+
+        if ($submission['submitted']) {
+
+            require_sesskey();
+
             $taskArray = array();
             $messages = array('success' => array(), 'errors' => array());
-            
-            $sIDs = (isset($_POST['sid'])) ? $_POST['sid'] : array();
-            $time = (isset($_POST['time'])) ? $_POST['time'] : array();
-            $repetitionType = (isset($_POST['rep_type'])) ? $_POST['rep_type'] : array();
-            $repetitionValues = (isset($_POST['rep'])) ? $_POST['rep'] : array();
-            $params = (isset($_POST['param'])) ? $_POST['param'] : array();
-            $emails = (isset($_POST['emails'])) ? $_POST['emails'] : array();
-                                                
-            foreach($sIDs as $i => $sID)
-            {
-                
-                $obj = new \BCDB\ScheduledTask($sIDs[$i]);
-                if ($obj->canEdit())
-                {
-                    
+
+            $sIDs = ($settings['sid']) ? $settings['sid'] : array();
+            $time = ($settings['time']) ? $settings['time'] : array();
+            $repetitionType = ($settings['rep_type']) ? $settings['rep_type'] : array();
+            $repetitionValues = ($settings['rep']) ? $settings['rep'] : array();
+            $params = ($settings['param']) ? $settings['param'] : array();
+            $emails = ($settings['emails']) ? $settings['emails'] : array();
+
+            foreach ($sIDs as $i => $sID) {
+
+                $obj = new \block_bc_dashboard\ScheduledTask($sIDs[$i]);
+                if ($obj->canEdit()) {
+
                     $obj->setReportID($report->getID());
                     $obj->setScheduledTime(@implode(":", $time[$i]));
                     $obj->setRepetitionType(@$repetitionType[$i]);
                     $obj->setRepetitionValues(@implode(",", (array)$repetitionValues[$i]));
                     $obj->setParams( @implode(",", (array)$params[$i]) );
                     $obj->setEmailTo($emails[$i]);
-                    
-                    if (!$obj->hasErrors()){
-                        if (!$obj->save()){
+
+                    if (!$obj->hasErrors()) {
+                        if (!$obj->save()) {
                             $messages['errors'][] = get_string('error:unknownsaveerror', 'block_bc_dashboard');
-                        } 
+                        }
                     } else {
                         $messages['errors'] = array_merge($messages['errors'], $obj->getErrors());
                     }
-                    
+
                     $taskArray[$obj->getID()] = $obj;
-                    
+
                 }
-                
+
             }
-            
-                        
+
             // Now delete any we didn't submit
             $allTasks = $report->getEditableScheduledTasks();
-            if ($allTasks)
-            {
-                foreach($allTasks as $task)
-                {
-                    if (!array_key_exists($task->getID(), $taskArray))
-                    {
+            if ($allTasks) {
+                foreach ($allTasks as $task) {
+                    if (!array_key_exists($task->getID(), $taskArray)) {
                         $task->delete();
                     }
                 }
             }
-            
-            
+
             // If none of them had any errors, display the success message
-            if (!$messages['errors']){
+            if (!$messages['errors']) {
                 $messages['success'][] = get_string('scheduledtasksaved', 'block_bc_dashboard');
             } else {
                 // Otherwise, use these objects for the sticky form
                 $this->view->set("tasks", $taskArray);
             }
-            
+
             $this->view->set("messages", $messages);
-            
+
         }
-        
+
     }
-    
-    
-    public function action_view(){}
-    public function action_run($args){}
-    
+
+
+    public function action_view() {
+    }
+    public function action_run($args) {
+    }
+
 }

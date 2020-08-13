@@ -26,13 +26,12 @@ function updateChartAxies(){
         var x = $('#xaxis').val();
         var y = $('#yaxis').val();
 
-
         // x-axis
         $('#xaxis').selectpicker('destroy');
         $('#xaxis').html('');
         $.each(data, function(k, i){
             var sel = (x !== null && x.indexOf(i) >= 0) ? 'selected' : '';
-            $('#xaxis').append('<option value="'+i+'" '+sel+' >'+i+'</option>');
+            $('#xaxis').append('<option value="' + i + '" ' + sel + ' >' + i + '</option>');
         });
         $('#xaxis').selectpicker();
 
@@ -41,7 +40,7 @@ function updateChartAxies(){
         $('#yaxis').html('<option></option>');
         $.each(data, function(k, i){
             var sel = (y == i) ? 'selected' : '';
-            $('#yaxis').append('<option value="'+i+'" '+sel+'>'+i+'</option>');
+            $('#yaxis').append('<option value="' + i + '" ' + sel + '>' + i + '</option>');
         });
         $('#yaxis').selectpicker();
 
@@ -94,29 +93,28 @@ function updateSQLParams(paramValues){
             for (var i = cnt; i < num; i++){
 
                 var disp = i + 1;
-                var el = "<div class='sql_param' param='"+i+"'>";
+                var el = "<div class='sql_param' param='" + i + "'>";
 
-                    el += "<div class='text-center'><input id='param-name-"+i+"' type='text' class='text-center sql_param_name' placeholder='name' name='report_params["+i+"][name]' value='"+str['parameter']+" "+disp+"' /></div>";
+                    el += "<div class='text-center'><input id='param-name-" + i + "' type='text' class='text-center sql_param_name' placeholder='name' name='report_params[" + i + "][name]' value='" + str['parameter'] + " " + disp + "' /></div>";
 
                     el += "<div class='col-lg-6'>";
-                        el += "<span>"+str['format'] + "</span>";
-                        el += "<select id='param-type-"+i+"' class='form-control param-type' param='"+i+"' onchange='changeParamType( $(this) );return false;' name='report_params["+i+"][type]'>";
+                        el += "<span>" + str['format'] + "</span>";
+                        el += "<select id='param-type-" + i + "' class='form-control param-type' param='" + i + "' onchange='changeParamType( $(this) );return false;' name='report_params[" + i + "][type]'>";
                            $.each(formats, function(k, v){
-                               el += "<option value='"+v+"'>"+v+"</option>";
+                               el += "<option value='" + v + "'>" + v + "</option>";
                            });
                         el += "</select>";
                     el += "</div>";
 
                     el += "<div class='col-lg-6'>";
-                        el += "<span>"+str['default']+"</span>";
-                        el += "<input type='text' class='form-control param-default' id='param-default-"+i+"' name='report_params["+i+"][default]' />";
+                        el += "<span>" + str['default'] + "</span>";
+                        el += "<input type='text' class='form-control param-default' id='param-default-" + i + "' name='report_params[" + i + "][default]' />";
                     el += "</div>";
 
-                    el += "<div id='options_"+i+"' class='col-lg-12' style='display:none;'>";
-                        el += "<span>"+str['options']+"</span>";
-                        el += "<input type='text' class='form-control param-default' id='param-options-"+i+"' name='report_params["+i+"][options]' placeholder='Option 1,Option 2,Option 3' />";
+                    el += "<div id='options_" + i + "' class='col-lg-12' style='display:none;'>";
+                        el += "<span>" + str['options'] + "</span>";
+                        el += "<input type='text' class='form-control param-default' id='param-options-" + i + "' name='report_params[" + i + "][options]' placeholder='Option 1,Option 2,Option 3' />";
                     el += "</div>";
-
 
                     el += "<br class='clear-both'>";
 
@@ -127,8 +125,6 @@ function updateSQLParams(paramValues){
             }
 
         }
-
-
 
         // Bind highlight
         $('.sql_param').off('mouseover');
@@ -144,15 +140,13 @@ function updateSQLParams(paramValues){
             }
         });
 
-
-
         // if we supplied values, apply them to the elements
         if (paramValues){
             $.each(paramValues, function(k, o){
-                $('#param-name-'+k).val(o.name);
-                $('#param-type-'+k).val(o.type).change();
-                $('#param-default-'+k).val(o.default);
-                $('#param-options-'+k).val(o.options);
+                $('#param-name-' + k).val(o.name);
+                $('#param-type-' + k).val(o.type).change();
+                $('#param-default-' + k).val(o.default);
+                $('#param-options-' + k).val(o.options);
             });
         }
 
@@ -214,18 +208,16 @@ function changeParamType(el){
     var val = $(el).val();
 
     // Reset the default value
-    var def = $('#param-default-'+num);
+    var def = $('#param-default-' + num);
     def.val('');
-
 
     // Show/Hide options
     if (val === 'select'){
-        $('#options_'+num).show();
+        $('#options_' + num).show();
     } else {
-        $('#options_'+num+' input').val('');
-        $('#options_'+num).hide();
+        $('#options_' + num + ' input').val('');
+        $('#options_' + num).hide();
     }
-
 
     // If it's text, remove any classes that might have been added
     if (val === 'text' || val === 'select')
@@ -295,15 +287,14 @@ function reNumberParams(){
         $(this).attr('param', num);
 
         var nm = $($(this).find('.sql_param_name')[0]);
-        var regexp = new RegExp('^'+ str['parameter'] + ' \\d+$');
+        var regexp = new RegExp('^' + str['parameter'] + ' \\d+$');
         if (nm.val() === '' || nm.val().match(regexp)){
-            $($(this).find('.sql_param_name')[0]).val( str['parameter'] + ' ' + (num+1) );
+            $($(this).find('.sql_param_name')[0]).val( str['parameter'] + ' ' + (num + 1) );
         }
 
-        $($(this).find('.param-type')[0]).attr('name', 'report_params['+num+'][type]');
-        $($(this).find('.param-default')[0]).attr('name', 'report_params['+num+'][default]');
+        $($(this).find('.param-type')[0]).attr('name', 'report_params[' + num + '][type]');
+        $($(this).find('.param-default')[0]).attr('name', 'report_params[' + num + '][default]');
         $($(this).find('.param-type')[0]).attr('param', num);
-
 
     } );
 
@@ -329,14 +320,13 @@ function submitReport(reportType, type){
         return false;
     }
 
-
     // Loading gif
     $('#errors').html('');
-    $('#report_results').html('<img src="'+www+'/blocks/bc_dashboard/resources/pix/loading.gif" alt="loading..." style="width:24px;" />');
+    $('#report_results').html('<img src="' + www + '/blocks/bc_dashboard/resources/pix/loading.gif" alt="loading..." style="width:24px;" />');
 
     var params = $('form#report').serialize();
 
-    $.post(www+'/blocks/bc_dashboard/index.php?Qs=reporting/'+reportType+'/ajax', {action: type, params: params}, function(data){
+    $.post(www + '/blocks/bc_dashboard/index.php?Qs=reporting/' + reportType + '/ajax', {action: type, params: params}, function(data){
 
         data = $.parseJSON(data);
 
@@ -350,7 +340,7 @@ function submitReport(reportType, type){
         // Download any file
         if (typeof data['download'] !== 'undefined'){
             $('#report_results').html('');
-            window.location = www + '/blocks/bc_dashboard/download.php?code='+data['download']+'&time='+Date.now();
+            window.location = www + '/blocks/bc_dashboard/download.php?code=' + data['download'] + '&time=' + Date.now();
             return false;
         }
 
@@ -359,7 +349,6 @@ function submitReport(reportType, type){
             $('#report_results').html( str['nodata'] );
             return false;
         }
-
 
         // SQL Report
         if (reportType === 'sql'){
@@ -391,11 +380,11 @@ function submitReport(reportType, type){
                         }
 
                         // Get the data for this column
-                        rowData['V_'+num] = row[vY];
+                        rowData['V_' + num] = row[vY];
 
                         // X Key
-                        if (keys.indexOf('V_'+num) < 0){
-                            keys.push('V_'+num);
+                        if (keys.indexOf('V_' + num) < 0){
+                            keys.push('V_' + num);
                         }
 
                         // Label
@@ -425,13 +414,12 @@ function submitReport(reportType, type){
                     parseTime: false,
                     barColors: colours,
                     lineColors: colours
-                  };
+                };
 
                   generateChart(data['reportsubtype'], chart);
                   return;
 
             }
-
 
             // Standard report
             else
@@ -442,14 +430,14 @@ function submitReport(reportType, type){
 
                     output += "<thead><tr>";
                         $.each(data['headers'], function(hk, hv){
-                            output += "<th data-sort='"+data['datatypes'][hv]+"'>"+hv+"</th>";
+                            output += "<th data-sort='" + data['datatypes'][hv] + "'>" + hv + "</th>";
                         });
                     output += "</tr></thead>";
 
                         $.each(data['data'], function(k, row){
                             output += "<tr>";
                             $.each(data['headers'], function(hk, hv){
-                                output += "<td>"+row[hv]+"</td>";
+                                output += "<td>" + row[hv] + "</td>";
                             });
                             output += "</tr>";
                         });
@@ -473,7 +461,7 @@ function submitReport(reportType, type){
                 // Headers
                 output += "<thead><tr>";
                     $.each(data['headers'], function(hk, hv){
-                        output += "<th>"+hv+"</th>";
+                        output += "<th>" + hv + "</th>";
                     });
                 output += "</tr></thead>";
 
@@ -533,27 +521,27 @@ function recursiveGetData(results, headers, type, parentClass, directParentClass
         var rowID = type.toUpperCase() + '_' + id;
 
         // Totals row
-        output += "<tr id='"+rowID+"' parents='"+parentClass.join(' ')+"' directparent='"+directParentClass+"' class='ROW_TYPE_"+type.toUpperCase()+"'>";
+        output += "<tr id='" + rowID + "' parents='" + parentClass.join(' ') + "' directparent='" + directParentClass + "' class='ROW_TYPE_" + type.toUpperCase() + "'>";
 
             // Name
-            if (type === 'user'){
+        if (type === 'user'){
 
-                var rpt = ((parentClass.length - 1) * 3) + 1;
-                var name = data['firstname'] + ' ' + data['lastname'] + ' ('+data['username']+')';
-                var nbsp = Array(rpt).join("&nbsp;");
-                var url = www + ((elbp == 1) ? '/blocks/elbp/view.php?id=' : '/user/profile.php?id=');
-                output += "<td>"+nbsp+"<a href='"+url+data['id']+"'>"+name+"</a></td>";
+            var rpt = ((parentClass.length - 1) * 3) + 1;
+            var name = data['firstname'] + ' ' + data['lastname'] + ' (' + data['username'] + ')';
+            var nbsp = Array(rpt).join("&nbsp;");
+            var url = www + ((elbp == 1) ? '/blocks/elbp/view.php?id=' : '/user/profile.php?id=');
+            output += "<td>" + nbsp + "<a href='" + url + data['id'] + "'>" + name + "</a></td>";
 
-            } else {
-                var rpt = (parentClass.length * 3) + 1;
-                var name = parentName + data['name'];
-                var nbsp = Array(rpt).join("&nbsp;");
-                output += "<td>"+nbsp+name+"</td>";
-            }
+        } else {
+            var rpt = (parentClass.length * 3) + 1;
+            var name = parentName + data['name'];
+            var nbsp = Array(rpt).join("&nbsp;");
+            output += "<td>" + nbsp + name + "</td>";
+        }
 
             // Number of students
             var usercnt = (typeof data['usercnt'] !== 'undefined') ? data['usercnt'] : '-';
-            output += "<td>"+usercnt+"</td>";
+            output += "<td>" + usercnt + "</td>";
 
             // Totals
             $.each(headers, function(key, header){
@@ -562,20 +550,19 @@ function recursiveGetData(results, headers, type, parentClass, directParentClass
                     var val = (type === 'user') ? data[key] : data['totals'][key];
 
                     // Is there a hybrid, specific level row value?
-                    if (type === 'user' && data[key + ':user'] !== undefined){
-                      val = data[key + ':user'];
-                    }
+                if (type === 'user' && data[key + ':user'] !== undefined){
+                    val = data[key + ':user'];
+                }
 
-                    if (typeof val === 'undefined' || val === null){
-                        val = '0';
-                    }
+                if (typeof val === 'undefined' || val === null){
+                    val = '0';
+                }
 
                     output += val;
                 output += "</td>";
             });
 
         output += "</tr>";
-
 
         // Users
         if (typeof data['users'] === 'object')
@@ -612,7 +599,6 @@ function recursiveGetData(results, headers, type, parentClass, directParentClass
 
         }
 
-
         // Courses
         if (typeof data['courses'] === 'object')
         {
@@ -627,7 +613,6 @@ function recursiveGetData(results, headers, type, parentClass, directParentClass
                 a = a[1]; b = b[1];
                 return a['name'].localeCompare(b['name'], undefined, {numeric: true, sensitivity: 'base'});
             } );
-
 
             output += recursiveGetData(courses, headers, 'course', parentClass.concat([rowID]), rowID, name + ' / ');
 
@@ -648,8 +633,8 @@ function recursiveGetData(results, headers, type, parentClass, directParentClass
 function toggleRow(parent){
 
     // Are there any with this class already visible? In which case, we must be hiding them
-    if ( $('table#builder_report_results tr[parents*="'+parent+'"]:visible').length > 0 ){
-        $('table#builder_report_results tr[parents*="'+parent+'"]').hide();
+    if ( $('table#builder_report_results tr[parents*="' + parent + '"]:visible').length > 0 ){
+        $('table#builder_report_results tr[parents*="' + parent + '"]').hide();
     } else {
 
         // Otherwise we must be showing them, so loop through and find direct descendants
@@ -664,7 +649,7 @@ function toggleRow(parent){
 
         // If there were none
         if (!found){
-            $('tr#'+parent+':not(.ROW_TYPE_USER) td').effect('shake');
+            $('tr#' + parent + ':not(.ROW_TYPE_USER) td').effect('shake');
         }
 
     }
@@ -673,10 +658,10 @@ function toggleRow(parent){
 
 function displayErrors(errors){
 
-    var output = '<div class="col-lg-12 alert alert-danger"><strong>'+str['error']+'</strong><ul>';
+    var output = '<div class="col-lg-12 alert alert-danger"><strong>' + str['error'] + '</strong><ul>';
 
     $.each(errors, function(k, err){
-        output += '<li>'+err+'</li>';
+        output += '<li>' + err + '</li>';
     });
 
     output += '</ul></div>';
@@ -758,13 +743,13 @@ function scanForElements(){
                 if ( $.isNumeric(key) ){
 
                     var en = (val._enabled == 1) ? 'checked' : '';
-                    $('#table_of_elements tbody').append('<tr><td>'+val._name+'</td><td>'+pluginName+'</td><td><input name="elements_enabled['+val._id+']" type="checkbox" '+en+' /></td></tr>');
+                    $('#table_of_elements tbody').append('<tr><td>' + val._name + '</td><td>' + pluginName + '</td><td><input name="elements_enabled[' + val._id + ']" type="checkbox" ' + en + ' /></td></tr>');
 
                 } else {
 
                     $.each(val, function(k, v){
                         var en = (v._enabled == 1) ? 'checked' : '';
-                        $('#table_of_elements tbody').append('<tr><td>'+v._name+'</td><td>'+pluginName+' // '+key+'</td><td><input name="elements_enabled['+v._id+']" type="checkbox" '+en+' /></td></tr>');
+                        $('#table_of_elements tbody').append('<tr><td>' + v._name + '</td><td>' + pluginName + ' // ' + key + '</td><td><input name="elements_enabled[' + v._id + ']" type="checkbox" ' + en + ' /></td></tr>');
                     });
 
                 }
@@ -790,20 +775,20 @@ function addFilter(type, filter){
     var num = numFilt;
 
     var row = "";
-    row += "<tr id='f_row_"+num+"'>";
-        row += "<td><a href='' onclick='$(this).parent().parent().remove();return false;'><img src='"+www+"/blocks/bc_dashboard/pix/remove.png' alt='delete' /></a></td>";
-        row += "<td>"+type+"</td>";
-        row += "<td>"+filter+" <input type='hidden' name='filters["+type+"]["+num+"][field]' value='"+filter+"' /></td>";
-        row += "<td><select name='filters["+type+"]["+num+"][cmp]' class='form-control'>";
+    row += "<tr id='f_row_" + num + "'>";
+        row += "<td><a href='' onclick='$(this).parent().parent().remove();return false;'><img src='" + www + "/blocks/bc_dashboard/pix/remove.png' alt='delete' /></a></td>";
+        row += "<td>" + type + "</td>";
+        row += "<td>" + filter + " <input type='hidden' name='filters[" + type + "][" + num + "][field]' value='" + filter + "' /></td>";
+        row += "<td><select name='filters[" + type + "][" + num + "][cmp]' class='form-control'>";
             row += "<option value='equals'>equals ==</option>";
             row += "<option value='notequals'>not equals !==</option>";
         row += "</select></td>";
-        row += "<td><input type='text' name='filters["+type+"]["+num+"][val]' value='' class='form-control' /></td>";
+        row += "<td><input type='text' name='filters[" + type + "][" + num + "][val]' value='' class='form-control' /></td>";
     row += "</tr>";
 
-   $('#selected_filters tbody').append(row);
+    $('#selected_filters tbody').append(row);
 
-   numFilt++;
+    numFilt++;
 
 }
 
@@ -822,17 +807,17 @@ function addElement(id){
         var num = numEl;
 
         var row = "";
-        row += "<tr id='row_"+num+"'>";
-            row += "<td><a href='' onclick='$(this).parent().parent().remove();return false;'><img src='"+www+"/blocks/bc_dashboard/pix/remove.png' alt='delete' /></a></td>";
-            row += "<td>"+data.name+"</td>";
-            row += "<td><input type='hidden' name='elements["+num+"][id]' id='element_id_"+num+"' value='"+data.id+"' /><input type='text' name='elements["+num+"][displayname]' value='"+data.name+"' class='form-control form-control-sm' /></td>";
+        row += "<tr id='row_" + num + "'>";
+            row += "<td><a href='' onclick='$(this).parent().parent().remove();return false;'><img src='" + www + "/blocks/bc_dashboard/pix/remove.png' alt='delete' /></a></td>";
+            row += "<td>" + data.name + "</td>";
+            row += "<td><input type='hidden' name='elements[" + num + "][id]' id='element_id_" + num + "' value='" + data.id + "' /><input type='text' name='elements[" + num + "][displayname]' value='" + data.name + "' class='form-control form-control-sm' /></td>";
             row += "<td class='element_options'>";
                 row += displayElementOptions(data.options, num);
             row += "</td>";
         row += "</tr>";
 
         $('#builder_report_preview tbody').append(row);
-        $('#builder_report_preview tbody tr#row_'+num+' select.selectpicker').selectpicker('refresh');
+        $('#builder_report_preview tbody tr#row_' + num + ' select.selectpicker').selectpicker('refresh');
 
         numEl++;
 
@@ -868,26 +853,26 @@ function displayElementOptions(options, num){
 function getOptionCode(type, opt, label, pNum, rNum){
 
     var output = "";
-    output += "<div class='form-group element_option_"+rNum+"_"+pNum+"'>";
+    output += "<div class='form-group element_option_" + rNum + "_" + pNum + "'>";
 
-    output += "<label>"+label+"</label>";
+    output += "<label>" + label + "</label>";
 
     if (type === 'select' || type === 'multiselect')
     {
         var multi = (type === 'multiselect') ? 'multiple' : '';
-        var nm = (type === 'multiselect') ? "elements["+rNum+"][options]["+pNum+"][]" : "elements["+rNum+"][options]["+pNum+"]";
-        output += "<select name='"+nm+"' class='selectpicker form-control' rownum='"+rNum+"' param='"+pNum+"' "+multi+" onchange='updateElementOptions(this);return false;' >";
-            if (type === 'select'){
-                output += "<option value=''></option>";
-            }
+        var nm = (type === 'multiselect') ? "elements[" + rNum + "][options][" + pNum + "][]" : "elements[" + rNum + "][options][" + pNum + "]";
+        output += "<select name='" + nm + "' class='selectpicker form-control' rownum='" + rNum + "' param='" + pNum + "' " + multi + " onchange='updateElementOptions(this);return false;' >";
+        if (type === 'select'){
+            output += "<option value=''></option>";
+        }
             $.each(opt, function(k, o){
-                output += "<option value='"+o.id+"'>"+o.name+"</option>";
+                output += "<option value='" + o.id + "'>" + o.name + "</option>";
             });
         output += "</select>";
     }
     else if (type == 'text')
     {
-        output += "<input type='text' name='elements["+rNum+"][options]["+pNum+"]' class='form-control' rownum='"+rNum+"' param='"+pNum+"' onblur='updateElementOptions(this);return false;' />"
+        output += "<input type='text' name='elements[" + rNum + "][options][" + pNum + "]' class='form-control' rownum='" + rNum + "' param='" + pNum + "' onblur='updateElementOptions(this);return false;' />"
     }
 
     output += "</div>";
@@ -899,7 +884,7 @@ function updateElementOptions(el){
 
     var pNum = $(el).attr('param');
     var rowNum = $(el).attr('rownum');
-    var elID = $('#element_id_'+rowNum).val();
+    var elID = $('#element_id_' + rowNum).val();
     var value = $(el).val();
 
     $.post(www + '/blocks/bc_dashboard/ajax.php', {action: 'refresh_element_options', id: elID, param: pNum, val: value}, function(data){
@@ -908,7 +893,7 @@ function updateElementOptions(el){
         $.each(data, function(param, options){
 
             // Select element
-            var sel = $('.element_option_'+rowNum+'_'+param+' select');
+            var sel = $('.element_option_' + rowNum + '_' + param + ' select');
 
             // This will only ever update select options, so we can hard-code that
             options = convertObjectToArray(options);
@@ -921,7 +906,7 @@ function updateElementOptions(el){
 
             // Append the options
             $.each(options, function(k, o){
-                output += "<option value='"+o.id+"'>"+o.name+"</option>";
+                output += "<option value='" + o.id + "'>" + o.name + "</option>";
             });
 
             // Update the HTML
@@ -967,8 +952,8 @@ function convertObjectToArray(obj){
  * http://stackoverflow.com/questions/5560248/programmatically-lighten-or-darken-a-hex-color-or-rgb-and-blend-colors
  */
 function shadeColor(color, percent) {
-    var f=parseInt(color.slice(1),16),t=percent<0?0:255,p=percent<0?percent*-1:percent,R=f>>16,G=f>>8&0x00FF,B=f&0x0000FF;
-    return "#"+(0x1000000+(Math.round((t-R)*p)+R)*0x10000+(Math.round((t-G)*p)+G)*0x100+(Math.round((t-B)*p)+B)).toString(16).slice(1);
+    var f = parseInt(color.slice(1),16),t = percent < 0 ? 0 : 255,p = percent < 0 ? percent * -1 : percent,R = f >> 16,G = f >> 8 & 0x00FF,B = f & 0x0000FF;
+    return "#" + (0x1000000 + (Math.round((t - R) * p) + R) * 0x10000 + (Math.round((t - G) * p) + G) * 0x100 + (Math.round((t - B) * p) + B)).toString(16).slice(1);
 }
 
 
@@ -977,7 +962,7 @@ function loadStudentLink(){
     var id = $('#param_element_u').val();
     if (id > 0)
     {
-        $('#output').html('<img src="'+www+'/blocks/bc_dashboard/pix/loader.gif" />');
+        $('#output').html('<img src="' + www + '/blocks/bc_dashboard/pix/loader.gif" />');
         $.post(www + '/blocks/bc_dashboard/ajax.php', {action: 'load_student_link', id: id}, function(data){
             $('#output').html(data);
             bindDataTables();
@@ -991,7 +976,7 @@ function loadCourseLinks(){
     var id = $('#param_element_c').val();
     if (id > 0)
     {
-        $('#output').html('<img src="'+www+'/blocks/bc_dashboard/pix/loader.gif" />');
+        $('#output').html('<img src="' + www + '/blocks/bc_dashboard/pix/loader.gif" />');
         $.post(www + '/blocks/bc_dashboard/ajax.php', {action: 'load_course_links', id: id}, function(data){
             $('#output').html(data);
             bindDataTables();
@@ -1044,17 +1029,16 @@ ELBP.user_picker = {};
                 addedoptionvalues.push(v.value);
             });
 
-
             $.each(users, function(k, v){
 
                 // Check not already in chosen select list
                 if ( $.inArray(v, addedoptionvalues) === -1 ){
 
                     // Append to it
-                    $(addselect).append('<option value="'+v+'">'+usernames[v]+'</option>');
+                    $(addselect).append('<option value="' + v + '">' + usernames[v] + '</option>');
 
                     // Also add in a hidden input with the value, because
-                    $(hiddeninputs).append('<input type="hidden" name="'+fieldname+'[]" value="'+v+'" />');
+                    $(hiddeninputs).append('<input type="hidden" name="' + fieldname + '[]" value="' + v + '" />');
 
                 }
 
@@ -1078,10 +1062,10 @@ ELBP.user_picker = {};
             $.each(users, function(k,v){
 
                 // Remove any option in the select with that value
-                $(addselect).children('option[value="'+v+'"]').remove();
+                $(addselect).children('option[value="' + v + '"]').remove();
 
                 // Remove hidden input
-                $(hiddeninputs).children('input[value="'+v+'"]').remove();
+                $(hiddeninputs).children('input[value="' + v + '"]').remove();
 
             });
 
@@ -1093,180 +1077,174 @@ ELBP.user_picker = {};
 
 
 
-function bindDataTables(){
+    function bindDataTables(){
 
-    // Student list tables
-    var table = $('#student_list').DataTable();
+        // Student list tables
+        var table = $('#student_list').DataTable();
 
-    $('#chkall').on('change', function(){
-        $(':checkbox', table.rows().nodes()).prop('checked', this.checked);
-    } );
+        $('#chkall').on('change', function(){
+            $(':checkbox', table.rows().nodes()).prop('checked', this.checked);
+        } );
 
-    $('#student_action').on('change', function(){
+            $('#student_action').on('change', function(){
 
-        if ( $(this).val() != '' ){
+                if ( $(this).val() != '' ){
 
-            // Make sure some students selected
-            if ($(':checkbox:checked', table.rows().nodes()).length > 0){
+                    // Make sure some students selected
+                    if ($(':checkbox:checked', table.rows().nodes()).length > 0){
 
-                // Clear existing hidden inputs
-                $('.hidden_stud').remove();
+                        // Clear existing hidden inputs
+                        $('.hidden_stud').remove();
 
-                $('.stud_checkbox:checked', table.rows().nodes()).each( function(){
-                    $('#mass_action_form').append( '<input type="hidden" name="students[]" value="'+$(this).val()+'" />' );
-                } );
+                        $('.stud_checkbox:checked', table.rows().nodes()).each( function(){
+                            $('#mass_action_form').append( '<input type="hidden" name="students[]" value="' + $(this).val() + '" />' );
+                        } );
 
-                $('#mass_action_form').submit();
+                        $('#mass_action_form').submit();
 
-            }
-        }
+                    }
+                }
 
-    });
+            });
 
-}
-
-
-
-
-
-
-function bindings(){
-
-    // Nodes
-    $('#report-nodes').jstree({
-        core: {
-            "animation": 200,
-            "themes": {"stripes":true}
-        },
-        "types" : {
-            "default" : {
-              "icon" : "fa fa-folder-open"
-            },
-            "file" : {
-              "icon" : "fa fa-bar-chart"
-            }
-          },
-        "plugins": ["types"]
-    }).bind("select_node.jstree", function (e, data) {
-
-        var href = data.node.a_attr.href;
-        if (href.length > 1){
-            window.location = href;
-        }
-
-      }) ;
-
-
-    // Datepickers
-    $('.datepicker').datepicker({
-        dateFormat: "dd-mm-yy",
-        changeMonth: true,
-        changeYear: true
-    });
-
-    // Datetimepickers
-    $('.datetimepicker').datetimepicker({
-        dateFormat: "dd-mm-yy",
-        changeMonth: true,
-        changeYear: true
-    });
-
-
-    // Course picker autocomplete
-    $('.coursepicker').autocomplete({
-        source: www + '/blocks/bc_dashboard/ajax.php?action=search_course',
-        minLength: 2,
-        create: function(){
-            var w = $(this).width() + 24; // padding on input
-            $('.ui-autocomplete').css('max-width', w+'px');
-        },
-        search: function(){
-            var id = $(this).attr('useID');
-            $('#'+id).val('');
-        },
-        select: function( event, ui ) {
-            var id = $(this).attr('useID');
-            $('#'+id).val(ui.item.id);
-            $('#'+id).attr('course', ui.item.value);
-        }
-    }).on('blur', function(){
-        var id = $(this).attr('useID');
-        if ( $('#'+id).val() == ''){
-            $(this).val('');
-        } else if ( $(this).val() != $('#'+id).attr('course') ){
-            $(this).val('');
-            $('#'+id).val('');
-        }
-    });
-
-
-    // User picker autocomplete
-    $('.userpicker').autocomplete({
-        source: www + '/blocks/bc_dashboard/ajax.php?action=search_user',
-        minLength: 2,
-        create: function(){
-            var w = $(this).width() + 24; // padding on input
-            $('.ui-autocomplete').css('max-width', w+'px');
-        },
-        search: function(){
-            var id = $(this).attr('useID');
-            $('#'+id).val('');
-        },
-        select: function( event, ui ) {
-            var id = $(this).attr('useID');
-            $('#'+id).val(ui.item.id);
-            $('#'+id).attr('user', ui.item.value);
-        }
-    }).on('blur', function(){
-        var id = $(this).attr('useID');
-        if ( $('#'+id).val() == ''){
-            $(this).val('');
-        } else if ( $(this).val() != $('#'+id).attr('user') ){
-            $(this).val('');
-            $('#'+id).val('');
-        }
-    });
-
-
-    // Gradetracker qual picker auto complete
-    if (typeof block_gradetracker !== 'undefined'){
-        $('.block_gradetracker_qual_picker').autocomplete({
-            source: block_gradetracker['quals'],
-            minLength: 2,
-            create: function(){
-                var w = $(this).width() + 24; // padding on input
-                $('.ui-autocomplete').css('max-width', w+'px');
-            },
-            search: function(){
-                var id = $(this).attr('useID');
-                $('#'+id).val('');
-            },
-            select: function( event, ui ) {
-                var id = $(this).attr('useID');
-                $('#'+id).val(ui.item.id);
-                $('#'+id).attr('qual', ui.item.value);
-            }
-        }).on('blur', function(){
-            var id = $(this).attr('useID');
-            if ( $('#'+id).val() == ''){
-                $(this).val('');
-            } else if ( $(this).val() != $('#'+id).attr('qual') ){
-                $(this).val('');
-                $('#'+id).val('');
-            }
-        });
     }
 
-    // Do bindings for student list tables
-    bindDataTables();
-
-}
 
 
-$(document).ready( function(){
-
-    bindings();
-
-} );
 
 
+
+    function bindings(){
+
+        // Nodes
+        $('#report-nodes').jstree({
+            core: {
+                "animation": 200,
+                "themes": {"stripes":true}
+            },
+            "types" : {
+                "default" : {
+                    "icon" : "fa fa-folder-open"
+                },
+                "file" : {
+                    "icon" : "fa fa-bar-chart"
+                }
+            },
+            "plugins": ["types"]
+            }).bind("select_node.jstree", function (e, data) {
+
+                var href = data.node.a_attr.href;
+                if (href.length > 1){
+                    window.location = href;
+                }
+
+            });
+
+            // Datepickers
+            $('.datepicker').datepicker({
+                dateFormat: "dd-mm-yy",
+                changeMonth: true,
+                changeYear: true
+            });
+
+            // Datetimepickers
+            $('.datetimepicker').datetimepicker({
+                dateFormat: "dd-mm-yy",
+                changeMonth: true,
+                changeYear: true
+            });
+
+            // Course picker autocomplete
+            $('.coursepicker').autocomplete({
+                source: www + '/blocks/bc_dashboard/ajax.php?action=search_course',
+                minLength: 2,
+                create: function(){
+                    var w = $(this).width() + 24; // padding on input
+                    $('.ui-autocomplete').css('max-width', w + 'px');
+                },
+                search: function(){
+                    var id = $(this).attr('useID');
+                    $('#' + id).val('');
+                },
+                select: function( event, ui ) {
+                    var id = $(this).attr('useID');
+                    $('#' + id).val(ui.item.id);
+                    $('#' + id).attr('course', ui.item.value);
+                }
+            }).on('blur', function(){
+                var id = $(this).attr('useID');
+                if ( $('#' + id).val() == ''){
+                    $(this).val('');
+                } else if ( $(this).val() != $('#' + id).attr('course') ){
+                    $(this).val('');
+                    $('#' + id).val('');
+                }
+            });
+
+            // User picker autocomplete
+            $('.userpicker').autocomplete({
+                source: www + '/blocks/bc_dashboard/ajax.php?action=search_user',
+                minLength: 2,
+                create: function(){
+                    var w = $(this).width() + 24; // padding on input
+                    $('.ui-autocomplete').css('max-width', w + 'px');
+                },
+                search: function(){
+                    var id = $(this).attr('useID');
+                    $('#' + id).val('');
+                },
+                select: function( event, ui ) {
+                    var id = $(this).attr('useID');
+                    $('#' + id).val(ui.item.id);
+                    $('#' + id).attr('user', ui.item.value);
+                }
+            }).on('blur', function(){
+                var id = $(this).attr('useID');
+                if ( $('#' + id).val() == ''){
+                    $(this).val('');
+                } else if ( $(this).val() != $('#' + id).attr('user') ){
+                    $(this).val('');
+                    $('#' + id).val('');
+                }
+            });
+
+            // Gradetracker qual picker auto complete
+        if (typeof block_gradetracker !== 'undefined'){
+            $('.block_gradetracker_qual_picker').autocomplete({
+                source: block_gradetracker['quals'],
+                minLength: 2,
+                create: function(){
+                    var w = $(this).width() + 24; // padding on input
+                    $('.ui-autocomplete').css('max-width', w + 'px');
+                },
+                search: function(){
+                    var id = $(this).attr('useID');
+                    $('#' + id).val('');
+                },
+                select: function( event, ui ) {
+                    var id = $(this).attr('useID');
+                    $('#' + id).val(ui.item.id);
+                    $('#' + id).attr('qual', ui.item.value);
+                }
+                    }).on('blur', function(){
+                        var id = $(this).attr('useID');
+                        if ( $('#' + id).val() == ''){
+                            $(this).val('');
+                        } else if ( $(this).val() != $('#' + id).attr('qual') ){
+                            $(this).val('');
+                            $('#' + id).val('');
+                        }
+                    });
+        }
+
+            // Do bindings for student list tables
+            bindDataTables();
+
+    }
+
+
+    $(document).ready( function(){
+
+        bindings();
+
+    } );

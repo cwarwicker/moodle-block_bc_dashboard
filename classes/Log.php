@@ -17,9 +17,9 @@
 /**
  * Dashboard Reporting
  *
- * The Reporting Dashboard plugin is a block which runs alongside the ELBP and Grade Tracker blocks, to provide a better experience and extra features, 
+ * The Reporting Dashboard plugin is a block which runs alongside the ELBP and Grade Tracker blocks, to provide a better experience and extra features,
  * such as combined reporting across both plugins. It also allows you to create your own custom SQL reports which can be run on any aspect of Moodle.
- * 
+ *
  * @package     block_bc_dashboard
  * @copyright   2017-onwards Conn Warwicker
  * @author      Conn Warwicker <conn@cmrwarwicker.com>
@@ -27,11 +27,13 @@
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  *
  * Originally developed at Bedford College, now maintained by Conn Warwicker
- * 
+ *
  */
 
 
-namespace BCDB;
+namespace block_bc_dashboard;
+
+defined('MOODLE_INTERNAL') or die();
 
 /**
  * Description of Log
@@ -39,7 +41,7 @@ namespace BCDB;
  * @author cwarwicker
  */
 class Log {
-    
+
     const LOG_RUN_REPORT = 'ran report';
     const LOG_CREATE_REPORT = 'created report';
     const LOG_EDIT_REPORT = 'edited report';
@@ -49,20 +51,20 @@ class Log {
     const LOG_EDIT_SCHEDULED_TASK = 'edited scheduled task';
     const LOG_DELETED_SCHEDULED_TASK = 'deleted scheduled task';
     const LOG_SCHEDULED_TASK_RAN = 'executed scheduled report task';
-    
-    public static function add($action, $reportID, $log = ''){
-        
+
+    public static function add($action, $reportID, $log = '') {
+
         global $DB, $USER;
-        
+
         $obj = new \stdClass();
         $obj->action = $action;
         $obj->userid = $USER->id;
         $obj->reportid = $reportID;
         $obj->log = $log;
         $obj->timestamp = time();
-        
+
         return $DB->insert_record("block_bcdb_logs", $obj);
-        
+
     }
-    
+
 }
