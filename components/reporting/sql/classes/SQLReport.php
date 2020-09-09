@@ -96,7 +96,7 @@ class SQLReport extends \block_bc_dashboard\Report {
     }
 
     public function isGraphical() {
-        return (in_array($this->type, array('chart/bar', 'chart/line', 'chart/area')));
+        return (in_array($this->getOption('type'), array('chart/bar', 'chart/line', 'chart/area')));
     }
 
     public function loadFormData() {
@@ -108,8 +108,8 @@ class SQLReport extends \block_bc_dashboard\Report {
             'report_name' => optional_param('report_name', false, PARAM_TEXT),
             'report_desc' => optional_param('report_desc', false, PARAM_TEXT),
             'report_options' => df_optional_param_array_recursive('report_options', false, PARAM_TEXT),
-            'report_params' => df_optional_param_array_recursive('report_params', false, PARAM_TEXT),
-            'report_query' => optional_param('report_query', false, PARAM_TEXT),
+            'report_params' => df_optional_param_array_recursive('report_params', array(), PARAM_TEXT),
+            'report_query' => optional_param('report_query', false, PARAM_RAW),
             'report_privacy' => optional_param('report_privacy', false, PARAM_TEXT),
         );
 

@@ -353,78 +353,6 @@ function submitReport(reportType, type){
         // SQL Report
         if (reportType === 'sql'){
 
-            // Bar Chart
-            if (data['reportsubtype'] == 'chart/bar' || data['reportsubtype'] == 'chart/line' || data['reportsubtype'] == 'chart/area'){
-
-                $('#report_results').html('<div id="report_chart" style="width:100%;"></div>');
-
-                var chartData = [];
-                var labels = [];
-                var keys = [];
-                var colours = ['#20B447', '#2092b4', '#F0412A', '#F0E12A'];
-
-                $.each(data['data'], function(k, row){
-
-                    var rowData = {};
-
-                    // X-Axis - The label along the bottom
-                    rowData['X_L'] = row[data['x-axis']];
-
-                    // Y-Axies - The value of each point on the chart
-                    var num = 1;
-                    $.each(data['y-axis'], function(kY, vY){
-
-                        // If the field has uppercase letters and using Moodle DB, it won't exist in the data, because moodle converts all to lowercase
-                        if (typeof row[vY] === "undefined"){
-                            vY = vY.toLowerCase();
-                        }
-
-                        // Get the data for this column
-                        rowData['V_' + num] = row[vY];
-
-                        // X Key
-                        if (keys.indexOf('V_' + num) < 0){
-                            keys.push('V_' + num);
-                        }
-
-                        // Label
-                        if (labels.indexOf(vY) < 0){
-                            labels.push(vY);
-                        }
-
-                        num++;
-
-                    });
-
-                    // Push to chart
-                    chartData.push(rowData);
-
-                });
-
-                // Make the chart
-                var chart = {
-                    element: 'report_chart',
-                    data: chartData,
-                    xkey: 'X_L',
-                    ykeys: keys,
-                    labels: labels,
-                    hideHover: 'auto',
-                    xLabelAngle: 90,
-                    xLabelMargin: 1,
-                    parseTime: false,
-                    barColors: colours,
-                    lineColors: colours
-                };
-
-                  generateChart(data['reportsubtype'], chart);
-                  return;
-
-            }
-
-            // Standard report
-            else
-            {
-
                 var output = "";
                 output += "<table id='sql_report_results' class='table table-bordered table-hover table-striped'>";
 
@@ -446,8 +374,6 @@ function submitReport(reportType, type){
 
                 $('#report_results').html(output);
                 $('#sql_report_results').stupidtable();
-
-            }
 
         }
 

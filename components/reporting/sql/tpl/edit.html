@@ -21,14 +21,14 @@
             <textarea class="form-control" name='report_desc' style='height:120px;'><?= (isset($report)) ? \bcdb_html($report->getDescription()) : "" ?></textarea>
         </div>
 
-        <div class="form-group">
-            <label><?= $string['type'] ?></label>
-            <select class="form-control" name='report_options[type]' onchange='showHideChartOptions(this.value);return false;'>
-                <?php foreach(\block_bc_dashboard\Report\SQLReport::REPORT_TYPES as $type): ?>
-                    <option value='<?= $type ?>' <?= (isset($report) && $report->getOption('type') == $type) ? 'selected' : '' ?> ><?= $string['reporttypes:'.$type] ?></option>
-                <?php endforeach; ?>
-            </select>
-        </div>
+<!--        <div class="form-group">-->
+<!--            <label><?= $string['type'] ?></label>-->
+<!--            <select class="form-control" name='report_options[type]' onchange='showHideChartOptions(this.value);return false;'>-->
+<!--                <?php foreach(\block_bc_dashboard\Report\SQLReport::REPORT_TYPES as $type): ?>-->
+<!--                    <option value='<?= $type ?>' <?= (isset($report) && $report->getOption('type') == $type) ? 'selected' : '' ?> ><?= $string['reporttypes:'.$type] ?></option>-->
+<!--                <?php endforeach; ?>-->
+<!--            </select>-->
+<!--        </div>-->
 
         <div class="form-group">
             <label><?= $string['datasource'] ?></label>
