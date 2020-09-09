@@ -167,7 +167,7 @@ class BuilderController extends \block_bc_dashboard\Controller {
         }
 
         // Have we submitted the form?
-        if ($settings['report_id']) {
+        if ($settings['report_id'] !== false) {
             return $this->submit_edit();
         }
 

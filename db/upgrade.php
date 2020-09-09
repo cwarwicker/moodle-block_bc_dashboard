@@ -553,7 +553,7 @@ function xmldb_block_bc_dashboard_upgrade($oldversion = 0) {
         // Changed the namespaces of the plugins, so the records in block_bcdb_report_elements need to change.
         $records = $DB->get_records('block_bcdb_report_elements');
         foreach ($records as $record) {
-            $record->classname = str_replace('block_elbp\\', 'block_elbp\\', $record->classname);
+            $record->classname = str_replace('ELBP\\', 'block_elbp\\', $record->classname);
             $record->classname = str_replace('GT\\', 'block_gradetracker\\', $record->classname);
             $DB->update_record('block_bcdb_report_elements', $record);
         }
