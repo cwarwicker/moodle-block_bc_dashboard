@@ -42,6 +42,8 @@ class SQLReport extends \block_bc_dashboard\Report {
 
     const REGEX_PARAMS = "/(?!\B\"|'[^\"|']*)\?(?![^\"|']*\"|'\B)/";
     const REPORT_TYPES = array("standard", "chart/bar", "chart/line", "chart/area");
+    const DISALLOWED_WORDS = array('ALTER', 'CALL', 'COMMIT', 'CREATE', 'DELETE', 'DROP', 'GRANT', 'INSERT', 'INTO', 'LOCK', 'MERGE', 'RENAME',
+        'REVOKE', 'ROLLBACK', 'SAVEPOINT', 'SET', 'TRANSACTION', 'TRUNCATE', 'UPDATE');
 
     protected $type = 'sql';
 
@@ -160,7 +162,10 @@ class SQLReport extends \block_bc_dashboard\Report {
             $this->errors[] = sprintf( get_string('error:report:sqlparams', 'block_bc_dashboard'), $pCnt, count($this->params) );
         }
 
-        // toto - others
+        // Make sure we are only doing SELECT queries.
+        if( preg_match('/\b('.implode('|', self::DISALLOWED_WORDS).')\b/i', $this->query) ){
+            $this->errors[] = get_string('error:report:disallowedwords', 'block_bc_dashboard') . implode(', ', self::DISALLOWED_WORDS);
+        }
 
         return ($this->errors);
 

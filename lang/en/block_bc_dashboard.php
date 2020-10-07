@@ -104,6 +104,7 @@ $string['error:importreport:load'] = 'Cannot load XML file';
 $string['error:invalidaccess'] = 'Invalid Access Permissions';
 $string['error:invalidreport'] = 'Invalid Report';
 $string['error:invaliduser'] = 'Invalid Username';
+$string['error:report:disallowedwords'] = 'You are only allowed to do SELECT queries. None of the following words are allowed in your query: ';
 $string['error:report:name'] = 'Report name must be filled out';
 $string['error:report:query'] = 'SQL Query must be filled out';
 $string['error:report:run'] = 'Error running report. Please check your report settings.';
