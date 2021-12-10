@@ -258,6 +258,7 @@ class IndexController extends \block_bc_dashboard\Controller {
 
                 $output = substr($output, 0, -2);
                 $output .= "<form action='' method='post'>{$hidden}<br>";
+                $output .= "<input type='hidden' name='sesskey' value='".sesskey()."'>";
                 $output .= "<button class='btn btn-primary' type='submit' name='confirmed' value='1'>".get_string('confirm')."</button>";
                 $output .= "<input type='hidden' name='mass_action' value='remove' /> &nbsp;&nbsp; ";
                 $output .= "<a href='' class='btn btn-danger'>".get_string('cancel')."</a></form>";
