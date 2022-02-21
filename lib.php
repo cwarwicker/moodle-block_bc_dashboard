@@ -648,7 +648,7 @@ function bcdb_get_user_courses($userID = false) {
  * @param int $courseID
  * @param array $roles
  */
-function bcdb_get_users_on_course($courseID, $roles = false) {
+function bcdb_get_users_on_course($courseID, $roles = false, $groupID = null) {
 
     global $DB;
 
@@ -662,7 +662,7 @@ function bcdb_get_users_on_course($courseID, $roles = false) {
             $params[] = \bcdb_get_role($role);
         }
         $and = substr($and, 0, -4);
-        $and .= ')';
+        $and .= ') ';
     }
 
     $sql = "SELECT
@@ -674,8 +674,19 @@ function bcdb_get_users_on_course($courseID, $roles = false) {
             INNER JOIN
                 {context} cx ON cx.id = r.contextid
             INNER JOIN
-                {course} c ON c.id = cx.instanceid
-            WHERE
+                {course} c ON c.id = cx.instanceid ";
+
+    if (!is_null($groupID)) {
+
+        $sql .= "INNER JOIN
+                    {groups_members} gm ON gm.userid = u.id ";
+
+        $and .= "AND (gm.groupid = ?) ";
+        $params[] = $groupID;
+
+    }
+
+    $sql .= "WHERE
                 cx.contextlevel = ?
             AND
                 c.id = ?

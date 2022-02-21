@@ -76,6 +76,12 @@ class IndexView extends \block_bc_dashboard\View {
 
         global $CFG;
 
+        $group = optional_param('group', null, PARAM_INT);
+        if (!is_null($group) && $group > 0) {
+            $args[2] = $group;
+            $this->set('groupID', $group);
+        }
+
         $type = isset($args[0]) ? clean_param($args[0], PARAM_ALPHA) : 'all';
 
         // Page title
@@ -91,6 +97,7 @@ class IndexView extends \block_bc_dashboard\View {
             $courseID = @$args[1];
             $course = get_course($courseID);
             if ($course) {
+                $this->set('courseID', $courseID);
                 $this->addBreadcrumb( array('title' => $course->fullname, 'url' => $CFG->wwwroot . '/course/view.php?id='.$course->id) );
             }
         }
@@ -106,6 +113,11 @@ class IndexView extends \block_bc_dashboard\View {
 
         // Get the mass actions that can be applied
         $this->set("massActions", $this->getMassActions());
+
+        // If we are viewing course students, add a group filter.
+        if ($type === 'course') {
+            $this->set('groups', groups_get_all_groups($courseID));
+        }
 
     }
 
@@ -387,8 +399,6 @@ class IndexView extends \block_bc_dashboard\View {
      */
     private function getStudentList($args) {
 
-        global $bcdb;
-
         $return = array();
 
         $type = (isset($args[0])) ? $args[0] : 'all';
@@ -397,7 +407,8 @@ class IndexView extends \block_bc_dashboard\View {
 
             case 'course':
                 $courseID = @$args[1];
-                $return = $this->getAllStudentsOnCourse($courseID);
+                $groupID = (isset($args[2])) ? $args[2] : null;
+                $return = $this->getAllStudentsOnCourse($courseID, $groupID);
                 break;
 
             case 'mentees':
@@ -518,13 +529,13 @@ class IndexView extends \block_bc_dashboard\View {
      * @param type $courseID
      * @return boolean
      */
-    private function getAllStudentsOnCourse($courseID) {
+    private function getAllStudentsOnCourse($courseID, $groupID = null) {
 
         if (!$courseID) {
             return array();
         }
 
-        $students = bcdb_get_users_on_course($courseID, array('student'));
+        $students = bcdb_get_users_on_course($courseID, array('student'), $groupID);
         $this->sortUsers($students);
 
         return $students;

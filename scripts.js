@@ -1033,6 +1033,13 @@ ELBP.user_picker = {};
 
             });
 
+        $('#filter-by-group').on('change', function(){
+
+            var value = $(this).val();
+            $(this).parent('form').submit();
+
+        });
+
     }
 
 

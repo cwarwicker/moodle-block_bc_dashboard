@@ -1,5 +1,17 @@
 <?php if(!defined('BCDB')) exit; ?>
 
+<?php if(isset($groups)): ?>
+    <form action="<?php echo $CFG->wwwroot ?>/blocks/bc_dashboard/index.php?Qs=view/course/<?php echo $courseID ?>" method="post">
+        <select id="filter-by-group" name="group" class="form-control" style="width:20%">
+            <option value="">Filter by group...</option>
+            <?php foreach($groups as $group): ?>
+                <option value="<?php echo $group->id ?>" <?php echo (isset($groupID) && $groupID == $group->id) ? 'selected' : ''; ?>><?php echo $group->name ?></option>
+            <?php endforeach; ?>
+        </select>
+    </form>
+    <br>
+<?php endif; ?>
+
 <form id='mass_action_form' action='' method='post'>
 
     <table id='student_list' class='table table-bordered table-hover table-striped'>
